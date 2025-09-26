@@ -1,0 +1,14 @@
+* text=auto
+
+# Força o final de linha LF (padrão Unix) para os arquivos de texto mais comuns
+*.cs text eol=lf
+*.shader text eol=lf
+*.txt text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.xml text eol=lf
+*.unity text eol=lf
+*.anim text eol=lf
+*.meta text eol=lf
+*.inputactions text eol=lf
+```
