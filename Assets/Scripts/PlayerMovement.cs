@@ -1,31 +1,55 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D))]
-[RequireComponent(typeof(Animator))] // Garante que o Animator está presente
+[RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(SpriteRenderer))]
 public class PlayerMovement : MonoBehaviour
 {
+    [Header("Movement Speeds")]
     [SerializeField]
     [Tooltip("Velocidade de Movimento do Personagem")]
-    private float speed = 5f;
+    private float walkSpeed = 5f;
+
+    [SerializeField]
+    [Tooltip("Velocidade de Corrida do Personagem")]
+    private float sprintSpeed = 8f;
+
+    [Header("Collision")]
+    [SerializeField]
+    [Tooltip("Distância extra para a detecção de colisão, ajuda a evitar ficar preso.")]
+    private float collisionOffset = 0.02f;
+
+    [SerializeField]
+    [Tooltip("Filtro para especificar com quais camadas o jogador deve colidir.")]
+    private ContactFilter2D movementFilter;
 
     private Rigidbody2D rb;
     private Animator animator;
-    private SpriteRenderer spriteRenderer; // Para virar o personagem
+    private SpriteRenderer spriteRenderer;
     private PlayerControls controls;
     private Vector2 moveInput;
+    private bool isSprinting = false;
+
+    // Lista para armazenar os resultados das detecções de colisão
+    private List<RaycastHit2D> castCollisions = new List<RaycastHit2D>();
 
     void Awake()
     {
-        // Pega as referências dos componentes
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
 
-        // Configura o Input System
         controls = new PlayerControls();
+
+        // Assinatura dos eventos de movimento
         controls.Player.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
         controls.Player.Move.canceled += ctx => moveInput = Vector2.zero;
+
+        // Assinatura dos eventos de corrida (Sprint)
+        controls.Player.Sprint.performed += ctx => isSprinting = true;
+        controls.Player.Sprint.canceled += ctx => isSprinting = false;
     }
 
     void OnEnable()
@@ -38,45 +62,75 @@ public class PlayerMovement : MonoBehaviour
         controls.Player.Disable();
     }
 
-    // Usamos Update para lógica que não envolve física, como animação e input
     void Update()
     {
-        UpdateAnimationParameters();
+        UpdateAnimationAndSpriteFlip();
     }
 
-    // FixedUpdate é o ideal para manipular o Rigidbody
     void FixedUpdate()
     {
-        rb.linearVelocity = moveInput * speed;
+        if (moveInput == Vector2.zero)
+        {
+            return;
+        }
+
+        bool success = TryMove(moveInput);
+
+        // Se o movimento diagonal falhar, tenta mover nos eixos individuais para deslizar nas paredes
+        if (!success)
+        {
+            success = TryMove(new Vector2(moveInput.x, 0));
+            if (!success)
+            {
+                TryMove(new Vector2(0, moveInput.y));
+            }
+        }
     }
 
-    private void UpdateAnimationParameters()
+    /// <summary>
+    /// Tenta mover o personagem na direção do input, verificando colisões antes.
+    /// </summary>
+    private bool TryMove(Vector2 direction)
     {
-        if (moveInput.sqrMagnitude > 0.1f) // Se o personagem está se movendo
+        float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
+
+        int count = rb.Cast(
+            direction,
+            movementFilter,
+            castCollisions,
+            currentSpeed * Time.fixedDeltaTime + collisionOffset);
+
+        if (count == 0)
         {
-            animator.SetBool("isMoving", true);
-
-            // Envia a direção atual para o Blend Tree de caminhada
-            animator.SetFloat("Horizontal", moveInput.x);
-            animator.SetFloat("Vertical", moveInput.y);
-
-            // Guarda a última direção para o Blend Tree de idle
-            animator.SetFloat("lastHorizontal", moveInput.x);
-            animator.SetFloat("lastVertical", moveInput.y);
+            rb.MovePosition(rb.position + direction * currentSpeed * Time.fixedDeltaTime);
+            return true;
         }
-        else // Se o personagem está parado
+        
+        return false;
+    }
+
+    private void UpdateAnimationAndSpriteFlip()
+    {
+        bool isMoving = moveInput.sqrMagnitude > 0.1f;
+        animator.SetBool("isMoving", isMoving);
+
+
+        if (isMoving)
         {
-            animator.SetBool("isMoving", false);
+            Vector2 direction = moveInput.normalized;
+            animator.SetFloat("Horizontal", direction.x);
+            animator.SetFloat("Vertical", direction.y);
+            animator.SetFloat("lastHorizontal", direction.x);
+            animator.SetFloat("lastVertical", direction.y);
         }
 
-        // Vira o sprite para a esquerda ou direita
         if (moveInput.x < 0)
         {
-            spriteRenderer.flipX = true; // Vira para a esquerda
+            spriteRenderer.flipX = true;
         }
         else if (moveInput.x > 0)
         {
-            spriteRenderer.flipX = false; // Vira para a direita (padrão)
+            spriteRenderer.flipX = false;
         }
     }
 }
