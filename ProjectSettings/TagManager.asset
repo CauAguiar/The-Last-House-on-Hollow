@@ -47,6 +47,9 @@ TagManager:
   - name: Wall
     uniqueID: 2551541747
     locked: 0
+  - name: Portas e Janelas
+    uniqueID: 3983034099
+    locked: 0
   - name: Player
     uniqueID: 2857429003
     locked: 0
