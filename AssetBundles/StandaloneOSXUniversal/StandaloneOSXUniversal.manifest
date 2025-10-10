@@ -1,0 +1,9 @@
+ManifestFileVersion: 0
+UnityVersion: 6000.1.6f1
+CRC: 2802774021
+HashAppended: 0
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: banheiro_bundle
+      Dependencies: {}

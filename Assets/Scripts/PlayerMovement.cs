@@ -32,6 +32,8 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 moveInput;
     private bool isSprinting = false;
 
+    public static PlayerMovement Instance;
+
     // Lista para armazenar os resultados das detecções de colisão
     private List<RaycastHit2D> castCollisions = new List<RaycastHit2D>();
 
@@ -50,6 +52,16 @@ public class PlayerMovement : MonoBehaviour
         // Assinatura dos eventos de corrida (Sprint)
         controls.Player.Sprint.performed += ctx => isSprinting = true;
         controls.Player.Sprint.canceled += ctx => isSprinting = false;
+
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject); // destrói duplicata
+        }
     }
 
     void OnEnable()
