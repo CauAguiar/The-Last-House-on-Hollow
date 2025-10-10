@@ -2,10 +2,13 @@ using UnityEngine;
 
 /// <summary>
 /// Controla a câmera para seguir o jogador, com suavização e limites de área.
+/// Encontra dinamicamente o jogador persistente em cada cena.
 /// </summary>
 public class CameraFollow : MonoBehaviour
 {
-    public Transform player;
+    // A referência agora é privada, pois será encontrada automaticamente
+    private Transform player;
+
     public float timeLerp = 0.1f;
 
     [Header("Limites da Câmera")]
@@ -14,26 +17,35 @@ public class CameraFollow : MonoBehaviour
     public float minY;
     public float maxY;
 
-    // FixedUpdate é bom para seguir objetos movidos pela física.
+    // Usamos Start() para procurar o jogador assim que a cena começa.
+    // Ele é executado depois de todos os Awakes(), então temos certeza que o PlayerController.Instance já existe.
+    void Start()
+    {
+        // Encontra a instância única e persistente do jogador
+        if (PlayerController.Instance != null)
+        {
+            player = PlayerController.Instance.transform;
+        }
+        else
+        {
+            // Este erro aparecerá no console se você esquecer de colocar o prefab do Player na cena inicial.
+            Debug.LogError("CameraFollow não conseguiu encontrar a instância do PlayerController! O Player existe na cena inicial?");
+        }
+    }
+
     private void FixedUpdate()
     {
+        // Se, por algum motivo, o jogador não foi encontrado, não executa o código de seguir.
         if (player == null)
         {
-            Debug.LogWarning("Referência do Player não definida na Câmera.");
             return;
         }
 
-        // Pega a posição do jogador e mantém o Z da câmera para -10
+        // O resto do seu código de seguir permanece exatamente o mesmo.
         Vector3 targetPosition = new Vector3(player.position.x, player.position.y, transform.position.z);
-
-        // Suaviza o movimento da câmera em direção ao alvo
         Vector3 smoothedPosition = Vector3.Lerp(transform.position, targetPosition, timeLerp);
-
-        // Aplica os limites X e Y na posição final
         smoothedPosition.x = Mathf.Clamp(smoothedPosition.x, minX, maxX);
         smoothedPosition.y = Mathf.Clamp(smoothedPosition.y, minY, maxY);
-
-        // Atualiza a posição da câmera
         transform.position = smoothedPosition;
     }
 }
