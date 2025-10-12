@@ -52,7 +52,7 @@ public class DoorController : MonoBehaviour
             // Registrar callback para mover o jogador quando a nova cena carregar
             SceneManager.sceneLoaded += OnSceneLoaded;
             Debug.Log($"[DoorController] Carregando cena: {sceneToLoad}");
-            SceneManager.LoadScene(sceneToLoad);
+            SceneLoader.Instance.LoadScene(sceneToLoad);
         }
     }
 
