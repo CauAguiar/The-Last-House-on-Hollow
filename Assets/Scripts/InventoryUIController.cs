@@ -3,10 +3,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 
-/// <summary>
-/// Controla a interface visual do inventário (UI).
-/// É um Singleton persistente responsável por abrir/fechar o painel e atualizar os slots.
-/// </summary>
 public class InventoryUIController : MonoBehaviour
 {
     public static InventoryUIController Instance { get; private set; }
@@ -23,15 +19,14 @@ public class InventoryUIController : MonoBehaviour
 
     private void Awake()
     {
-        // Lógica do Singleton para garantir que só exista uma UI de inventário no jogo.
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // Torna este objeto (e seu Canvas filho) persistente
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
-            Destroy(gameObject); // Destrói qualquer duplicata que apareça ao recarregar a cena inicial
+            Destroy(gameObject);
             return;
         }
 
@@ -43,7 +38,6 @@ public class InventoryUIController : MonoBehaviour
         playerControls.Player.Enable();
         playerControls.Player.OpenInventory.performed += ToggleInventory;
 
-        // A checagem se a instância existe agora é mais segura
         if (InventoryManager.Instance != null)
         {
             InventoryManager.Instance.OnInventoryChanged += UpdateInventoryUI;
@@ -55,7 +49,6 @@ public class InventoryUIController : MonoBehaviour
         playerControls.Player.Disable();
         playerControls.Player.OpenInventory.performed -= ToggleInventory;
 
-        // Checa se a instância ainda existe antes de tentar remover o listener
         if (InventoryManager.Instance != null)
         {
             InventoryManager.Instance.OnInventoryChanged -= UpdateInventoryUI;
@@ -76,7 +69,6 @@ public class InventoryUIController : MonoBehaviour
 
     private void UpdateInventoryUI()
     {
-        // Garante que o InventoryManager já foi inicializado
         if (InventoryManager.Instance == null) return;
 
         List<InventoryItem> items = InventoryManager.Instance.GetItems();
@@ -96,4 +88,3 @@ public class InventoryUIController : MonoBehaviour
         }
     }
 }
-
