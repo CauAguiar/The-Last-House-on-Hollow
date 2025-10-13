@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f8abaad337c630044887c98e68fc5b12, type: 3}
-  m_Name: ChaveBanheiro
+  m_Name: unlitCandle
   m_EditorClassIdentifier: 
-  itemName: Chave do Banheiro
-  description: Chave que abre o banheiro
-  icon: {fileID: 21300000, guid: 1690aa5bf4be9c244a0b38360b932ed5, type: 3}
+  itemName: Novo Item
+  description: 
+  icon: {fileID: 0}

@@ -53,6 +53,9 @@ TagManager:
   - name: Portas e Janelas
     uniqueID: 3983034099
     locked: 0
+  - name: Objetos Interagiveis
+    uniqueID: 2911021481
+    locked: 0
   - name: Player
     uniqueID: 2857429003
     locked: 0

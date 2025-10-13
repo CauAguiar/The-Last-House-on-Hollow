@@ -7,20 +7,25 @@ public class SpawnPoint : MonoBehaviour
 
     private void Awake()
     {
-        // Pega o ID que a porta salvou
-        string targetID = PlayerPrefs.GetString("NextSpawnPoint");
-
-        // Se o ID deste spawn point for o que estamos procurando
-        if (spawnID == targetID)
+        // Se este spawn point tiver um ID...
+        if (!string.IsNullOrEmpty(spawnID))
         {
-            // Encontra o jogador e o move para esta posição
-            GameObject player = GameObject.FindWithTag("Player");
-            if (player != null)
+            // ...ele verifica qual foi o último ID de spawn salvo.
+            string targetID = PlayerPrefs.GetString("NextSpawnPointID");
+
+            // Se o ID deste spawn point for o que estamos procurando...
+            if (spawnID == targetID)
             {
-                player.transform.position = transform.position;
-                // Limpa a informação para a próxima transição
-                PlayerPrefs.DeleteKey("NextSpawnPoint");
+                // ...ele encontra o jogador e o move para esta posição.
+                if (PlayerController.Instance != null)
+                {
+                    PlayerController.Instance.transform.position = transform.position;
+
+                    // Limpa a informação para que não seja usada novamente por engano.
+                    PlayerPrefs.DeleteKey("NextSpawnPointID");
+                }
             }
         }
     }
 }
+
