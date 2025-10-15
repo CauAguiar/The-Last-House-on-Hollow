@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8abaad337c630044887c98e68fc5b12, type: 3}
   m_Name: unlitCandle
   m_EditorClassIdentifier: 
-  itemName: Novo Item
-  description: 
-  icon: {fileID: 0}
+  itemName: Vela Apagada
+  description: 'Uma vela apagada e fria
+
+'
+  icon: {fileID: 21300000, guid: e3cc27e1fa651ea40a006ecf8de51f13, type: 3}

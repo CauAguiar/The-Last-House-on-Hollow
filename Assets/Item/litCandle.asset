@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8abaad337c630044887c98e68fc5b12, type: 3}
   m_Name: litCandle
   m_EditorClassIdentifier: 
-  itemName: Novo Item
-  description: 
-  icon: {fileID: 0}
+  itemName: Vela Acesa
+  description: 'Uma vela bem acesa
+
+'
+  icon: {fileID: 21300000, guid: 3e97ed5d6922d4d48b7ab9c484ad44c9, type: 3}

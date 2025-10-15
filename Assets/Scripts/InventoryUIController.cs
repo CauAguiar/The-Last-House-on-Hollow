@@ -34,7 +34,11 @@ public class InventoryUIController : MonoBehaviour
     {
         playerControls.Player.Enable();
         playerControls.Player.OpenInventory.performed += ToggleInventory;
-        // A inscrição do evento foi movida para o Start()
+
+        if (InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.OnInventoryChanged += UpdateInventoryUI;
+        }
     }
 
     private void OnDisable()
@@ -44,36 +48,38 @@ public class InventoryUIController : MonoBehaviour
             playerControls.Player.Disable();
             playerControls.Player.OpenInventory.performed -= ToggleInventory;
         }
-        // A desinscrição foi movida para o OnDestroy()
     }
 
     private void Start()
     {
         inventoryPanel.SetActive(false);
 
-        // --- A CORREÇÃO ESTÁ AQUI ---
-        // Movemos a inscrição do evento para o Start(), que é garantido de rodar
-        // depois que todos os Awakes() (incluindo o do InventoryManager) já terminaram.
         if (InventoryManager.Instance != null)
         {
             InventoryManager.Instance.OnInventoryChanged += UpdateInventoryUI;
         }
         else
         {
-            Debug.LogError("InventoryManager.Instance não foi encontrado no Start! Verifique se o objeto existe na cena inicial.");
+            Debug.LogError("InventoryManager.Instance não foi encontrado no Start!");
         }
         
-        // Atualiza a UI uma vez no início.
         UpdateInventoryUI();
     }
 
-    // Para objetos persistentes, é mais seguro se desinscrever no OnDestroy.
     private void OnDestroy()
     {
         if (InventoryManager.Instance != null)
         {
             InventoryManager.Instance.OnInventoryChanged -= UpdateInventoryUI;
         }
+    }
+
+    /// <summary>
+    /// Retorna se o painel do inventário está atualmente ativo na tela.
+    /// </summary>
+    public bool IsInventoryOpen()
+    {
+        return isInventoryOpen;
     }
 
     private void ToggleInventory(InputAction.CallbackContext context)
@@ -95,12 +101,9 @@ public class InventoryUIController : MonoBehaviour
 
     private void UpdateInventoryUI()
     {
-        // Debug.Log("--- [DEBUG] UpdateInventoryUI foi chamado ---"); // Você pode remover os logs se quiser
-
         if (InventoryManager.Instance == null) return;
 
         List<InventoryItem> items = InventoryManager.Instance.GetItems();
-        // Debug.Log($"[DEBUG] Itens na lista do inventário: {items.Count}");
 
         for (int i = 0; i < inventorySlots.Count; i++)
         {
