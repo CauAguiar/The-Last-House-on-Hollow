@@ -136,15 +136,44 @@ public class InteractionManager : MonoBehaviour
         typingCoroutine = StartCoroutine(TypeText(text));
     }
 
+    /// <summary>
+    /// Coroutine aprimorada que digita o texto caractere por caractere,
+    /// mas pula as tags de Rich Text para que elas não apareçam na tela.
+    /// </summary>
     private IEnumerator TypeText(string text)
     {
         isTyping = true;
         dialogueText.text = "";
-        foreach (char letter in text.ToCharArray())
+        string originalText = text;
+        string displayedText = "";
+        int i = 0;
+
+        while (i < originalText.Length)
         {
-            dialogueText.text += letter;
-            yield return new WaitForSeconds(typingSpeed);
+            // Verifica se o caractere atual é o início de uma tag
+            if (originalText[i] == '<')
+            {
+                // Encontra o final da tag
+                int endIndex = originalText.IndexOf('>', i);
+                if (endIndex != -1)
+                {
+                    // Adiciona a tag inteira de uma vez
+                    displayedText += originalText.Substring(i, endIndex - i + 1);
+                    i = endIndex; // Pula o ponteiro para o final da tag
+                }
+            }
+            else
+            {
+                // Adiciona o caractere normal e espera
+                displayedText += originalText[i];
+                dialogueText.text = displayedText;
+                yield return new WaitForSeconds(typingSpeed);
+            }
+            i++;
         }
+
+        // Garante que o texto final seja o texto completo com todas as tags
+        dialogueText.text = originalText;
         isTyping = false;
     }
 
