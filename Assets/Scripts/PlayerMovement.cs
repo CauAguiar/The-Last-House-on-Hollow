@@ -7,6 +7,13 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(SpriteRenderer))]
 public class PlayerMovement : MonoBehaviour
 {
+    [Header("Som de Passos")]
+    public AudioClip passosClip;
+
+    [Tooltip("Tempo entre cada som de passo enquanto o jogador se move")]
+    public float footstepInterval = 0.4f;
+    private float footstepTimer;
+
     [Header("Movement Speeds")]
     [SerializeField]
     [Tooltip("Velocidade de Movimento do Personagem")]
@@ -42,7 +49,6 @@ public class PlayerMovement : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
-
         controls = new PlayerControls();
 
         // Assinatura dos eventos de movimento
@@ -60,7 +66,7 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            Destroy(gameObject); // destrói duplicata
+            Destroy(gameObject);
         }
     }
 
@@ -77,6 +83,7 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         UpdateAnimationAndSpriteFlip();
+        HandleFootsteps();
     }
 
     void FixedUpdate()
@@ -105,19 +112,19 @@ public class PlayerMovement : MonoBehaviour
     private bool TryMove(Vector2 direction)
     {
         float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
-
         int count = rb.Cast(
             direction,
             movementFilter,
             castCollisions,
-            currentSpeed * Time.fixedDeltaTime + collisionOffset);
+            currentSpeed * Time.fixedDeltaTime + collisionOffset
+        );
 
         if (count == 0)
         {
             rb.MovePosition(rb.position + direction * currentSpeed * Time.fixedDeltaTime);
             return true;
         }
-        
+
         return false;
     }
 
@@ -125,7 +132,6 @@ public class PlayerMovement : MonoBehaviour
     {
         bool isMoving = moveInput.sqrMagnitude > 0.1f;
         animator.SetBool("isMoving", isMoving);
-
 
         if (isMoving)
         {
@@ -143,6 +149,40 @@ public class PlayerMovement : MonoBehaviour
         else if (moveInput.x > 0)
         {
             spriteRenderer.flipX = false;
+        }
+        if (!isMoving)
+        {
+            AudioManager.Instance.sfxSource.Stop();
+        }
+    }
+
+    private void HandleFootsteps()
+    {
+        bool isMoving = moveInput.sqrMagnitude > 0.1f;
+
+        if (isMoving)
+        {
+            footstepTimer -= Time.deltaTime;
+
+            if (footstepTimer <= 0f && !AudioManager.Instance.sfxSource.isPlaying)
+            {
+                footstepTimer = footstepInterval;
+
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.PlaySFX("PassoMadeira");
+                }
+            }
+        }
+        else
+        {
+
+            footstepTimer = 0f;
+
+            if (AudioManager.Instance != null && AudioManager.Instance.sfxSource.isPlaying)
+            {
+                AudioManager.Instance.sfxSource.Stop();
+            }
         }
     }
 }
