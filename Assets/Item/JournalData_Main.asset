@@ -1,0 +1,99 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62e39a94c09a51243bf5853a6c6b7cfa, type: 3}
+  m_Name: JournalData_Main
+  m_EditorClassIdentifier: 
+  pages:
+  - pageId: 1
+    pageContent: "12 de Mar\xE7o de 1885 \n\r\nFinalmente, nosso novo lar. Adentramos
+      a casa na Rua Hollow com os primeiros raios de sol da \r\nmanh\xE3. \xC9 uma
+      estrutura imponente, uma bela casa de fato, embora minha querida Sara j\xE1
+      se \r\npreocupe com quest\xF5es mundanas como \xE1caros e o p\xF3 que se acumula
+      em cantos esquecidos \r\npelo tempo. \n\r\nTais preocupa\xE7\xF5es, no entanto,
+      passam longe da mente de minhas filhas. Para Dora e Ester, este \r\nlugar j\xE1
+      se transformou em um pal\xE1cio particular, um reino a ser explorado. Seus
+      olhos brilham \r\ncom uma alegria que faz qualquer temor sobre o futuro desaparecer.
+      Este ser\xE1 um bom lugar \r\npara n\xF3s. Sinto isso."
+  - pageId: 2
+    pageContent: "21 de Abril de 1885 \n\r\nEste \xFAltimo m\xEAs em Hollow tem sido
+      de uma paz imensa. Dora e Ester parecem ter uma energia \r\nsem fim e j\xE1
+      conhecem todas as crian\xE7as da vizinhan\xE7a. \xC9 bom v\xEA-las t\xE3o felizes.
+      \n\r\nSara tamb\xE9m se adaptou maravilhosamente bem, apesar das cr\xEDticas
+      iniciais. Ela deu vida a \resta casa de uma forma que s\xF3 ela consegue. Folheando
+      o jornal hoje, li algumas not\xEDcias \r\npreocupantes que chegam das cidades
+      maiores. Falam de uma tosse persistente, acompanhada \r\nde uma febre que chamam
+      de \"consun\xE7\xE3o\". Felizmente, \xE9 um problema dos grandes centros \r\nurbanos,
+      algo muito distante da nossa tranquilidade aqui. Em Hollow, estamos seguros. "
+  - pageId: 3
+    pageContent: "15 de Junho de 1885 \n\r\nUma chuva fina caiu sobre o povoado hoje,
+      um al\xEDvio bem-vindo para o calor do ver\xE3o. Dora e \r            Ester,
+      no entanto, n\xE3o puderam aproveitar. Est\xE3o de cama h\xE1 alguns dias,
+      com uma febre que \r\nvai e volta, acompanhada de uma tosse insistente. \n\r\nO
+      m\xE9dico atribuiu ao tempo \xFAmido, um resfriado comum da esta\xE7\xE3o.
+      Seguimos suas \r\nrecomenda\xE7\xF5es \xE0 risca, e j\xE1 me parece ver um
+      pouco de cor retornando \xE0s suas bochechas. \xC9 \r\num bom sinal. Prometi
+      a elas que, assim que estiverem fortes novamente, faremos aquele \r\nacampamento
+      no bosque que tanto queriam.. "
+  - pageId: 4
+    pageContent: "26 de Junho de 1885  \r\nOh meninas, minhas meninas. Escrevo com
+      o cora\xE7\xE3o despeda\xE7ado e os olhos secos, pois j\xE1 n\xE3o \r\nh\xE1
+      mais l\xE1grimas para chorar. \r\nA tosse que antes era insistente tornou-se
+      violenta. A fr\xE1gil esperan\xE7a de melhora foi \r\nesmagada. Nesta manh\xE3,
+      Dora e Ester, minhas filhas, deixaram este mundo para sempre. \n\r\nMinha Sara
+      . ela n\xE3o come, n\xE3o fala. Apenas fita o vazio, perdida em um luto que
+      n\xE3o encontra \r\npalavras. N\xE3o sei como seguiremos em frente, mas sei
+      que precisamos. Enquanto estivermos \r\njuntos, aguentaremos firme. "
+  - pageId: 5
+    pageContent: "28 de Julho de 1885  Fiz tudo o que pude. E ainda assim, n\xE3o
+      foi o suficiente. Sara, o amor da minha vida, partiu  hoje. A doen\xE7a n\xE3o
+      tocou seu corpo, mas a tristeza devorou sua alma. Ap\xF3s a partida de nossas 
+      f  ilhas, ela definhou. Deixou de comer, de falar . seu olhar se perdeu no
+      vazio at\xE9 que nada mais  restou.  Eu assisti, dia ap\xF3s dia, a vida se
+      esvair de seu corpo, assim como as l\xE1grimas se esva\xEDram dos  meus. E
+      hoje, quando o fim chegou, a imensa tristeza que me consumia deu lugar a um
+      \xF3dio  g\xE9lido.  Por qu\xEA? Onde estava Deus em sua infinita miseric\xF3rdia?
+      Se Ele testemunhou toda a minha dor  e nada fez, ent\xE3o n\xE3o o terei como
+      meu salvador, mas como um c\xFAmplice silencioso do crime  que ele mesmo causou. "
+  - pageId: 6
+    pageContent: "11 de Setembro de 1885 \r\nEu n\xE3o aguento mais. A vida sem meus
+      amores \xE9 um vazio disforme, como a terra antes da \r\ncria\xE7\xE3o. N\xE3o
+      tenho o desejo de morrer, pois isso seria apenas aceitar a derrota. N\xE3o
+      . se eu n\xE3o \r\nposso ir at\xE9 elas, ent\xE3o elas vir\xE3o at\xE9 mim.
+      \r\nO mito de Orfeu conta que ele desceu aos infernos por sua amada, e falhou
+      por uma fraqueza \r\nmoment\xE2nea. Eu n\xE3o sou Orfeu. E eu n\xE3o vou falhar.
+      \r\nEncontrei um tomo antigo na biblioteca do meu escrit\xF3rio, um livro chamado
+      \"Dogma e Ritual \r\nda Alta Magia\", de um tal \xC9liphas L\xE9vi. Se existe
+      um caminho para rasgar o v\xE9u entre os \r\nmundos e ter minha fam\xEDlia
+      em meus bra\xE7os novamente, a resposta est\xE1 nestas p\xE1ginas. E eu \r\nvou
+      encontr\xE1-la."
+  - pageId: 6
+    pageContent: "11 de Setembro de 1885 \r\nEu n\xE3o aguento mais. A vida sem meus
+      amores \xE9 um vazio disforme, como a terra antes da \r\ncria\xE7\xE3o. N\xE3o
+      tenho o desejo de morrer, pois isso seria apenas aceitar a derrota. N\xE3o
+      . se eu n\xE3o \r\nposso ir at\xE9 elas, ent\xE3o elas vir\xE3o at\xE9 mim.
+      \r\nO mito de Orfeu conta que ele desceu aos infernos por sua amada, e falhou
+      por uma fraqueza \r\nmoment\xE2nea. Eu n\xE3o sou Orfeu. E eu n\xE3o vou falhar.
+      \r\nEncontrei um tomo antigo na biblioteca do meu escrit\xF3rio, um livro chamado
+      \"Dogma e Ritual \r\nda Alta Magia\", de um tal \xC9liphas L\xE9vi. Se existe
+      um caminho para rasgar o v\xE9u entre os \r\nmundos e ter minha fam\xEDlia
+      em meus bra\xE7os novamente, a resposta est\xE1 nestas p\xE1ginas. E eu \r\nvou
+      encontr\xE1-la."
+  - pageId: 7
+    pageContent: "31 de Outubro de 1885  S\xE3o oito horas da noite. Uma tempestade
+      desabou sobre Hollow, uma chuva torrencial que  surgiu do nada, castigando
+      o telhado. \xC9 Halloween. O v\xE9u entre os mundos nunca esteve t\xE3o  f 
+      ino. Hoje \xE9 a noite em que minhas amadas, Sara, Ester e Dora, retornar\xE3o
+      para este mundo,  para os meus bra\xE7os.  Tudo est\xE1 pronto no por\xE3o.
+      O pentagrama est\xE1 tra\xE7ado, os caix\xF5es abertos . a minha vida  eterna
+      nos c\xE9us est\xE1 pronta para ser oferecida. \xC9 um pre\xE7o pequeno a pagar
+      para que minha  fam\xEDlia possa viver novamente.  Esta ser\xE1 a \xFAltima
+      p\xE1gina. O pr\xF3ximo di\xE1rio ser\xE1 escrito ao lado delas."
