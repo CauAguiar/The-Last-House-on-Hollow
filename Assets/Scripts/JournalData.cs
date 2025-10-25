@@ -7,13 +7,13 @@ using System.Collections.Generic;
 [CreateAssetMenu(fileName = "JournalData", menuName = "Diary/Journal Data")]
 public class JournalData : ScriptableObject
 {
-    [System.Serializable]
-    public class JournalPage
-    {
-        public int pageId;           // ID da página
-        [TextArea(3, 8)]
-        public string pageContent;   // Texto da página
-    }
+    [System.Serializable]
+    public class JournalPage
+    {
+        public int pageId; // ID da página
+        [TextArea(3, 8)]
+        public string pageContent; // Texto da página
+    }
 
-    public List<JournalPage> pages = new List<JournalPage>();
+    public List<JournalPage> pages = new List<JournalPage>();
 }

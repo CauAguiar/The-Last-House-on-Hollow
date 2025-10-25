@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: d457c08a58ea0614e8741e22f92da003
+guid: dfee6a4c4193bf94db6bb471a3aa140d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7847913710149210460
-    second: front_walk4_0
+      213: 3196702652773800733
+    second: sofa-0003_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: front_walk4_0
+      name: sofa-0003_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
-        width: 20
-        height: 37
+        y: 4
+        width: 64
+        height: 39
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c519c5970f369ec60800000000000000
-      internalID: 7847913710149210460
+      spriteID: d1b91273028fc5c20800000000000000
+      internalID: 3196702652773800733
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      front_walk4_0: 7847913710149210460
+      sofa-0003_0: 3196702652773800733
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
