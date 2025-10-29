@@ -39,12 +39,29 @@ public class PlayerInteractionController : MonoBehaviour
 
     private void CheckForNearbyInteractables()
     {
+        // Remove any destroyed or non-MonoBehaviour references from the cached list
+        for (int i = nearbyInteractables.Count - 1; i >= 0; i--)
+        {
+            var ia = nearbyInteractables[i];
+            var mb = ia as MonoBehaviour;
+            // If the implementing MonoBehaviour was destroyed, the cast will be null (Unity's == null handling)
+            if (mb == null)
+            {
+                nearbyInteractables.RemoveAt(i);
+            }
+        }
+
         Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, interactionRadius);
         var currentInteractables = colliders.Select(c => c.GetComponent<IInteractable>()).Where(i => i != null).ToList();
 
+        // Only call exit on interactables that are still valid
         foreach (var interactable in nearbyInteractables.Except(currentInteractables).ToList())
         {
-            interactable.OnProximityExit();
+            var mb = interactable as MonoBehaviour;
+            if (mb != null)
+            {
+                interactable.OnProximityExit();
+            }
         }
 
         foreach (var interactable in currentInteractables.Except(nearbyInteractables).ToList())
