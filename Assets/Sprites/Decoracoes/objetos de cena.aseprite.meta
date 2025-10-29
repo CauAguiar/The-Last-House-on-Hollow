@@ -129,16 +129,16 @@ ScriptedImporter:
   animatedSpriteImportData:
   - name: objetos de cena
     originalName: 
-    pivot: {x: 0.5059524, y: -0.024793388}
+    pivot: {x: 0.50295854, y: -0.01910828}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
       serializedVersion: 2
       x: 4
-      y: 166
-      width: 168
-      height: 121
+      y: 4
+      width: 169
+      height: 157
     spriteID: fe5b3c1c32a4ab745b0e003f132d2516
     spriteBone: []
     spriteOutline: []
@@ -147,7 +147,7 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    uvTransform: {x: 4, y: 166}
+    uvTransform: {x: 4, y: 4}
   - name: Frame_1
     originalName: 
     pivot: {x: 0.5059524, y: -0.024793388}
@@ -157,7 +157,7 @@ ScriptedImporter:
     rect:
       serializedVersion: 2
       x: 4
-      y: 295
+      y: 169
       width: 168
       height: 121
     spriteID: a5005bba1f0afb94cab1d58c71c93856
@@ -168,19 +168,19 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    uvTransform: {x: 4, y: 295}
+    uvTransform: {x: 4, y: 169}
   - name: Frame_2
     originalName: 
-    pivot: {x: 0.5059524, y: -0.01948052}
+    pivot: {x: 0.5059524, y: -0.024793388}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
       serializedVersion: 2
       x: 4
-      y: 4
+      y: 298
       width: 168
-      height: 154
+      height: 121
     spriteID: 54de9d68dc15b4645bb6480d54f1fb77
     spriteBone: []
     spriteOutline: []
@@ -189,7 +189,7 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    uvTransform: {x: 4, y: 4}
+    uvTransform: {x: 4, y: 298}
   - name: Frame_3
     originalName: 
     pivot: {x: 0.5059524, y: -0.024793388}
@@ -198,7 +198,7 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 180
+      x: 181
       y: 4
       width: 168
       height: 121
@@ -210,7 +210,7 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    uvTransform: {x: 180, y: 4}
+    uvTransform: {x: 181, y: 4}
   spriteSheetImportData: []
   tileSetImportData: []
   asepriteLayers:
@@ -232,8 +232,8 @@ ScriptedImporter:
       cellRect:
         x: 3
         y: 3
-        width: 168
-        height: 121
+        width: 169
+        height: 157
       spriteId: fe5b3c1c32a4ab745b0e003f132d2516
     - name: Frame_1
       frameIndex: 1
@@ -251,7 +251,7 @@ ScriptedImporter:
         x: 3
         y: 3
         width: 168
-        height: 154
+        height: 121
       spriteId: 54de9d68dc15b4645bb6480d54f1fb77
     - name: Frame_3
       frameIndex: 3
