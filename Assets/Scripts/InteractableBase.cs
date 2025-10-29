@@ -30,7 +30,7 @@ public abstract class InteractableBase : MonoBehaviour, IInteractable
         originalScale = transform.localScale;
     }
 
-    public void Interact()
+    public virtual void Interact()
     {
         InteractionManager.Instance.ShowContextMenu(this);
     }
