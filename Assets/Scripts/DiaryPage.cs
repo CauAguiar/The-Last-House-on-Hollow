@@ -1,61 +1,38 @@
 using UnityEngine;
 
-/// <summary>
-/// Representa uma página do diário que pode ser coletada pelo jogador.
-/// </summary>
-public class DiaryPage : MonoBehaviour, IInteractable
+public class DiaryPage : InteractableBase
 {
-    [Header("Configurações da Página")]
-    [TextArea]
-    public string pageText; // Texto da página
-    public int pageID = 0;  // ID único da página (para identificar no JournalManager)
+    [Header("Configuração da Página")]
+    [Tooltip("O ID numérico desta página, que deve corresponder ao ID no JournalData.")]
+    [SerializeField] private int pageId;
 
-    [Header("Feedbacks Visuais e Sonoros")]
-    public AudioClip pickupSfx;
-    public bool destroyOnCollect = false;
+    [Tooltip("ID único para o GameStateManager salvar que esta página foi coletada. Gere um novo nos '...' do componente.")]
+    [SerializeField] private string uniqueId;
 
-    // ----------------------------------------------------------
-    // MÉTODOS EXIGIDOS PELA INTERFACE IInteractable
-    // ----------------------------------------------------------
-
-    /// <summary>
-
-    /// </summary>
-    [ContextMenu("TESTE: Coletar Página")]
-    public void Interact()
+    private void Start()
     {
-        //Tenta encontrar o JournalManager na cena
-        var jm = JournalManager.Instance;
-
-
-        if (jm != null)
+        if (GameStateManager.Instance.IsCollected(uniqueId))
         {
-            // 2. Chama CollectPage APENAS com o ID
-            jm.CollectPage(pageID);
-            Debug.Log($"[DiaryPage] Página {pageID} coletada!");
-        }
-        // Remove ou desativa o objeto
-        if (destroyOnCollect)
             Destroy(gameObject);
-        else
-            gameObject.SetActive(false);
+        }
     }
 
-    /// <summary>
-    /// Chamado quando o jogador entra no raio de proximidade.
-    /// </summary>
-    public void OnProximityEnter()
+    [ContextMenu("Generate Unique ID")]
+    private void GenerateGuid()
     {
-        Debug.Log($"[DiaryPage] Jogador está próximo da página {pageID}.");
-
+        uniqueId = System.Guid.NewGuid().ToString();
     }
 
-    /// <summary>
-    /// Chamado quando o jogador sai do raio de proximidade.
-    /// </summary>
-    public void OnProximityExit()
+    public override void OnInspect()
     {
-        Debug.Log($"[DiaryPage] Jogador saiu da proximidade da página {pageID}.");
+        base.OnInspect();
+        JournalManager.Instance.CollectPage(pageId);
+        GameStateManager.Instance.MarkAsCollected(uniqueId);
+        Destroy(gameObject);
+    }
 
+    public override void OnUseItem(InventoryItem item)
+    {
+        base.OnUseItem(item);
     }
 }

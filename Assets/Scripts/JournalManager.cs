@@ -86,4 +86,26 @@ public class JournalManager : MonoBehaviour
         }
     }
 
+    [ContextMenu("TESTE: Coletar Todas as Páginas")]
+    public void CollectAllPagesForTesting()
+    {
+        if (journalData == null)
+        {
+            Debug.LogError("[JournalManager] JournalData não está atribuído. Não é possível coletar as páginas.");
+            return;
+        }
+
+        collectedPages.Clear(); // Limpa a lista antes de adicionar todas
+        foreach (var page in journalData.pages)
+        {
+            if (!collectedPages.Contains(page.pageId))
+            {
+                collectedPages.Add(page.pageId);
+            }
+        }
+
+        collectedPages.Sort(); // Ordena as páginas
+        Debug.LogWarning($"[JournalManager] MODO DE TESTE: Todas as {collectedPages.Count} páginas foram adicionadas ao diário.");
+    }
+
 }
