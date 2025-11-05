@@ -4705,7 +4705,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: defa11737621942e08cd83fa7a63456b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inspectionText: 
+  inspectionText: Trancadinha da silva.
   proximityHighlightColor: {r: 1, g: 1, b: 1, a: 0.75}
   hoverScaleFactor: 1.1
   sceneToLoad: EscritorioScene
@@ -4748,7 +4748,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: -0.06268263}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -4758,7 +4758,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 2, y: 3}
+  m_Size: {x: 2, y: 3.1253653}
   m_EdgeRadius: 0
 --- !u!4 &1338031110 stripped
 Transform:
@@ -4777,7 +4777,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: defa11737621942e08cd83fa7a63456b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inspectionText: 
+  inspectionText: "Est\xE1 trancada. "
   proximityHighlightColor: {r: 1, g: 1, b: 1, a: 0.75}
   hoverScaleFactor: 1.1
   sceneToLoad: BanheiroScene
@@ -4820,7 +4820,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: -0.05305499}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -4830,7 +4830,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 2, y: 3}
+  m_Size: {x: 2, y: 3.10611}
   m_EdgeRadius: 0
 --- !u!1 &1496926488
 GameObject:

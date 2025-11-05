@@ -181,7 +181,9 @@ public class PlayerMovement : MonoBehaviour
 
             if (AudioManager.Instance != null && AudioManager.Instance.sfxSource.isPlaying)
             {
+
                 AudioManager.Instance.sfxSource.Stop();
+                
             }
         }
     }

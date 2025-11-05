@@ -83,7 +83,7 @@ public class PortraitController : InteractableBase
             InteractionManager.Instance.ShowDialogue(clueText);
             
             // (Opcional: remover o pé de cabra se for de uso único)
-            // InventoryManager.Instance.RemoveItem(crowbarItem);
+            InventoryManager.Instance.RemoveItem(crowbarItem);
         }
         else
         {

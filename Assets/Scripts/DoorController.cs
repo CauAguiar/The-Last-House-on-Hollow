@@ -160,7 +160,7 @@ public class DoorController : InteractableBase
             // Apenas destranca a porta e mostra feedback; o jogador deve entrar no colisor para atravessar.
             if (InteractionManager.Instance != null)
             {
-                InteractionManager.Instance.ShowDialogue("A porta foi destrancada. Você pode passar pelo corredor agora.");
+                InteractionManager.Instance.ShowDialogue("A porta foi destrancada.");
             }
         }
         else

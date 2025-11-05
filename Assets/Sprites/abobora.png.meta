@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 6609985ce9bdd4836825f219dd2f6b7f
+guid: f599bd5d481fdd149b8cdcdf44f50ee2
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -388091416902669110
-    second: chave_escritorio_0
+      213: -6491860517749720092
+    second: abobora_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: chave_escritorio_0
+      name: sofa-0001_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 500
-        height: 500
+        width: 64
+        height: 37
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: acc632b99e83d9af0800000000000000
-      internalID: -388091416902669110
+      spriteID: 6416782e103c9c6e0800000000000000
+      internalID: -1816706561804377786
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      chave_escritorio_0: -388091416902669110
+      sofa-0001_0: -1816706561804377786
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

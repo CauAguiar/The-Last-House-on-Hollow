@@ -12,6 +12,7 @@ public class AudioManager : MonoBehaviour
 
     [Header("Efeitos Sonoros")]
     public AudioClip footstepSound;
+    public AudioClip fireplace;
 
     private void Awake()
     {
