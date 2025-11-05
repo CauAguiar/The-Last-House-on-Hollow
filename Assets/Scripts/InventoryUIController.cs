@@ -144,7 +144,15 @@ public class InventoryUIController : MonoBehaviour
         }
         else
         {
-            Debug.Log($"Inspecionando item: {clickedItem.itemName}");
+            // Abre o painel de inspeção do item
+            if (ItemInspectionController.Instance != null)
+            {
+                ItemInspectionController.Instance.ShowInspection(clickedItem);
+            }
+            else
+            {
+                Debug.LogError("ItemInspectionController.Instance não foi encontrado!");
+            }
         }
     }
 }

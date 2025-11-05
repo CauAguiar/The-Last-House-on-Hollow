@@ -17,3 +17,7 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 59026b1f738d340459832f22c3de3adf, type: 3}
   - soundName: MusicaFundo
     clip: {fileID: 8300000, guid: c718fd19fbdcb254bb3e4a34cda4cc71, type: 3}
+  - soundName: ButtonClick
+    clip: {fileID: 8300000, guid: ff683c432fccf4f409643b95ba0dbd47, type: 3}
+  - soundName: ButtonHover
+    clip: {fileID: 8300000, guid: bb2acc3e3de0d4d49b301be7fa2b9e8c, type: 3}

@@ -79,9 +79,11 @@ public class InteractionManager : MonoBehaviour
             return;
         }
         
-        // Prioridade 2: Se o inventário ou o menu de contexto estiverem abertos,
+        // Prioridade 2: Se o inventário, o painel de inspeção ou o menu de contexto estiverem abertos,
         // o clique será tratado pelo sistema de UI (botões). Ignoramos a interação com o mundo.
-        if (contextMenu.activeSelf || (InventoryUIController.Instance != null && InventoryUIController.Instance.IsInventoryOpen()))
+        if (contextMenu.activeSelf || 
+            (InventoryUIController.Instance != null && InventoryUIController.Instance.IsInventoryOpen()) ||
+            (ItemInspectionController.Instance != null && ItemInspectionController.Instance.IsInspectionOpen()))
         {
             return;
         }
