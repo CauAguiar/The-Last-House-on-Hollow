@@ -63,11 +63,11 @@ public class InteractionManager : MonoBehaviour
 
     private void Start()
     {
-        contextMenu.SetActive(false);
-        dialogueBox.SetActive(false);
+        if (contextMenu != null) contextMenu.SetActive(false);
+        if (dialogueBox != null) dialogueBox.SetActive(false);
 
-        inspectButton.onClick.AddListener(OnInspectClicked);
-        useItemButton.onClick.AddListener(OnUseItemClicked);
+        if (inspectButton != null) inspectButton.onClick.AddListener(OnInspectClicked);
+        if (useItemButton != null) useItemButton.onClick.AddListener(OnUseItemClicked);
     }
     
     private void OnInteractPerformed(InputAction.CallbackContext context)
@@ -116,28 +116,63 @@ public class InteractionManager : MonoBehaviour
         }
     }
 
+    // Helper to align with Unity's special null for destroyed objects
+    private bool IsAlive(Object obj) => obj != null;
+
     public void ShowContextMenu(InteractableBase interactable)
     {
+        // Validate references – avoid MissingReferenceException when objects were destroyed (e.g., after scene change)
+        if (!IsAlive(interactable))
+        {
+            Debug.LogWarning("ShowContextMenu chamado com um Interactable destruído ou nulo. Ignorando.");
+            return;
+        }
+
+        if (!IsAlive(contextMenu))
+        {
+            Debug.LogWarning("ContextMenu não está atribuído ou foi destruído. Ignorando a abertura do menu de contexto.");
+            return;
+        }
+
         currentInteractable = interactable;
-        
-        Bounds objectBounds = interactable.GetComponent<Collider2D>().bounds;
-        Vector3 screenPos = Camera.main.WorldToScreenPoint(new Vector3(objectBounds.max.x, objectBounds.max.y, objectBounds.center.z));
-        
+
+        // Try to compute a reasonable screen position
+        Vector3 screenPos;
+        var col = interactable.GetComponent<Collider2D>();
+        if (col != null && Camera.main != null)
+        {
+            var b = col.bounds;
+            screenPos = Camera.main.WorldToScreenPoint(new Vector3(b.max.x, b.max.y, b.center.z));
+        }
+        else
+        {
+            // Fallback to mouse position if no collider or camera is available
+            screenPos = Mouse.current != null ? (Vector3)Mouse.current.position.ReadValue() : new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 0f);
+        }
+
         screenPos += new Vector3(10f, 10f, 0);
 
-        contextMenu.transform.position = screenPos;
-        contextMenu.SetActive(true);
+        // Safely position and show the context menu
+        Transform cmTransform = contextMenu != null ? contextMenu.transform : null;
+        if (cmTransform != null)
+        {
+            cmTransform.position = screenPos;
+        }
+        if (contextMenu != null)
+        {
+            contextMenu.SetActive(true);
+        }
 
         // Traz o menu para frente na hierarquia (caso esteja dentro de um Canvas)
-        var rect = contextMenu.GetComponent<RectTransform>();
+        var rect = contextMenu != null ? contextMenu.GetComponent<RectTransform>() : null;
         if (rect != null && rect.parent != null)
         {
             rect.SetAsLastSibling();
         }
 
         // Garante que os botões estejam interagíveis e que o EventSystem selecione o primeiro botão
-        if (inspectButton != null) inspectButton.interactable = true;
-        if (useItemButton != null) useItemButton.interactable = true;
+    if (inspectButton != null) inspectButton.interactable = true;
+    if (useItemButton != null) useItemButton.interactable = true;
 
         if (UnityEngine.EventSystems.EventSystem.current != null && inspectButton != null)
         {
@@ -149,9 +184,9 @@ public class InteractionManager : MonoBehaviour
     {
         if(dialogueBox.activeSelf) return;
 
-        HideContextMenu();
+    HideContextMenu();
         fullDialogueText = text;
-        dialogueBox.SetActive(true);
+    if (dialogueBox != null) dialogueBox.SetActive(true);
 
         if (typingCoroutine != null) StopCoroutine(typingCoroutine);
         typingCoroutine = StartCoroutine(TypeText(text));
@@ -200,14 +235,20 @@ public class InteractionManager : MonoBehaviour
 
     public void HideContextMenu()
     {
-        contextMenu.SetActive(false);
+        if (contextMenu != null) contextMenu.SetActive(false);
         if (EventSystem.current != null)
         {
             EventSystem.current.SetSelectedGameObject(null);
         }
     }
 
-    public void HideDialogueBox() => dialogueBox.SetActive(false);
+    public void HideDialogueBox()
+    {
+        if (dialogueBox != null)
+        {
+            dialogueBox.SetActive(false);
+        }
+    }
 
     public void HideAllInteractionUI()
     {
@@ -278,7 +319,7 @@ public class InteractionManager : MonoBehaviour
 
     private void OnInspectClicked()
     {
-        if (currentInteractable != null)
+        if (currentInteractable != null && IsAlive(currentInteractable))
         {
             currentInteractable.OnInspect();
         }
@@ -287,7 +328,7 @@ public class InteractionManager : MonoBehaviour
 
     private void OnUseItemClicked()
     {
-        if (currentInteractable != null)
+        if (currentInteractable != null && IsAlive(currentInteractable))
         {
             InventoryUIController.Instance.OpenInventoryForUse(currentInteractable);
         }
