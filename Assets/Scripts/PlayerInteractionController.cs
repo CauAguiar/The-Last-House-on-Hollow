@@ -11,6 +11,8 @@ public class PlayerInteractionController : MonoBehaviour
     [Header("Configurações de Interação")]
     [Tooltip("O raio ao redor do jogador para detectar objetos interativos.")]
     public float interactionRadius = 2f;
+    [Tooltip("Camada para objetos interativos")]
+    public LayerMask interactableLayerMask;
 
     private PlayerControls playerControls;
     private List<IInteractable> nearbyInteractables = new List<IInteractable>();
@@ -80,7 +82,7 @@ public class PlayerInteractionController : MonoBehaviour
     {
         Vector2 mousePosition = Mouse.current.position.ReadValue();
         Vector2 worldPosition = Camera.main.ScreenToWorldPoint(mousePosition);
-        RaycastHit2D hit = Physics2D.Raycast(worldPosition, Vector2.zero);
+        RaycastHit2D hit = Physics2D.Raycast(worldPosition, Vector2.zero, Mathf.Infinity, interactableLayerMask);
 
         if (hit.collider != null)
         {

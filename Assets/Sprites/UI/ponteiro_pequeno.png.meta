@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 98b934f1687660d44999ce664058139b
+guid: feaf6c88ad274e7489dc57da44de416f
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3818125450912217628
-    second: botao_fechar_inspecionar_0
+      213: 6105010179649084206
+    second: ponteiro_pequeno_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -48,7 +48,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 1
   spriteExtrude: 1
-  spriteMeshType: 0
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 16
@@ -101,7 +101,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -114,7 +114,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: botao_fechar_inspecionar_0
+      name: sofa-0001_0
       rect:
         serializedVersion: 2
-        x: 79
-        y: 79
-        width: 887
-        height: 940
+        x: 0
+        y: 0
+        width: 64
+        height: 37
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 4e5cf76b12b430bc0800000000000000
-      internalID: -3818125450912217628
+      spriteID: 6416782e103c9c6e0800000000000000
+      internalID: -1816706561804377786
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      botao_fechar_inspecionar_0: -3818125450912217628
+      sofa-0001_0: -1816706561804377786
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
