@@ -149,6 +149,6 @@ public class ClockHand : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
         if (Time.unscaledTime - lastSfxTime < sfxCooldown) return; // respeita cooldown
 
         lastSfxTime = Time.unscaledTime;
-        AudioManager.Instance.PlaySFXSlice(moveSfxName, moveSfxStart, moveSfxDuration);
+        AudioManager.Instance.PlaySFXSlice(moveSfxName, moveSfxStart, moveSfxDuration, 1f, AudioManager.Category.Clock);
     }
 }
