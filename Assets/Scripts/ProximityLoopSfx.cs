@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Reproduz um loop (ex: lareira) que fica mais alto conforme o jogador se aproxima.
@@ -44,6 +45,29 @@ public class ProximityLoopSfx : MonoBehaviour
 
     private AudioSource source;
     private float timer;
+    private bool initialized;
+    
+    [Header("Alvo (Persistente)")]
+    [Tooltip("Transform de referência do som no mundo (ex: lareira). Se vazio, tenta achar por tag ou nome quando a cena carregar.")]
+    [SerializeField] private Transform target;
+    [Tooltip("Tag do alvo para auto-resolver quando a cena carregar.")]
+    [SerializeField] private string targetTag;
+    [Tooltip("Nome do GameObject alvo para auto-resolver quando a cena carregar (usado se tag vazia).")]
+    [SerializeField] private string targetName;
+    [Tooltip("Se verdadeiro, só toca quando o alvo existe na cena; caso contrário, pausa/silencia ao sair.")]
+    [SerializeField] private bool onlyWhenTargetPresent = true;
+    [Tooltip("Se definido, o som só toca nessas cenas (use nomes exatos). Se vazio, toca em qualquer cena.")]
+    [SerializeField] private string[] enabledScenes;
+
+    [Header("Fade")]
+    [Tooltip("Tempo de fade-in em segundos.")]
+    [SerializeField] private float fadeInDuration = 0.5f;
+    [Tooltip("Tempo de fade-out em segundos.")]
+    [SerializeField] private float fadeOutDuration = 0.5f;
+    [Tooltip("Usar tempo não escalado (ignora pausas) para o fade.")]
+    [SerializeField] private bool useUnscaledTime = true;
+    private float currentVolume = 0f; // volume aplicado ao AudioSource após fade
+    private float targetVolume = 0f;  // volume alvo calculado por distância / categoria
 
     private void Awake()
     {
@@ -58,8 +82,12 @@ public class ProximityLoopSfx : MonoBehaviour
         }
     }
 
-    private void Start()
+    private void OnEnable()
     {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        ResolvePlayerIfNeeded();
+        ResolveTargetIfNeeded();
+        ResolveClipIfNeeded();
         if (player == null && PlayerMovement.Instance != null)
         {
             player = PlayerMovement.Instance.transform;
@@ -71,19 +99,49 @@ public class ProximityLoopSfx : MonoBehaviour
             var clip = AudioManager.Instance.soundBank.GetClip(soundName);
             if (clip != null) fallbackClip = clip;
         }
-        if (fallbackClip != null)
-        {
-            source.clip = fallbackClip;
-            ConfigureSource();
-            source.loop = true;
-            source.playOnAwake = false;
-            source.Play();
-        }
+        TryStartPlayback();
+    }
+
+    private void OnDisable()
+    {
+        initialized = false;
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     private void Update()
     {
-        if (player == null || source.clip == null) return;
+        if (!initialized)
+        {
+            // Tenta reinicializar se algo resetou (após troca de cena, etc.)
+            ResolvePlayerIfNeeded();
+            ResolveTargetIfNeeded();
+            ResolveClipIfNeeded();
+            if (source != null && fallbackClip != null)
+            {
+                ConfigureSource();
+                source.loop = true;
+                source.playOnAwake = false;
+                source.clip = fallbackClip;
+                source.Play();
+                initialized = true;
+            }
+        }
+
+        if (player == null || source == null || source.clip == null) return;
+
+        // Determina se cena e alvo permitem tocar (gating)
+        bool allowed = true;
+        if (enabledScenes != null && enabledScenes.Length > 0)
+        {
+            string cur = SceneManager.GetActiveScene().name;
+            allowed = false;
+            for (int i = 0; i < enabledScenes.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(enabledScenes[i]) && enabledScenes[i] == cur) { allowed = true; break; }
+            }
+        }
+        if (allowed && onlyWhenTargetPresent && target == null)
+            allowed = false;
 
         if (updateInterval > 0f)
         {
@@ -92,54 +150,82 @@ public class ProximityLoopSfx : MonoBehaviour
             timer = updateInterval;
         }
 
-        // Aplica volume conforme modo
-        if (attenuationMode == Mode.Engine3D)
+        // Calcula volume alvo conforme modo
+        float computedVol = 0f;
+        if (allowed)
         {
-            // Apenas aplica volumes globais; a atenuação por distância é feita pelo AudioSource
-            float vol = baseVolume;
-            if (AudioManager.Instance != null)
-                vol *= AudioManager.Instance.masterVolume * AudioManager.Instance.sfxVolume;
-            source.volume = vol;
+            if (attenuationMode == Mode.Engine3D)
+            {
+                computedVol = baseVolume;
+                if (AudioManager.Instance != null)
+                    computedVol *= AudioManager.Instance.masterVolume * AudioManager.Instance.sfxVolume * AudioManager.Instance.GetCategoryVolume(AudioManager.Category.Ambience);
+                // Posiciona a fonte se alvo existe (mantém spatial correto)
+                if (target != null)
+                    source.transform.position = target.position;
+            }
+            else // Manual2D
+            {
+                float dist;
+                if (planar2D)
+                {
+                    Vector2 p = new Vector2(player.position.x, player.position.y);
+                    Vector2 s = new Vector2((target != null ? target.position.x : transform.position.x), (target != null ? target.position.y : transform.position.y));
+                    dist = Vector2.Distance(p, s);
+                }
+                else
+                {
+                    Vector3 pos = target != null ? target.position : transform.position;
+                    dist = Vector3.Distance(player.position, pos);
+                }
+                float t;
+                if (maxDistance <= minDistance)
+                {
+                    t = (dist <= minDistance) ? 1f : 0f;
+                }
+                else if (dist <= minDistance)
+                {
+                    t = 1f;
+                }
+                else if (dist >= maxDistance)
+                {
+                    t = 0f;
+                }
+                else
+                {
+                    float range = maxDistance - minDistance;
+                    float d = dist - minDistance;
+                    t = 1f - (d / range);
+                }
+                t = Mathf.Clamp01(t);
+                float shaped = manualVolumeCurve.Evaluate(t);
+                computedVol = baseVolume * shaped;
+                if (AudioManager.Instance != null)
+                    computedVol *= AudioManager.Instance.masterVolume * AudioManager.Instance.sfxVolume * AudioManager.Instance.GetCategoryVolume(AudioManager.Category.Ambience);
+            }
         }
-        else // Manual2D
+        targetVolume = computedVol; // se não allowed, fica 0
+
+        // Fade suave
+        float dt = useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
+        if (targetVolume > currentVolume)
         {
-            float dist;
-            if (planar2D)
+            if (fadeInDuration > 0f)
             {
-                Vector2 p = new Vector2(player.position.x, player.position.y);
-                Vector2 s = new Vector2(transform.position.x, transform.position.y);
-                dist = Vector2.Distance(p, s);
+                float step = (targetVolume / fadeInDuration) * dt;
+                currentVolume = Mathf.Min(currentVolume + step, targetVolume);
             }
-            else
-            {
-                dist = Vector3.Distance(player.position, transform.position);
-            }
-            float t;
-            if (maxDistance <= minDistance)
-            {
-                t = (dist <= minDistance) ? 1f : 0f;
-            }
-            else if (dist <= minDistance)
-            {
-                t = 1f;
-            }
-            else if (dist >= maxDistance)
-            {
-                t = 0f;
-            }
-            else
-            {
-                float range = maxDistance - minDistance;
-                float d = dist - minDistance;
-                t = 1f - (d / range);
-            }
-            t = Mathf.Clamp01(t);
-            float shaped = manualVolumeCurve.Evaluate(t);
-            float vol = baseVolume * shaped;
-            if (AudioManager.Instance != null)
-                vol *= AudioManager.Instance.masterVolume * AudioManager.Instance.sfxVolume;
-            source.volume = vol;
+            else currentVolume = targetVolume;
         }
+        else if (targetVolume < currentVolume)
+        {
+            if (fadeOutDuration > 0f)
+            {
+                float step = (Mathf.Max(currentVolume, 0.0001f) / fadeOutDuration) * dt; // proporcional ao volume atual
+                currentVolume = Mathf.Max(currentVolume - step, targetVolume);
+            }
+            else currentVolume = targetVolume;
+        }
+        source.volume = currentVolume;
     }
 
     private void ConfigureSource()
@@ -162,5 +248,58 @@ public class ProximityLoopSfx : MonoBehaviour
         {
             source.spatialBlend = 0f; // 2D, volume manual
         }
+    }
+
+    private void ResolvePlayerIfNeeded()
+    {
+        if (player == null && PlayerMovement.Instance != null)
+            player = PlayerMovement.Instance.transform;
+    }
+
+    private void ResolveTargetIfNeeded()
+    {
+        if (target != null) return;
+        if (!string.IsNullOrEmpty(targetTag))
+        {
+            var go = GameObject.FindGameObjectWithTag(targetTag);
+            if (go != null) { target = go.transform; return; }
+        }
+        if (!string.IsNullOrEmpty(targetName))
+        {
+            var go = GameObject.Find(targetName);
+            if (go != null) { target = go.transform; }
+        }
+    }
+
+    private void ResolveClipIfNeeded()
+    {
+        if (fallbackClip == null && !string.IsNullOrEmpty(soundName) && AudioManager.Instance != null)
+        {
+            var clip = AudioManager.Instance.soundBank.GetClip(soundName);
+            if (clip != null) fallbackClip = clip;
+        }
+    }
+
+    private void TryStartPlayback()
+    {
+        if (fallbackClip == null || source == null) return;
+        source.clip = fallbackClip;
+        ConfigureSource();
+        source.loop = true;
+        source.playOnAwake = false;
+        currentVolume = 0f;
+        targetVolume = 0f;
+        source.volume = 0f; // inicia silencioso para fade-in
+        source.Play();
+        initialized = true;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // Re-resolve quando trocamos de cena
+        ResolvePlayerIfNeeded();
+        ResolveTargetIfNeeded();
+        ResolveClipIfNeeded();
+        initialized = false; // força reconfiguração no próximo Update
     }
 }

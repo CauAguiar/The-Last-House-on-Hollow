@@ -62,6 +62,11 @@ public class ChestUIManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            // Garantir que seja raiz antes de marcar como persistente para evitar o warning
+            if (transform.parent != null)
+            {
+                transform.SetParent(null); // torna este GameObject root
+            }
             DontDestroyOnLoad(gameObject);
         }
         else
