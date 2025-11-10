@@ -14,6 +14,9 @@ public class AudioManager : MonoBehaviour
     public AudioClip footstepSound;
     public AudioClip fireplace;
 
+    // Cache de slices gerados para evitar recriação constante
+    private System.Collections.Generic.Dictionary<string, AudioClip> sliceCache = new System.Collections.Generic.Dictionary<string, AudioClip>();
+
     private void Awake()
     {
         if (Instance == null)
@@ -54,6 +57,58 @@ public class AudioManager : MonoBehaviour
         {
             sfxSource.PlayOneShot(clip);
         }
+    }
+
+    /// <summary>
+    /// Abordagem precisa: cria (e cacheia) um subclip com somente o trecho desejado e toca via PlayOneShot.
+    /// Não altera o 'sfxSource.clip' nem faz seek.
+    /// </summary>
+    public void PlaySFXSlice(string soundName, float startSeconds, float durationSeconds, float volume = 1f)
+    {
+        AudioClip original = soundBank.GetClip(soundName);
+        if (original == null)
+        {
+            return;
+        }
+
+        if (durationSeconds <= 0f || startSeconds < 0f)
+        {
+            PlaySFX(soundName);
+            return;
+        }
+
+        // Limita valores
+        startSeconds = Mathf.Clamp(startSeconds, 0f, original.length);
+        float endSeconds = Mathf.Clamp(startSeconds + durationSeconds, 0f, original.length);
+        float sliceLength = Mathf.Max(0f, endSeconds - startSeconds);
+        if (sliceLength <= 0.0001f)
+        {
+            return; // praticamente zero
+        }
+
+        string key = soundName + "|" + startSeconds.ToString("F3") + "|" + sliceLength.ToString("F3");
+        AudioClip sliceClip;
+        if (!sliceCache.TryGetValue(key, out sliceClip))
+        {
+            // Converte segundos para samples
+            int frequency = original.frequency;
+            int channels = original.channels;
+            int startSample = Mathf.RoundToInt(startSeconds * frequency);
+            int sampleCount = Mathf.RoundToInt(sliceLength * frequency);
+
+            // Buffer para os dados da fatia (interleaved channels)
+            float[] data = new float[sampleCount * channels];
+            // Pega dados diretamente do clip original
+            // offsetSamples é em "samples" já interleavados
+            original.GetData(data, startSample);
+
+            sliceClip = AudioClip.Create("slice_" + key, sampleCount, channels, frequency, false);
+            sliceClip.SetData(data, 0);
+            sliceCache[key] = sliceClip;
+        }
+
+        sfxSource.volume = volume;
+        sfxSource.PlayOneShot(sliceClip);
     }
 
     public void PlayFootstep()

@@ -115,7 +115,11 @@ public class ClockUIManager : MonoBehaviour
     private System.Collections.IEnumerator SolveSequence()
     {
         isSolving = true;
-        // TODO: tocar som de clique aqui quando tiver o AudioManager/sfx definido.
+        // Toca SFX de puzzle resolvido (configurado no SoundBank)
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFX("ClockSolved");
+        }
         yield return new WaitForSecondsRealtime(solveDelay);
         if (currentClock != null)
         {

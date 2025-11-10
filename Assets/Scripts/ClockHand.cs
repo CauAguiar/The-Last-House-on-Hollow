@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 /// <summary>
 /// Controla um ponteiro do relógio na UI. Permite clicar e arrastar com "snapping".
 /// </summary>
-public class ClockHand : MonoBehaviour, IBeginDragHandler, IDragHandler
+public class ClockHand : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     public enum HandType { Hour, Minute }
 
@@ -24,6 +24,19 @@ public class ClockHand : MonoBehaviour, IBeginDragHandler, IDragHandler
     private float targetAngle; // alvo em graus (0..360) no sentido horário
     private ClockUIManager clockUIManager; // Referência para o gerente (resolvida sob demanda)
 
+    [Header("Som do Ponteiro")]
+    [Tooltip("Nome do SFX no SoundBank para este ponteiro.")]
+    [SerializeField] private string moveSfxName = "ClockTickMinute";
+    [Tooltip("Segundo inicial dentro do clip para tocar (corte).")]
+    [SerializeField] private float moveSfxStart = 0f;
+    [Tooltip("Duração em segundos do trecho a tocar (corte).")]
+    [SerializeField] private float moveSfxDuration = 0.08f;
+    [Tooltip("Tempo mínimo entre ticks sonoros (segundos) para evitar spam enquanto arrasta.")]
+    [SerializeField] private float sfxCooldown = 0.12f;
+    [Tooltip("Se verdadeiro, o som só toca quando solta o ponteiro (on end drag) em vez de cada mudança de passo.")]
+    [SerializeField] private bool playOnlyOnRelease = false;
+    private float lastSfxTime = -999f;
+
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
@@ -31,6 +44,12 @@ public class ClockHand : MonoBehaviour, IBeginDragHandler, IDragHandler
         clockUIManager = GetComponentInParent<ClockUIManager>();
         if (clockUIManager == null)
             clockUIManager = ClockUIManager.Instance; 
+
+        // Se não foi configurado manualmente, define um padrão por tipo de ponteiro
+        if (string.IsNullOrEmpty(moveSfxName))
+        {
+            moveSfxName = (handType == HandType.Hour) ? "ClockTickHour" : "ClockTickMinute";
+        }
 
         // Inicializa o alvo de acordo com o valor inicial (12 -> 0 graus)
         int step = (currentValue % 12);
@@ -48,6 +67,15 @@ public class ClockHand : MonoBehaviour, IBeginDragHandler, IDragHandler
     public void OnDrag(PointerEventData eventData)
     {
         UpdateHandRotation(eventData);
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        // Se configurado para tocar somente ao soltar, tenta agora
+        if (playOnlyOnRelease)
+        {
+            TryPlayTickSfx();
+        }
     }
 
     private void Update()
@@ -94,6 +122,13 @@ public class ClockHand : MonoBehaviour, IBeginDragHandler, IDragHandler
                 mgr.CheckSolution();
             }
 
+            // Toca o som do movimento do ponteiro (pode usar corte do clip)
+            // Toca o som do movimento do ponteiro respeitando cooldown / modo release
+            if (!playOnlyOnRelease)
+            {
+                TryPlayTickSfx();
+            }
+
             // DEBUG: reporta somente o que faz sentido para este ponteiro
             if (handType == HandType.Hour)
             {
@@ -106,5 +141,14 @@ public class ClockHand : MonoBehaviour, IBeginDragHandler, IDragHandler
                 Debug.Log($"{gameObject.name} (MINUTOS) -> Minutos: {displayedMinutes} (índice {currentValue}) | Ângulo: {snappedAngle}");
             }
         }
+    }
+
+    private void TryPlayTickSfx()
+    {
+        if (AudioManager.Instance == null || string.IsNullOrEmpty(moveSfxName)) return;
+        if (Time.unscaledTime - lastSfxTime < sfxCooldown) return; // respeita cooldown
+
+        lastSfxTime = Time.unscaledTime;
+        AudioManager.Instance.PlaySFXSlice(moveSfxName, moveSfxStart, moveSfxDuration);
     }
 }
