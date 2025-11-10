@@ -14,12 +14,11 @@ public class ClockController : InteractableBase
     [SerializeField] private string uniqueId;
 
     private bool isSolved = false;
-    private SpriteRenderer spriteRenderer;
 
     protected override void Awake()
     {
         base.Awake();
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        // 'spriteRenderer' já é inicializado em InteractableBase.Awake()
     }
 
     private void Start()

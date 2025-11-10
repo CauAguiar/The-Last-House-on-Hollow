@@ -38,6 +38,7 @@ public class PlayerMovement : MonoBehaviour
     private PlayerControls controls;
     private Vector2 moveInput;
     private bool isSprinting = false;
+    private bool isLocked = false;
 
     public static PlayerMovement Instance;
 
@@ -70,6 +71,18 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    public void LockMovement()
+    {
+        isLocked = true;
+        rb.linearVelocity = Vector2.zero; // Para o jogador imediatamente
+        animator.SetBool("isMoving", false);
+    }
+
+    public void UnlockMovement()
+    {
+        isLocked = false;
+    }
+
     void OnEnable()
     {
         controls.Player.Enable();
@@ -82,13 +95,16 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+
+        if (isLocked) return;
+
         UpdateAnimationAndSpriteFlip();
         HandleFootsteps();
     }
 
     void FixedUpdate()
     {
-        if (moveInput == Vector2.zero)
+        if (moveInput == Vector2.zero || isLocked)
         {
             return;
         }
@@ -150,7 +166,8 @@ public class PlayerMovement : MonoBehaviour
         {
             spriteRenderer.flipX = false;
         }
-        if (!isMoving)
+
+        if (!isMoving && AudioManager.Instance != null)
         {
             AudioManager.Instance.sfxSource.Stop();
         }
@@ -164,28 +181,20 @@ public class PlayerMovement : MonoBehaviour
         {
             footstepTimer -= Time.deltaTime;
 
-            if (footstepTimer <= 0f && !AudioManager.Instance.sfxSource.isPlaying)
+            if (footstepTimer <= 0f && AudioManager.Instance != null && !AudioManager.Instance.sfxSource.isPlaying)
             {
                 footstepTimer = footstepInterval;
-
-                if (AudioManager.Instance != null)
-                {
-                    AudioManager.Instance.PlaySFX("PassoMadeira");
-                }
+                AudioManager.Instance.PlaySFX("PassoMadeira");
             }
         }
         else
         {
-
             footstepTimer = 0f;
 
             if (AudioManager.Instance != null && AudioManager.Instance.sfxSource.isPlaying)
             {
-
                 AudioManager.Instance.sfxSource.Stop();
-                
             }
         }
     }
 }
-

@@ -22,6 +22,8 @@ public class ClockUIManager : MonoBehaviour
     [SerializeField] private Button closeButton; 
 
     private ClockController currentClock; 
+    private bool isSolving = false; // evita fechar repetidamente
+    [SerializeField] private float solveDelay = 0.35f; // espera para feedback (som/clique) antes de fechar
 
     private void Awake()
     {
@@ -47,6 +49,9 @@ public class ClockUIManager : MonoBehaviour
     {
         currentClock = clock;
         clockPanel.SetActive(true);
+        PlayerMovement.Instance.LockMovement();
+        UIInputBlocker.Block("ClockPuzzle");
+        GamePauseManager.Pause("ClockPuzzle");
         // Opcional: Pausar o jogo aqui
     }
 
@@ -54,6 +59,9 @@ public class ClockUIManager : MonoBehaviour
     {
         clockPanel.SetActive(false);
         currentClock = null;
+        PlayerMovement.Instance.UnlockMovement();
+        UIInputBlocker.Unblock("ClockPuzzle");
+        GamePauseManager.Unpause("ClockPuzzle");
         // Opcional: Despausar o jogo aqui
     }
 
@@ -64,16 +72,58 @@ public class ClockUIManager : MonoBehaviour
     public void CheckSolution() // <-- TORNADO PÚBLICO
     {
         // Se o puzzle já foi resolvido, não faz nada.
-        if (currentClock == null) return; 
+        if (currentClock == null || isSolving) return; 
 
-        int currentHour = hourHand.currentValue;
-        int currentMinute = minuteHand.currentValue;
+        int currentHour = hourHand.currentValue; // 1..12
+        int currentMinuteIndex = minuteHand.currentValue; // 1..12 (cada passo = 5 minutos)
+        int currentMinutes = (currentMinuteIndex % 12) * 5;
+        if (currentMinutes == 0) currentMinutes = 60; // 12 -> 60
 
-        if (currentHour == solutionHour && currentMinute == solutionMinute)
+        // Interpretação robusta: se solutionMinute estiver entre 1..12, tratamos como índice (casas)
+        // Caso esteja >12, tratamos como minutos reais (múltiplos de 5).
+        bool minuteMatch = (solutionMinute >= 1 && solutionMinute <= 12)
+            ? (currentMinuteIndex == solutionMinute)
+            : (currentMinutes == solutionMinute);
+
+        bool solved = (currentHour == solutionHour && minuteMatch);
+
+            // Debug detalhado (construído em partes para evitar erros de escape)
+            string expectedMinutesStr;
+            if (solutionMinute >= 1 && solutionMinute <= 12)
+            {
+                expectedMinutesStr = (solutionMinute * 5).ToString() + " (índice " + solutionMinute + ")";
+            }
+            else
+            {
+                expectedMinutesStr = solutionMinute.ToString();
+            }
+            string matchStr = solved ? "OK" : "NO";
+            Debug.Log("[Clock Puzzle] Check: HoraAtual=" + currentHour +
+                      " | MinIndexAtual=" + currentMinuteIndex +
+                      " -> MinutosAtuais=" + currentMinutes +
+                      " | EsperadoHora=" + solutionHour +
+                      " | EsperadoMin=" + expectedMinutesStr +
+                      " | Match=" + matchStr);
+        if (solved)
         {
-            // Sucesso!
-            currentClock.OnPuzzleSolved();
-            ClosePuzzle(); // Fecha automaticamente ao acertar
+            // Sucesso! Dispara sequência com pequeno atraso para permitir feedback (som)
+            Debug.Log($"[Clock Puzzle] Solvido! Hora={currentHour} Minutos={currentMinutes} (ÍndiceMinuto={currentMinuteIndex})");
+            StartCoroutine(SolveSequence());
         }
     }
+
+    private System.Collections.IEnumerator SolveSequence()
+    {
+        isSolving = true;
+        // TODO: tocar som de clique aqui quando tiver o AudioManager/sfx definido.
+        yield return new WaitForSecondsRealtime(solveDelay);
+        if (currentClock != null)
+        {
+            currentClock.OnPuzzleSolved();
+        }
+        ClosePuzzle();
+        isSolving = false;
+    }
+
+    // Dentro de ClockUIManager
 }

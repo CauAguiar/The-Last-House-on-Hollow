@@ -86,6 +86,16 @@ public class InventoryUIController : MonoBehaviour
     {
         isInventoryOpen = !isInventoryOpen;
         inventoryPanel.SetActive(isInventoryOpen);
+        if (isInventoryOpen)
+        {
+            UIInputBlocker.Block("Inventory");
+            GamePauseManager.Pause("Inventory");
+        }
+        else
+        {
+            UIInputBlocker.Unblock("Inventory");
+            GamePauseManager.Unpause("Inventory");
+        }
         if (!isInventoryOpen)
         {
             currentUseTarget = null;
@@ -97,6 +107,8 @@ public class InventoryUIController : MonoBehaviour
         currentUseTarget = target;
         isInventoryOpen = true;
         inventoryPanel.SetActive(true);
+        UIInputBlocker.Block("Inventory");
+        GamePauseManager.Pause("Inventory");
     }
 
     private void UpdateInventoryUI()
@@ -141,6 +153,8 @@ public class InventoryUIController : MonoBehaviour
             currentUseTarget = null;
             isInventoryOpen = false;
             inventoryPanel.SetActive(false);
+            UIInputBlocker.Unblock("Inventory");
+            GamePauseManager.Unpause("Inventory");
         }
         else
         {

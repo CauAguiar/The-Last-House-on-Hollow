@@ -42,17 +42,28 @@ public class JournalUIManager : MonoBehaviour
             ToggleJournal();
     }
 
-    public void ToggleJournal()
-    {
-        bool isActive = !journalPanel.activeSelf;
-        journalPanel.SetActive(isActive);
+// Dentro de JournalUIManager.cs
 
-        if (isActive)
-        {
-            currentPageIndex = 0;
-            ShowPage(currentPageIndex);
-        }
+public void ToggleJournal()
+{
+    bool isActive = !journalPanel.activeSelf;
+    journalPanel.SetActive(isActive);
+
+    if (isActive)
+    {
+        currentPageIndex = 0;
+        ShowPage(currentPageIndex);
+        if (PlayerMovement.Instance != null) PlayerMovement.Instance.LockMovement();
+        UIInputBlocker.Block("Journal");
+        GamePauseManager.Pause("Journal");
     }
+    else
+    {
+        if (PlayerMovement.Instance != null) PlayerMovement.Instance.UnlockMovement();
+        UIInputBlocker.Unblock("Journal");
+        GamePauseManager.Unpause("Journal");
+    }
+}
 
     private void ShowPage(int index)
     {

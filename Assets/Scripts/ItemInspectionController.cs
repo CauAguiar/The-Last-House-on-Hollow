@@ -104,6 +104,8 @@ public class ItemInspectionController : MonoBehaviour
 
         // Pausa o movimento do jogador (opcional mas recomendado)
         PausePlayerMovement(true);
+        UIInputBlocker.Block("ItemInspection");
+        GamePauseManager.Pause("ItemInspection");
     }
 
     /// <summary>
@@ -120,6 +122,8 @@ public class ItemInspectionController : MonoBehaviour
 
         // Despausa o movimento do jogador
         PausePlayerMovement(false);
+        UIInputBlocker.Unblock("ItemInspection");
+        GamePauseManager.Unpause("ItemInspection");
     }
 
     /// <summary>

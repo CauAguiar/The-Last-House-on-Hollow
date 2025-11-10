@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// Gerencia a interação do jogador, combinando detecção de proximidade e clique do mouse.
@@ -80,6 +81,11 @@ public class PlayerInteractionController : MonoBehaviour
     /// </summary>
     private void OnInteractPerformed(InputAction.CallbackContext context)
     {
+        // Bloqueio global de interação se qualquer UI estiver aberta
+        if (UIInputBlocker.IsBlocked)
+        {
+            return; // Ignora interação com o mundo enquanto UI ativa
+        }
         Vector2 mousePosition = Mouse.current.position.ReadValue();
         Vector2 worldPosition = Camera.main.ScreenToWorldPoint(mousePosition);
         RaycastHit2D hit = Physics2D.Raycast(worldPosition, Vector2.zero, Mathf.Infinity, interactableLayerMask);
@@ -95,6 +101,8 @@ public class PlayerInteractionController : MonoBehaviour
                 // Se ambas as condições forem verdadeiras, a interação é permitida.
                 interactableObject.Interact();
             }
+ 
+ 
         }
     }
 

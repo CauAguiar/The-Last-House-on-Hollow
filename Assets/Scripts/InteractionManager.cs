@@ -72,11 +72,17 @@ public class InteractionManager : MonoBehaviour
     
     private void OnInteractPerformed(InputAction.CallbackContext context)
     {
-        // Prioridade 1: Se a caixa de diálogo está ativa, o clique é para ela.
-        if (dialogueBox.activeSelf)
+        // Prioridade 1: Diálogo sempre consome o clique, mesmo com bloqueio global ativo
+        if (dialogueBox != null && dialogueBox.activeSelf)
         {
             HandleDialogueClick();
-            return;
+            return; // Não prossegue para interações do mundo
+        }
+
+        // Bloqueio global: impede interação com o mundo/contexto quando QUALQUER outra UI (inventário, inspeção, etc.) estiver aberta
+        if (UIInputBlocker.IsBlocked)
+        {
+            return; // Mas já teríamos retornado se fosse diálogo acima
         }
         
         // Prioridade 2: Se o inventário, o painel de inspeção ou o menu de contexto estiverem abertos,
@@ -161,6 +167,7 @@ public class InteractionManager : MonoBehaviour
         if (contextMenu != null)
         {
             contextMenu.SetActive(true);
+            UIInputBlocker.Block("ContextMenu");
         }
 
         // Traz o menu para frente na hierarquia (caso esteja dentro de um Canvas)
@@ -186,7 +193,7 @@ public class InteractionManager : MonoBehaviour
 
     HideContextMenu();
         fullDialogueText = text;
-    if (dialogueBox != null) dialogueBox.SetActive(true);
+    if (dialogueBox != null) { dialogueBox.SetActive(true); UIInputBlocker.Block("Dialogue"); }
 
         if (typingCoroutine != null) StopCoroutine(typingCoroutine);
         typingCoroutine = StartCoroutine(TypeText(text));
@@ -223,7 +230,8 @@ public class InteractionManager : MonoBehaviour
                 // Adiciona o caractere normal e espera
                 displayedText += originalText[i];
                 dialogueText.text = displayedText;
-                yield return new WaitForSeconds(typingSpeed);
+                // Usa tempo real para funcionar mesmo quando o jogo está pausado (Time.timeScale = 0)
+                yield return new WaitForSecondsRealtime(typingSpeed);
             }
             i++;
         }
@@ -240,6 +248,7 @@ public class InteractionManager : MonoBehaviour
         {
             EventSystem.current.SetSelectedGameObject(null);
         }
+        UIInputBlocker.Unblock("ContextMenu");
     }
 
     public void HideDialogueBox()
@@ -248,6 +257,7 @@ public class InteractionManager : MonoBehaviour
         {
             dialogueBox.SetActive(false);
         }
+        UIInputBlocker.Unblock("Dialogue");
     }
 
     public void HideAllInteractionUI()
@@ -260,6 +270,8 @@ public class InteractionManager : MonoBehaviour
     {
         // Sempre fecha qualquer UI de interação ao mudar de cena para evitar popups "órfãos".
         HideAllInteractionUI();
+        UIInputBlocker.ClearAll();
+        GamePauseManager.ClearAll();
 
         // Garantir que exista um EventSystem ativo na nova cena para que botões sejam clicáveis.
         EnsureEventSystemExists();
