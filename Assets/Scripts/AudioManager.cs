@@ -11,7 +11,6 @@ public class AudioManager : MonoBehaviour
     public AudioSource sfxSource;
 
     [Header("Efeitos Sonoros")]
-    public AudioClip footstepSound;
     public AudioClip fireplace;
 
     // Cache de slices gerados para evitar recriação constante
@@ -218,14 +217,6 @@ public class AudioManager : MonoBehaviour
         sfxSource.PlayOneShot(sliceClip, scale);
     }
 
-    public void PlayFootstep()
-    {
-        if (footstepSound != null)
-        {
-            ApplyVolumes();
-            float scale = masterVolume * sfxVolume * GetCategoryVolume(Category.Footsteps);
-            sfxSource.PlayOneShot(footstepSound, scale);
-        }
-    }
+    // Nota: Footsteps são reproduzidos diretamente pelo PlayerMovement via PlaySFX com categoria Footsteps
 }
 

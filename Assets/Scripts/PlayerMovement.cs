@@ -8,7 +8,13 @@ using UnityEngine.InputSystem;
 public class PlayerMovement : MonoBehaviour
 {
     [Header("Som de Passos")]
-    public AudioClip passosClip;
+    [Tooltip("Nome do som no SoundBank para tocar ao caminhar")]
+    [SerializeField] private string footstepSoundName = "PassoMadeira";
+    [Tooltip("Ganho local dos passos (multiplicado pelo Master/SFX e categoria Footsteps)")]
+    [Range(0f,1f)]
+    [SerializeField] private float footstepVolume = 1f;
+    [Tooltip("Reproduzir passos em loop enquanto há movimento (recomendado usar um clip loopável)")]
+    [SerializeField] private bool loopWhileMoving = true;
 
     [Tooltip("Tempo entre cada som de passo enquanto o jogador se move")]
     public float footstepInterval = 0.4f;
@@ -39,6 +45,10 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 moveInput;
     private bool isSprinting = false;
     private bool isLocked = false;
+
+    // Áudio de passos dedicado (não interfere com outros SFX)
+    private AudioSource footstepSource;
+    private AudioClip footstepClip;
 
     public static PlayerMovement Instance;
 
@@ -167,33 +177,72 @@ public class PlayerMovement : MonoBehaviour
             spriteRenderer.flipX = false;
         }
 
-        if (!isMoving && AudioManager.Instance != null)
-        {
-            AudioManager.Instance.sfxSource.Stop();
-        }
+        // Não paramos a fonte global de SFX aqui para não interferir em outros sons
     }
 
     private void HandleFootsteps()
     {
         bool isMoving = moveInput.sqrMagnitude > 0.1f;
 
-        if (isMoving)
+        // Garante que temos um AudioSource dedicado configurado
+        if (footstepSource == null)
         {
-            footstepTimer -= Time.deltaTime;
+            footstepSource = gameObject.AddComponent<AudioSource>();
+            footstepSource.playOnAwake = false;
+            footstepSource.loop = loopWhileMoving;
+            footstepSource.spatialBlend = 0f; // 2D
+        }
 
-            if (footstepTimer <= 0f && AudioManager.Instance != null && !AudioManager.Instance.sfxSource.isPlaying)
+        // Avalia/obtém o clip do SoundBank caso ainda não tenhamos
+        if (footstepClip == null && AudioManager.Instance != null && !string.IsNullOrEmpty(footstepSoundName))
+        {
+            footstepClip = AudioManager.Instance.soundBank.GetClip(footstepSoundName);
+            if (footstepClip == null)
             {
-                footstepTimer = footstepInterval;
-                AudioManager.Instance.PlaySFX("PassoMadeira");
+                // Evita spam: apenas um aviso discreto
+                // Debug.LogWarning($"Clip de passos '{footstepSoundName}' não encontrado no SoundBank.");
+            }
+        }
+
+        // Aplica volume combinado (Master * SFX * Categoria * Volume Local)
+        if (AudioManager.Instance != null)
+        {
+            float combined = Mathf.Clamp01(footstepVolume) *
+                             AudioManager.Instance.masterVolume *
+                             AudioManager.Instance.sfxVolume *
+                             AudioManager.Instance.GetCategoryVolume(AudioManager.Category.Footsteps);
+            footstepSource.volume = combined;
+        }
+        else
+        {
+            footstepSource.volume = Mathf.Clamp01(footstepVolume);
+        }
+
+        if (isMoving && !isLocked)
+        {
+            if (!footstepSource.isPlaying)
+            {
+                if (footstepClip == null)
+                {
+                    // Tenta resolver novamente em caso de inicialização tardia
+                    if (AudioManager.Instance != null && !string.IsNullOrEmpty(footstepSoundName))
+                        footstepClip = AudioManager.Instance.soundBank.GetClip(footstepSoundName);
+                }
+
+                if (footstepClip != null)
+                {
+                    footstepSource.clip = footstepClip;
+                    footstepSource.loop = loopWhileMoving;
+                    footstepSource.Play();
+                }
             }
         }
         else
         {
-            footstepTimer = 0f;
-
-            if (AudioManager.Instance != null && AudioManager.Instance.sfxSource.isPlaying)
+            // Parar quando não há movimento
+            if (footstepSource.isPlaying)
             {
-                AudioManager.Instance.sfxSource.Stop();
+                footstepSource.Stop();
             }
         }
     }
