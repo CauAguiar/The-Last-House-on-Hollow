@@ -6,6 +6,8 @@ public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager Instance { get; private set; }
     public event Action OnInventoryChanged;
+    // Evento específico quando um item é adicionado. Fornece o item recém-adicionado.
+    public event Action<InventoryItem> OnItemAdded;
 
     private List<InventoryItem> items = new List<InventoryItem>();
 
@@ -28,6 +30,7 @@ public class InventoryManager : MonoBehaviour
         {
             items.Add(item);
             OnInventoryChanged?.Invoke();
+            OnItemAdded?.Invoke(item);
         }
     }
 

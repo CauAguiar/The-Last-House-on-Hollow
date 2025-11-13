@@ -54,7 +54,17 @@ public class PlayerInteractionController : MonoBehaviour
             }
         }
 
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, interactionRadius);
+    // Use the same layer mask used for raycasts so proximity matches clickable objects
+        Collider2D[] colliders;
+        // If the layer mask is empty (value == 0) treat it as all layers to avoid accidental misconfiguration
+        if (interactableLayerMask == 0)
+        {
+            colliders = Physics2D.OverlapCircleAll(transform.position, interactionRadius);
+        }
+        else
+        {
+            colliders = Physics2D.OverlapCircleAll(transform.position, interactionRadius, interactableLayerMask);
+        }
         var currentInteractables = colliders.Select(c => c.GetComponent<IInteractable>()).Where(i => i != null).ToList();
 
         // Only call exit on interactables that are still valid
@@ -87,22 +97,80 @@ public class PlayerInteractionController : MonoBehaviour
             return; // Ignora interação com o mundo enquanto UI ativa
         }
         Vector2 mousePosition = Mouse.current.position.ReadValue();
-        Vector2 worldPosition = Camera.main.ScreenToWorldPoint(mousePosition);
-        RaycastHit2D hit = Physics2D.Raycast(worldPosition, Vector2.zero, Mathf.Infinity, interactableLayerMask);
-
-        if (hit.collider != null)
+        if (Camera.main == null)
         {
-            IInteractable interactableObject = hit.collider.GetComponent<IInteractable>();
+            Debug.LogError("PlayerInteraction: Camera.main is null. Ensure there's a camera tagged 'MainCamera' in the scene.");
+            return;
+        }
 
-            // A NOVA CONDIÇÃO:
-            // O objeto é interativo E está na lista de objetos próximos?
-            if (interactableObject != null && nearbyInteractables.Contains(interactableObject))
+        // ScreenToWorldPoint requires a proper Z distance from the camera. For 2D scenes the world plane is often z=0.
+        float zDistance = -Camera.main.transform.position.z; // distance from camera to world z=0 plane
+        Vector3 screenPoint = new Vector3(mousePosition.x, mousePosition.y, zDistance);
+        Vector2 worldPosition = Camera.main.ScreenToWorldPoint(screenPoint);
+
+        // Use OverlapPointAll to gather all colliders under the click (so non-interactive colliders won't block)
+        Collider2D[] hitColliders;
+        if (interactableLayerMask == 0)
+        {
+            hitColliders = Physics2D.OverlapPointAll(worldPosition);
+        }
+        else
+        {
+            hitColliders = Physics2D.OverlapPointAll(worldPosition, interactableLayerMask);
+        }
+
+        if (hitColliders == null || hitColliders.Length == 0)
+        {
+            Debug.Log($"PlayerInteraction: clique não atingiu nenhum colisor. worldPos={worldPosition} mouseScreen={mousePosition} interactableLayerMask={(int)interactableLayerMask}");
+            return;
+        }
+
+        // Filter colliders that implement IInteractable
+        List<Collider2D> interactableColliders = new List<Collider2D>();
+        foreach (var col in hitColliders)
+        {
+            if (col == null) continue;
+            if (col.GetComponent<IInteractable>() != null)
             {
-                // Se ambas as condições forem verdadeiras, a interação é permitida.
-                interactableObject.Interact();
+                interactableColliders.Add(col);
             }
- 
- 
+        }
+
+        if (interactableColliders.Count == 0)
+        {
+            Debug.Log("PlayerInteraction: havia colliders no ponto mas nenhum implementa IInteractable.");
+            return;
+        }
+
+        // Choose the topmost interactable by sortingOrder (if SpriteRenderer available), then by Z (descending)
+        Collider2D chosen = interactableColliders.OrderByDescending(c =>
+        {
+            var sr = c.GetComponent<SpriteRenderer>() ?? c.GetComponentInParent<SpriteRenderer>();
+            int order = sr != null ? sr.sortingOrder : 0;
+            float z = c.transform.position.z;
+            return (order * 1000) - (int)(z * 100); // composite key: prioritize order, then nearer z
+        }).FirstOrDefault();
+
+        if (chosen == null)
+        {
+            Debug.Log("PlayerInteraction: nenhum collider interativo selecionado.");
+            return;
+        }
+
+        IInteractable interactableObject = chosen.GetComponent<IInteractable>();
+        if (interactableObject == null)
+        {
+            Debug.Log("PlayerInteraction: collider selecionado não implementa IInteractable (improvável).");
+            return;
+        }
+
+        if (nearbyInteractables.Contains(interactableObject))
+        {
+            interactableObject.Interact();
+        }
+        else
+        {
+            Debug.Log("PlayerInteraction: objeto clicado está fora do raio de interação.");
         }
     }
 

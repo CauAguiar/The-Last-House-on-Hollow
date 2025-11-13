@@ -56,7 +56,15 @@ public class CollectibleItem : MonoBehaviour, IInteractable
         GameStateManager.Instance.MarkAsCollected(uniqueId);
         
         // 2. Adiciona ao inventário.
-        InventoryManager.Instance.AddItem(itemData);
+        if (InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.AddItem(itemData);
+            Debug.Log($"CollectibleItem: '{itemData.itemName}' adicionado ao inventário.");
+        }
+        else
+        {
+            Debug.LogError("CollectibleItem: InventoryManager.Instance não encontrado. Item não foi adicionado ao inventário.");
+        }
 
         // 3. Destrói o objeto.
         Destroy(gameObject);

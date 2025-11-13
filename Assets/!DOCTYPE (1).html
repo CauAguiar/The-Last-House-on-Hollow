@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Last House on Hollow - Fluxo de Puzzles</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #5140ce;
+            color: #f3e8ff;
+            font-family: 'Roboto', sans-serif;
+        }
+        .card {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-left: 4px solid #a855f7;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(2px);
+        }
+        .card:hover {
+            border-left-color: #d8b4fe;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.4);
+        }
+        .card-title {
+            color: #f5d0fe;
+        }
+        .card-title h3, header h1 {
+             font-family: 'Creepster', cursive;
+             letter-spacing: 0.05em;
+        }
+        header h1 {
+            text-shadow: 3px 3px 0px rgba(0,0,0,0.5);
+        }
+        .card-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out, padding 0.5s ease-out;
+            padding: 0 1.5rem;
+        }
+        .card-content.open {
+            max-height: 1000px;
+            padding: 1.5rem 1.5rem;
+        }
+        .act-divider {
+            border-color: rgba(0,0,0,0.2);
+        }
+        .act-title {
+            color: #e9d5ff;
+            background-color: rgba(0,0,0,0.4);
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.3);
+        }
+        .item-key { color: #93c5fd; }
+        .item-clue { color: #a7f3d0; }
+        .item-reward { color: #fef08a; }
+        .location { color: #f9a8d4; }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+    <div class="max-w-4xl mx-auto">
+        <header class="text-center mb-12">
+            <h1 class="text-5xl font-bold text-purple-200 tracking-wider">FLUXO DE PUZZLES</h1>
+            <p class="text-lg text-purple-300 mt-2">The Last House on Hollow</p>
+        </header>
+
+        <main class="space-y-12">
+            <!-- Ato 1 -->
+            <div>
+                <h2 class="act-title sticky top-0 z-10 text-3xl font-semibold mb-4 p-3 rounded-md shadow-lg" style="font-family: 'Creepster', cursive;">Ato 1: O Salão Principal e os Primeiros Segredos</h2>
+                <div class="space-y-4">
+                    <div class="card rounded-lg shadow-md">
+                        <div class="card-title p-6 cursor-pointer" onclick="toggleCard(this)">
+                            <h3 class="text-2xl font-bold">1. Ponto de Partida e Itens Iniciais</h3>
+                        </div>
+                        <div class="card-content">
+                            <p class="text-purple-200">Jogador explora o <span class="location">Salão Principal</span>.</p>
+                            <ul class="list-disc list-inside mt-4 space-y-2 text-purple-300">
+                                <li><b>Fechadura:</b> Quadro da família está preso na parede, estabelecendo a necessidade de uma ferramenta.</li>
+                                <li><b>Coleta 1:</b> Encontra a <span class="item-key">Vela Apagada</span> no armário.</li>
+                                <li><b>Coleta 2:</b> Encontra a <span class="item-key">Chave de Rosca</span> no armário.</li>
+                                <li><b>Interação:</b> Usa a <span class="location">Lareira</span> para obter a <span class="item-reward">Vela Acesa</span>.</li>
+                            </ul>
+                        </div>
+                    </div>
+                     <div class="card rounded-lg shadow-md">
+                        <div class="card-title p-6 cursor-pointer" onclick="toggleCard(this)">
+                            <h3 class="text-2xl font-bold">2. Puzzle dos Retratos</h3>
+                        </div>
+                        <div class="card-content">
+                            <p class="text-purple-200">No <span class="location">Corredor</span>, o jogador encontra retratos da família em desordem.</p>
+                            <ul class="list-disc list-inside mt-4 space-y-2 text-purple-300">
+                                <li><b>Fechadura:</b> A ordem incorreta dos quadros.</li>
+                                <li><b>Solução:</b> Reorganizar os retratos na ordem cronológica correta.</li>
+                                <li><b>Recompensa:</b> Um mecanismo se abre, revelando a <span class="item-clue">pista para a ordem do Candelabro</span>.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card rounded-lg shadow-md">
+                        <div class="card-title p-6 cursor-pointer" onclick="toggleCard(this)">
+                            <h3 class="text-2xl font-bold">3. Puzzle do Candelabro</h3>
+                        </div>
+                        <div class="card-content">
+                            <p class="text-purple-200">De volta ao <span class="location">Salão Principal</span>, o jogador interage com o Candelabro.</p>
+                             <ul class="list-disc list-inside mt-4 space-y-2 text-purple-300">
+                                <li><b>Fechadura:</b> 5 velas apagadas que precisam ser acesas em uma ordem.</li>
+                                <li><b>Chave:</b> A pista obtida no puzzle dos retratos e a <span class="item-key">Vela Acesa</span>.</li>
+                                <li><b>Solução:</b> Acender as velas na sequência correta.</li>
+                                <li><b>Recompensa:</b> A <span class="item-reward">Chave do Banheiro</span> cai do candelabro.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card rounded-lg shadow-md">
+                        <div class="card-title p-6 cursor-pointer" onclick="toggleCard(this)">
+                            <h3 class="text-2xl font-bold">4. Puzzle do Espelho</h3>
+                        </div>
+                        <div class="card-content">
+                            <p class="text-purple-200">No <span class="location">Banheiro</span>, o jogador precisa usar o ambiente a seu favor.</p>
+                             <ul class="list-disc list-inside mt-4 space-y-2 text-purple-300">
+                                <li><b>Fechadura:</b> A banheira está quebrada.</li>
+                                <li><b>Chave:</b> A <span class="item-key">Chave de Rosca</span>.</li>
+                                <li><b>Solução:</b> Consertar a banheira, ligar a água quente para gerar vapor.</li>
+                                <li><b>Recompensa:</b> O vapor revela um <span class="item-clue">horário</span> no espelho.</li>
+                            </ul>
+                        </div>
+                    </div>
+                     <div class="card rounded-lg shadow-md">
+                        <div class="card-title p-6 cursor-pointer" onclick="toggleCard(this)">
+                            <h3 class="text-2xl font-bold">5. Puzzle do Relógio</h3>
+                        </div>
+                        <div class="card-content">
+                            <p class="text-purple-200">Na <span class="location">Sala de Jantar</span>, o relógio parado é a chave.</p>
+                             <ul class="list-disc list-inside mt-4 space-y-2 text-purple-300">
+                                <li><b>Fechadura:</b> O relógio permite ajustar os ponteiros.</li>
+                                <li><b>Chave:</b> O <span class="item-clue">horário</span> visto no espelho do banheiro.</li>
+                                <li><b>Solução:</b> Ajustar o relógio para a hora correta.</li>
+                                <li><b>Recompensa:</b> Um compartimento se abre, revelando o <span class="item-reward">Pé de Cabra</span> e o <span class="item-reward">Pedaço da Carta 3</span>.</li>
+                                <li><b>Coleta Extra:</b> Encontra uma <span class="item-key">Faca</span> na mesa de jantar.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card rounded-lg shadow-md">
+                        <div class="card-title p-6 cursor-pointer" onclick="toggleCard(this)">
+                            <h3 class="text-2xl font-bold">6. Abrindo o Baú</h3>
+                        </div>
+                        <div class="card-content">
+                            <p class="text-purple-200">O ciclo do Ato 1 se fecha no <span class="location">Salão Principal</span>.</p>
+                            <ul class="list-disc list-inside mt-4 space-y-2 text-purple-300">
+                                 <li><b>Solução 1:</b> Usar o <span class="item-key">Pé de Cabra</span> no quadro da família para revelar uma <span class="item-clue">senha</span>.</li>
+                                <li><b>Solução 2:</b> Usar a senha no baú trancado.</li>
+                                <li><b>Recompensa Final do Ato:</b> O baú contém a <span class="item-reward">Chave do Escritório</span>, a <span class="item-reward">Página 2 do Diário</span> e o <span class="item-reward">Pedaço da Carta 2</span>.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="act-divider"/>
+
+            <!-- Ato 2 -->
+            <div>
+                <h2 class="act-title sticky top-0 z-10 text-3xl font-semibold mb-4 p-3 rounded-md shadow-lg" style="font-family: 'Creepster', cursive;">Ato 2: O Escritório e o Enigma das Essências</h2>
+                 <div class="space-y-4">
+                    <div class="card rounded-lg shadow-md">
+                        <div class="card-title p-6 cursor-pointer" onclick="toggleCard(this)">
+                            <h3 class="text-2xl font-bold">1. Puzzle da Máquina de Escrever</h3>
+                        </div>
+                        <div class="card-content">
+                            <p class="text-purple-200">No <span class="location">Escritório</span>, a máquina de escrever guarda um segredo.</p>
+                            <ul class="list-disc list-inside mt-4 space-y-2 text-purple-300">
+                                <li><b>Coleta:</b> Pega o <span class="item-reward">Pedaço da Carta 4</span> preso na máquina.</li>
+                                <li><b>Fechadura:</b> A pergunta no papel: "A quem pertence a essa casa?".</li>
+                                <li><b>Solução:</b> Digitar a palavra "CRAVEN".</li>
+                                <li><b>Recompensa:</b> A máquina responde com um <span class="item-clue">poema enigmático</span> sobre 5 essências.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card rounded-lg shadow-md">
+                        <div class="card-title p-6 cursor-pointer" onclick="toggleCard(this)">
+                            <h3 class="text-2xl font-bold">2. Puzzle das Poções</h3>
+                        </div>
+                        <div class="card-content">
+                             <p class="text-purple-200">Ainda no <span class="location">Escritório</span>, as poções na mesa são a fechadura final.</p>
+                            <ul class="list-disc list-inside mt-4 space-y-2 text-purple-300">
+                                <li><b>Fechadura:</b> 5 poções coloridas que podem ser reorganizadas.</li>
+                                <li><b>Chave:</b> O <span class="item-clue">poema</span> da máquina de escrever.</li>
+                                <li><b>Solução:</b> Colocar as poções na ordem correta (Sangue, Cinza, Raiz, Âmbar, Veneno).</li>
+                                <li><b>Recompensa Final do Ato:</b> Revela a <span class="item-reward">Chave do Quarto do Casal</span> e a <span class="item-reward">Página 3 do Diário</span>.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <hr class="act-divider"/>
+
+            <!-- Ato 3 -->
+            <div>
+                <h2 class="act-title sticky top-0 z-10 text-3xl font-semibold mb-4 p-3 rounded-md shadow-lg" style="font-family: 'Creepster', cursive;">Ato 3: O Quarto do Casal e as Memórias de Sara</h2>
+                <div class="space-y-4">
+                    <div class="card rounded-lg shadow-md">
+                        <div class="card-title p-6 cursor-pointer" onclick="toggleCard(this)">
+                            <h3 class="text-2xl font-bold">1. A Carta Rasgada e o Piano</h3>
+                        </div>
+                        <div class="card-content">
+                            <p class="text-purple-200">A caça aos pedaços da carta leva à solução do piano.</p>
+                            <ul class="list-disc list-inside mt-4 space-y-2 text-purple-300">
+                                <li><b>Coleta Final:</b> Encontra o <span class="item-reward">Pedaço da Carta 1</span> na cômoda do <span class="location">Quarto do Casal</span>.</li>
+                                <li><b>Solução 1:</b> Com todos os 4 pedaços, a <span class="item-key">Carta Completa</span> é formada, revelando uma <span class="item-clue">sequência de notas musicais</span>.</li>
+                                <li><b>Solução 2:</b> Tocar a sequência correta no <span class="location">Piano</span> do Salão Principal.</li>
+                                <li><b>Recompensa:</b> Um compartimento se abre, contendo a <span class="item-reward">Aliança de Sara (Item de Ritual)</span> e a <span class="item-reward">Página 4 do Diário</span>.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card rounded-lg shadow-md">
+                        <div class="card-title p-6 cursor-pointer" onclick="toggleCard(this)">
+                            <h3 class="text-2xl font-bold">2. O Reflexo no Espelho e o Cofre</h3>
+                        </div>
+                        <div class="card-content">
+                             <p class="text-purple-200">Um susto no <span class="location">Quarto do Casal</span> se torna uma pista crucial.</p>
+                            <ul class="list-disc list-inside mt-4 space-y-2 text-purple-300">
+                                <li><b>Evento:</b> Um jumpscare de Sara aparece no espelho.</li>
+                                <li><b>Pista:</b> Após o susto, <span class="item-clue">4 símbolos de sangue</span> aparecem no espelho.</li>
+                                <li><b>Solução:</b> Usar os símbolos para abrir o <span class="location">Cofre</span> no Escritório.</li>
+                                <li><b>Recompensa:</b> O cofre contém a <span class="item-reward">Chave do Quarto das Gêmeas</span> e a <span class="item-reward">Página 5 do Diário</span>.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+             <hr class="act-divider"/>
+
+            <!-- Atos Finais -->
+            <div>
+                <h2 class="act-title sticky top-0 z-10 text-3xl font-semibold mb-4 p-3 rounded-md shadow-lg" style="font-family: 'Creepster', cursive;">Atos Finais: A Escuridão e o Ritual</h2>
+                <div class="space-y-4">
+                    <div class="card rounded-lg shadow-md">
+                        <div class="card-title p-6 cursor-pointer" onclick="toggleCard(this)">
+                            <h3 class="text-2xl font-bold">1. O Quarto das Gêmeas</h3>
+                        </div>
+                        <div class="card-content">
+                            <p class="text-purple-200">No <span class="location">Quarto das Gêmeas</span>, o último item de ritual é encontrado.</p>
+                            <ul class="list-disc list-inside mt-4 space-y-2 text-purple-300">
+                                <li><b>Solução 1:</b> Usar a <span class="item-key">Faca</span> no Coelho de Pelúcia para encontrar uma <span class="item-reward">Lâmpada</span>.</li>
+                                <li><b>Solução 2:</b> Usar a Lâmpada no abajur para revelar uma <span class="item-clue">senha</span>.</li>
+                                <li><b>Solução 3:</b> Usar a senha no Baú de Brinquedos.</li>
+                                <li><b>Recompensa:</b> O baú contém a <span class="item-reward">Boneca Quebrada (Item de Ritual)</span> e a <span class="item-reward">Página 6 do Diário</span> (que tem a senha final do cofre).</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card rounded-lg shadow-md">
+                        <div class="card-title p-6 cursor-pointer" onclick="toggleCard(this)">
+                            <h3 class="text-2xl font-bold">2. O Apagão e a Revelação Final</h3>
+                        </div>
+                        <div class="card-content">
+                             <p class="text-purple-200">O jogo entra em seu clímax.</p>
+                            <ul class="list-disc list-inside mt-4 space-y-2 text-purple-300">
+                                <li><b>Evento:</b> A energia da casa acaba. Um jumpscare das gêmeas ocorre.</li>
+                                <li><b>Revelação:</b> O tapete no <span class="location">Salão Principal</span> se move, revelando a <span class="location">Porta do Porão</span> trancada.</li>
+                                <li><b>Solução:</b> Voltar ao <span class="location">Cofre</span> no Escritório e usar a senha final (da página 6).</li>
+                                <li><b>Recompensa:</b> O cofre contém o <span class="item-reward">Livro do Ritual</span>, a <span class="item-reward">Chave do Porão</span> e a <span class="item-reward">Última Página do Diário</span>.</li>
+                            </ul>
+                        </div>
+                    </div>
+                     <div class="card rounded-lg shadow-md">
+                        <div class="card-title p-6 cursor-pointer" onclick="toggleCard(this)">
+                            <h3 class="text-2xl font-bold">3. Conclusão: O Ritual</h3>
+                        </div>
+                        <div class="card-content">
+                             <p class="text-purple-200">No <span class="location">Porão</span>, a jornada de Charlie chega ao fim.</p>
+                            <ul class="list-disc list-inside mt-4 space-y-2 text-purple-300">
+                                <li><b>Solução:</b> Ler o livro e posicionar os 5 itens de ritual no pentagrama:
+                                    <ul class="list-['-_'] list-inside ml-4">
+                                        <li><span class="item-key">Diário Completo</span> (Memória)</li>
+                                        <li><span class="item-key">Aliança de Sara</span> (Amor)</li>
+                                        <li><span class="item-key">Boneca Quebrada</span> (Infância)</li>
+                                        <li><span class="item-key">Vela Acesa</span> (Esperança)</li>
+                                        <li><span class="item-key">Coração de Tim</span> (Sacrifício, obtido com a Faca)</li>
+                                    </ul>
+                                </li>
+                                <li><b>Desfecho:</b> Cinemática final. A família é libertada. Charlie escapa.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        function toggleCard(element) {
+            const content = element.nextElementSibling;
+            content.classList.toggle('open');
+        }
+    </script>
+</body>
+</html>
+

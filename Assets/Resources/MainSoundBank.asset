@@ -33,3 +33,5 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 08acf80fcc9632a4a86f9f8633c283ee, type: 3}
   - soundName: Espelho
     clip: {fileID: 8300000, guid: 87b4c233e658f8e4ea46cc720e1c0430, type: 3}
+  - soundName: PageFlip
+    clip: {fileID: 8300000, guid: 0d07fd180fd4c604da36723ac9f80711, type: 3}

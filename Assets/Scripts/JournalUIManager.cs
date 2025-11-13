@@ -14,6 +14,13 @@ public class JournalUIManager : MonoBehaviour
     [Header("Controle interno")]
     private int currentPageIndex = 0;
 
+    [Header("Áudio")]
+    [Tooltip("Nome do som no SoundBank para avançar a página")]
+    public string nextPageSfx;
+    [Tooltip("Nome do som no SoundBank para voltar a página")]
+    public string prevPageSfx;
+    public AudioManager.Category sfxCategory = AudioManager.Category.UI;
+
     private void Start()
     {
         journalPanel.SetActive(false);
@@ -92,6 +99,11 @@ public void ToggleJournal()
         {
             currentPageIndex++;
             ShowPage(currentPageIndex);
+            // Toca som de avanço
+            if (!string.IsNullOrEmpty(nextPageSfx) && AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySFX(nextPageSfx, sfxCategory);
+            }
         }
     }
 
@@ -104,6 +116,11 @@ public void ToggleJournal()
         {
             currentPageIndex--;
             ShowPage(currentPageIndex);
+            // Toca som de voltar
+            if (!string.IsNullOrEmpty(prevPageSfx) && AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySFX(prevPageSfx, sfxCategory);
+            }
         }
     }
 
