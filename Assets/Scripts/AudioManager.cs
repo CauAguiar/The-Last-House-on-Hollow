@@ -82,6 +82,13 @@ public class AudioManager : MonoBehaviour
             musicSource.volume = masterVolume * musicVolume;
         if (sfxSource != null)
             sfxSource.volume = masterVolume * sfxVolume;
+        // Atualiza fontes de loop registradas (ex: pia, lareira, etc.)
+        foreach (var loop in loopSources)
+        {
+            if (loop.source == null) continue;
+            float catVol = GetCategoryVolume(loop.category);
+            loop.source.volume = masterVolume * sfxVolume * catVol * loop.localScale;
+        }
     }
 
     public void SetMasterVolume(float v){ masterVolume = Mathf.Clamp01(v); ApplyVolumes(); SaveVolumes(); }
@@ -89,6 +96,76 @@ public class AudioManager : MonoBehaviour
     public void SetSfxVolume(float v){ sfxVolume = Mathf.Clamp01(v); ApplyVolumes(); SaveVolumes(); }
     public void SetCategoryVolume(Category cat, float v){ categoryVolumes[cat] = Mathf.Clamp01(v); SaveVolumes(); }
     public float GetCategoryVolume(Category cat){ return categoryVolumes.ContainsKey(cat) ? categoryVolumes[cat] : 1f; }
+
+    // Registro de loop sources para aplicar mix global automaticamente
+    private struct LoopSourceInfo
+    {
+        public AudioSource source;
+        public Category category;
+        public float localScale;
+        public string soundName;
+    }
+    private readonly System.Collections.Generic.List<LoopSourceInfo> loopSources = new System.Collections.Generic.List<LoopSourceInfo>();
+
+    /// <summary>
+    /// Registra e inicia um loop contínuo (ex: fluxo de água da pia) com aplicação automática de volumes.
+    /// </summary>
+    public void PlayLoopOnSource(AudioSource targetSource, string soundName, Category category, float localScale = 1f, bool restartIfSame = false)
+    {
+        if (targetSource == null || soundBank == null) return;
+        var clip = soundBank.GetClip(soundName);
+        if (clip == null)
+        {
+            Debug.LogWarning($"[AudioManager] Loop '{soundName}' não encontrado no SoundBank.");
+            return;
+        }
+        if (!restartIfSame && targetSource.isPlaying && targetSource.clip == clip)
+        {
+            // Já está tocando o mesmo clip; apenas garante volume atualizado
+            ApplyVolumes();
+            return;
+        }
+        targetSource.clip = clip;
+        targetSource.loop = true;
+        targetSource.spatialBlend = 0f; // 2D por padrão para loops de UI/ambient internos
+        // Calcula volume inicial
+        float catVol = GetCategoryVolume(category);
+        targetSource.volume = masterVolume * sfxVolume * catVol * Mathf.Clamp01(localScale);
+        targetSource.Play();
+        // Registra (remove caso já exista a mesma referência)
+        loopSources.RemoveAll(ls => ls.source == targetSource);
+        loopSources.Add(new LoopSourceInfo{ source = targetSource, category = category, localScale = Mathf.Clamp01(localScale), soundName = soundName });
+    }
+
+    /// <summary>
+    /// Atualiza o volume de um loop já registrado (caso script externo ajuste localScale dinamicamente).
+    /// </summary>
+    public void RefreshLoopVolume(AudioSource targetSource, float newLocalScale)
+    {
+        for (int i = 0; i < loopSources.Count; i++)
+        {
+            if (loopSources[i].source == targetSource)
+            {
+                var info = loopSources[i];
+                info.localScale = Mathf.Clamp01(newLocalScale);
+                loopSources[i] = info;
+                float catVol = GetCategoryVolume(info.category);
+                if (info.source != null)
+                    info.source.volume = masterVolume * sfxVolume * catVol * info.localScale;
+                break;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Para e remove loop registrado.
+    /// </summary>
+    public void StopLoopOnSource(AudioSource targetSource)
+    {
+        loopSources.RemoveAll(ls => ls.source == targetSource);
+        if (targetSource != null && targetSource.isPlaying)
+            targetSource.Stop();
+    }
 
     // Reproduz uma musica de fundo
     public void PlayMusic(string soundName)
@@ -138,69 +215,44 @@ public class AudioManager : MonoBehaviour
     /// </summary>
     public void PlaySFXSlice(string soundName, float startSeconds, float durationSeconds, float volume = 1f)
     {
-        AudioClip original = soundBank.GetClip(soundName);
-        if (original == null)
-        {
-            return;
-        }
-
-        if (durationSeconds <= 0f || startSeconds < 0f)
+        var sliceClip = GetOrCreateSlice(soundName, startSeconds, durationSeconds, out bool valid);
+        if (!valid)
         {
             PlaySFX(soundName);
             return;
         }
-
-        // Limita valores
-        startSeconds = Mathf.Clamp(startSeconds, 0f, original.length);
-        float endSeconds = Mathf.Clamp(startSeconds + durationSeconds, 0f, original.length);
-        float sliceLength = Mathf.Max(0f, endSeconds - startSeconds);
-        if (sliceLength <= 0.0001f)
-        {
-            return; // praticamente zero
-        }
-
-        string key = soundName + "|" + startSeconds.ToString("F3") + "|" + sliceLength.ToString("F3");
-        AudioClip sliceClip;
-        if (!sliceCache.TryGetValue(key, out sliceClip))
-        {
-            // Converte segundos para samples
-            int frequency = original.frequency;
-            int channels = original.channels;
-            int startSample = Mathf.RoundToInt(startSeconds * frequency);
-            int sampleCount = Mathf.RoundToInt(sliceLength * frequency);
-
-            // Buffer para os dados da fatia (interleaved channels)
-            float[] data = new float[sampleCount * channels];
-            // Pega dados diretamente do clip original
-            // offsetSamples é em "samples" já interleavados
-            original.GetData(data, startSample);
-
-            sliceClip = AudioClip.Create("slice_" + key, sampleCount, channels, frequency, false);
-            sliceClip.SetData(data, 0);
-            sliceCache[key] = sliceClip;
-        }
-
         ApplyVolumes();
         sfxSource.PlayOneShot(sliceClip, Mathf.Clamp01(volume) * masterVolume * sfxVolume);
     }
 
     public void PlaySFXSlice(string soundName, float startSeconds, float durationSeconds, float volume, Category category)
     {
-        AudioClip original = soundBank.GetClip(soundName);
-        if (original == null) return;
-        if (durationSeconds <= 0f || startSeconds < 0f)
+        var sliceClip = GetOrCreateSlice(soundName, startSeconds, durationSeconds, out bool valid);
+        if (!valid)
         {
             PlaySFX(soundName, category, volume);
             return;
         }
+        ApplyVolumes();
+        float scale = Mathf.Clamp01(volume) * masterVolume * sfxVolume * GetCategoryVolume(category);
+        sfxSource.PlayOneShot(sliceClip, scale);
+    }
+
+    /// <summary>
+    /// Cria ou retorna de cache uma fatia (slice) de um clip do SoundBank.
+    /// </summary>
+    public AudioClip GetOrCreateSlice(string soundName, float startSeconds, float durationSeconds, out bool valid)
+    {
+        valid = false;
+        AudioClip original = soundBank.GetClip(soundName);
+        if (original == null) return null;
+        if (durationSeconds <= 0f || startSeconds < 0f) return null;
         startSeconds = Mathf.Clamp(startSeconds, 0f, original.length);
         float endSeconds = Mathf.Clamp(startSeconds + durationSeconds, 0f, original.length);
         float sliceLength = Mathf.Max(0f, endSeconds - startSeconds);
-        if (sliceLength <= 0.0001f) return;
-
+        if (sliceLength <= 0.0001f) return null;
         string key = soundName + "|" + startSeconds.ToString("F3") + "|" + sliceLength.ToString("F3");
-        AudioClip sliceClip;
-        if (!sliceCache.TryGetValue(key, out sliceClip))
+        if (!sliceCache.TryGetValue(key, out AudioClip sliceClip))
         {
             int frequency = original.frequency;
             int channels = original.channels;
@@ -212,9 +264,37 @@ public class AudioManager : MonoBehaviour
             sliceClip.SetData(data, 0);
             sliceCache[key] = sliceClip;
         }
-        ApplyVolumes();
-        float scale = Mathf.Clamp01(volume) * masterVolume * sfxVolume * GetCategoryVolume(category);
-        sfxSource.PlayOneShot(sliceClip, scale);
+        valid = true;
+        return sliceClip;
+    }
+
+    /// <summary>
+    /// Inicia um loop usando apenas uma fatia do clip original (ex: parte contínua depois do som inicial).
+    /// </summary>
+    public void PlayLoopSliceOnSource(AudioSource targetSource, string soundName, float startSeconds, float durationSeconds, Category category, float localScale = 1f, bool restartIfSame = false)
+    {
+        if (targetSource == null || soundBank == null) return;
+        var sliceClip = GetOrCreateSlice(soundName, startSeconds, durationSeconds, out bool valid);
+        if (!valid || sliceClip == null)
+        {
+            // fallback: loop normal
+            PlayLoopOnSource(targetSource, soundName, category, localScale, restartIfSame);
+            return;
+        }
+        if (!restartIfSame && targetSource.isPlaying && targetSource.clip == sliceClip)
+        {
+            ApplyVolumes();
+            return;
+        }
+        targetSource.clip = sliceClip;
+        targetSource.loop = true;
+        targetSource.spatialBlend = 0f;
+        float catVol = GetCategoryVolume(category);
+        targetSource.volume = masterVolume * sfxVolume * catVol * Mathf.Clamp01(localScale);
+        targetSource.Play();
+        // registra substituindo anterior
+        loopSources.RemoveAll(ls => ls.source == targetSource);
+        loopSources.Add(new LoopSourceInfo{ source = targetSource, category = category, localScale = Mathf.Clamp01(localScale), soundName = soundName + "|slice" });
     }
 
     // Nota: Footsteps são reproduzidos diretamente pelo PlayerMovement via PlaySFX com categoria Footsteps

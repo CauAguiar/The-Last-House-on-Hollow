@@ -30,7 +30,6 @@ public class MirrorController : InteractableBase
     [SerializeField] private string revealSoundName;
     [Tooltip("Categoria de áudio para o som da revelação.")]
     [SerializeField] private AudioManager.Category revealSoundCategory = AudioManager.Category.UI;
-    private bool isAnimating = false;
 
     private void Start()
     {
@@ -93,7 +92,6 @@ public class MirrorController : InteractableBase
 
     private System.Collections.IEnumerator RevealRoutine()
     {
-        isAnimating = true;
         float t = 0f;
         var tr = clueTextObject.transform as RectTransform;
         // Toca som de revelação
@@ -116,6 +114,5 @@ public class MirrorController : InteractableBase
         }
         if (tr != null) tr.localScale = Vector3.one;
         if (clueCanvasGroup != null) clueCanvasGroup.alpha = 1f;
-        isAnimating = false;
     }
 }

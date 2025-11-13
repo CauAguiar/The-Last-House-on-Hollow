@@ -29,3 +29,7 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: edebb43c16db7dd459a1319bfae2aa19, type: 3}
   - soundName: Fireplace
     clip: {fileID: 8300000, guid: 70424279aeab9434086cf150623611b1, type: 3}
+  - soundName: Torneira
+    clip: {fileID: 8300000, guid: 08acf80fcc9632a4a86f9f8633c283ee, type: 3}
+  - soundName: Espelho
+    clip: {fileID: 8300000, guid: 87b4c233e658f8e4ea46cc720e1c0430, type: 3}
