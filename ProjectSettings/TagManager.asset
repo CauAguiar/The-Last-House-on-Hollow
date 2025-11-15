@@ -59,5 +59,8 @@ TagManager:
   - name: Player
     uniqueID: 2857429003
     locked: 0
+  - name: Superior
+    uniqueID: 3054820941
+    locked: 0
   m_RenderingLayers:
   - Default

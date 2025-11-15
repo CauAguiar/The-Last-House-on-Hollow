@@ -39,3 +39,5 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 8cc3f67ee5a317b459b825697f9d82ab, type: 3}
   - soundName: Chuva
     clip: {fileID: 8300000, guid: 413c95b9c9bf6b14dbe4fcf42f4bf521, type: 3}
+  - soundName: Vaso
+    clip: {fileID: 8300000, guid: 15cc6b7b27029e04d8808a8a88f9c167, type: 3}

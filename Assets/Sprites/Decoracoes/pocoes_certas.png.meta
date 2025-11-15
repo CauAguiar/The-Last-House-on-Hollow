@@ -1,10 +1,19 @@
 fileFormatVersion: 2
-guid: ccfc66edcdb5e0a45a2d7bca7786648f
+guid: 8bb108ea2b71c824a831de2df70f2d1e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4795571187901514116
-    second: candelabro_escritorio_0
+      213: -5971111576820361452
+    second: pocoes_certas_0
+  - first:
+      213: -4865467838040612655
+    second: pocoes_certas_1
+  - first:
+      213: 305470490390626592
+    second: pocoes_certas_2
+  - first:
+      213: -1472604610188441808
+    second: pocoes_certas_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
