@@ -396,7 +396,7 @@ MonoBehaviour:
   inspectSfx: Radio
   sfxCategory: 2
   inspectOnce: 1
-  inspectSfxVolume: 0.162
+  inspectSfxVolume: 0.229
   startLoopOnInspect: 0
 --- !u!1 &849276312
 GameObject:
@@ -738,7 +738,8 @@ MonoBehaviour:
     melhor. '
   proximityHighlightColor: {r: 0.6151294, g: 0.15641688, b: 0.8962264, a: 0.75}
   hoverScaleFactor: 1.1
-  itemsToGive: []
+  itemsToGive:
+  - {fileID: 11400000, guid: 762dafa8ee0dee44cbc80cfb39102b89, type: 2}
   alreadyLootedDialogue: "N\xE3o tem mais nada \xFAtil aqui."
   uniqueId: 8d39d75d-c32d-4055-9860-70263103536a
 --- !u!1 &884659596

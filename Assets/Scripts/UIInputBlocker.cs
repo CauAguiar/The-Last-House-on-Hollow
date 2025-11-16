@@ -7,6 +7,8 @@ using System.Collections.Generic;
 public static class UIInputBlocker
 {
     private static readonly HashSet<string> tokens = new HashSet<string>();
+    // Enable this to get verbose logs about UI blocking operations
+    private static bool verboseLogging = true;
 
     /// <summary>
     /// Verdadeiro quando há pelo menos um bloqueio ativo de UI.
@@ -20,6 +22,10 @@ public static class UIInputBlocker
     {
         if (string.IsNullOrEmpty(token)) token = "default";
         tokens.Add(token);
+        if (verboseLogging)
+        {
+            UnityEngine.Debug.Log($"UIInputBlocker: Block('{token}') called. Active tokens={{ {string.Join(",", tokens)} }}");
+        }
     }
 
     /// <summary>
@@ -29,6 +35,10 @@ public static class UIInputBlocker
     {
         if (string.IsNullOrEmpty(token)) token = "default";
         tokens.Remove(token);
+        if (verboseLogging)
+        {
+            UnityEngine.Debug.Log($"UIInputBlocker: Unblock('{token}') called. Active tokens={{ {string.Join(",", tokens)} }}");
+        }
     }
 
     /// <summary>
@@ -37,5 +47,9 @@ public static class UIInputBlocker
     public static void ClearAll()
     {
         tokens.Clear();
+        if (verboseLogging)
+        {
+            UnityEngine.Debug.Log("UIInputBlocker: ClearAll() called. Active tokens cleared.");
+        }
     }
 }

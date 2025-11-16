@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using TMPro;
 
 /// <summary>
@@ -34,7 +35,8 @@ public class ItemInspectionController : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            // Nota: não marcamos como DontDestroyOnLoad para evitar que referências de UI da cena fiquem inválidas
+            // quando a cena for trocada. O ItemInspectionController deve ser configurado por cena.
         }
         else
         {
@@ -55,6 +57,10 @@ public class ItemInspectionController : MonoBehaviour
         if (closeButton != null)
         {
             closeButton.onClick.AddListener(CloseInspection);
+        }
+        else
+        {
+            Debug.LogWarning("ItemInspectionController: closeButton não está atribuído na cena. Verifique o prefab/UI.");
         }
     }
 
@@ -102,10 +108,79 @@ public class ItemInspectionController : MonoBehaviour
             inspectionPanel.SetActive(true);
         }
 
+        // Ajustes defensivos: desativa raycastTarget de imagens totalmente transparentes
+        // e registra diagnósticos sobre sobreposição de elementos UI com os slots do inventário.
+        TryFixTransparentRaycastTargets();
+        LogInventorySlotOverlaps();
+
         // Pausa o movimento do jogador (opcional mas recomendado)
         PausePlayerMovement(true);
         UIInputBlocker.Block("ItemInspection");
         GamePauseManager.Pause("ItemInspection");
+    }
+
+    private void TryFixTransparentRaycastTargets()
+    {
+        if (inspectionPanel == null) return;
+        var images = inspectionPanel.GetComponentsInChildren<Image>(true);
+        foreach (var img in images)
+        {
+            if (img == null) continue;
+            // If image is essentially invisible (no sprite and near-zero alpha) it should not block raycasts
+            bool transparent = (img.sprite == null && img.color.a <= 0.01f) || img.color.a <= 0.01f;
+            if (transparent && img.raycastTarget)
+            {
+                img.raycastTarget = false;
+                Debug.Log($"ItemInspectionController: disabled raycastTarget on transparent image '{img.gameObject.name}'");
+            }
+        }
+    }
+
+    private void LogInventorySlotOverlaps()
+    {
+        if (inspectionPanel == null) return;
+        if (InventoryUIController.Instance == null || InventoryUIController.Instance.inventorySlots == null) return;
+
+        RectTransform panelRt = inspectionPanel.GetComponent<RectTransform>();
+        if (panelRt == null) return;
+
+        Rect panelRect = GetScreenRect(panelRt);
+
+        for (int i = 0; i < InventoryUIController.Instance.inventorySlots.Count; i++)
+        {
+            var btn = InventoryUIController.Instance.inventorySlots[i];
+            if (btn == null) continue;
+            var slotRt = btn.GetComponent<RectTransform>();
+            Rect slotRect = GetScreenRect(slotRt);
+
+            if (slotRect.Overlaps(panelRect))
+            {
+                Debug.Log($"ItemInspectionController: inventory slot index {i} ('{btn.gameObject.name}') overlaps inspectionPanel rect — this can block clicks.");
+            }
+
+            // Also check individual images inside the panel
+            var images = inspectionPanel.GetComponentsInChildren<Image>(true);
+            foreach (var img in images)
+            {
+                if (img == null) continue;
+                Rect imgRect = GetScreenRect(img.GetComponent<RectTransform>());
+                if (slotRect.Overlaps(imgRect))
+                {
+                    Debug.Log($"ItemInspectionController: slot index {i} ('{btn.gameObject.name}') overlaps image '{img.gameObject.name}' (raycastTarget={img.raycastTarget}).");
+                }
+            }
+        }
+    }
+
+    private Rect GetScreenRect(RectTransform rt)
+    {
+        if (rt == null) return new Rect();
+        Vector3[] corners = new Vector3[4];
+        rt.GetWorldCorners(corners);
+        // Convert world corners to screen space
+        Vector2 min = RectTransformUtility.WorldToScreenPoint(null, corners[0]);
+        Vector2 max = RectTransformUtility.WorldToScreenPoint(null, corners[2]);
+        return new Rect(min.x, min.y, max.x - min.x, max.y - min.y);
     }
 
     /// <summary>
@@ -123,6 +198,7 @@ public class ItemInspectionController : MonoBehaviour
         // Despausa o movimento do jogador
         PausePlayerMovement(false);
         UIInputBlocker.Unblock("ItemInspection");
+        Debug.Log($"ItemInspectionController: CloseInspection called. UIInputBlocker.IsBlocked={UIInputBlocker.IsBlocked}");
         GamePauseManager.Unpause("ItemInspection");
     }
 

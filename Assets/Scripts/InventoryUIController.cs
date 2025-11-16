@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using TMPro;
 
 public class InventoryUIController : MonoBehaviour
 {
@@ -10,6 +12,14 @@ public class InventoryUIController : MonoBehaviour
     [Header("Componentes da UI")]
     public GameObject inventoryPanel;
     public List<Button> inventorySlots;
+
+    [Header("Inspection UI (integrado)")]
+    [Tooltip("Imagem do painel de inspeção integrada ao inventário")]
+    public Image inspectionIconImage;
+    [Tooltip("Nome do item exibido ao passar o mouse")]
+    public TextMeshProUGUI inspectionNameText;
+    [Tooltip("Descrição do item exibida ao passar o mouse")]
+    public TextMeshProUGUI inspectionDescriptionText;
 
     private PlayerControls playerControls;
     private bool isInventoryOpen = false;
@@ -52,7 +62,7 @@ public class InventoryUIController : MonoBehaviour
 
     private void Start()
     {
-        inventoryPanel.SetActive(false);
+        if (inventoryPanel != null) inventoryPanel.SetActive(false);
 
         if (InventoryManager.Instance != null)
         {
@@ -62,7 +72,7 @@ public class InventoryUIController : MonoBehaviour
         {
             Debug.LogError("InventoryManager.Instance não foi encontrado no Start!");
         }
-        
+
         UpdateInventoryUI();
     }
 
@@ -85,7 +95,7 @@ public class InventoryUIController : MonoBehaviour
     private void ToggleInventory(InputAction.CallbackContext context)
     {
         isInventoryOpen = !isInventoryOpen;
-        inventoryPanel.SetActive(isInventoryOpen);
+        if (inventoryPanel != null) inventoryPanel.SetActive(isInventoryOpen);
         if (isInventoryOpen)
         {
             UIInputBlocker.Block("Inventory");
@@ -106,7 +116,7 @@ public class InventoryUIController : MonoBehaviour
     {
         currentUseTarget = target;
         isInventoryOpen = true;
-        inventoryPanel.SetActive(true);
+        if (inventoryPanel != null) inventoryPanel.SetActive(true);
         UIInputBlocker.Block("Inventory");
         GamePauseManager.Pause("Inventory");
     }
@@ -119,54 +129,121 @@ public class InventoryUIController : MonoBehaviour
 
         for (int i = 0; i < inventorySlots.Count; i++)
         {
-            inventorySlots[i].onClick.RemoveAllListeners();
+            var slot = inventorySlots[i];
+            if (slot == null) continue;
+
+            slot.onClick.RemoveAllListeners();
+
+            // Ensure EventTrigger exists and clear previous entries
+            var existingTrigger = slot.GetComponent<EventTrigger>();
+            if (existingTrigger != null)
+            {
+                existingTrigger.triggers = new List<EventTrigger.Entry>();
+            }
 
             if (i < items.Count)
             {
                 InventoryItem currentItem = items[i];
-                
+
                 if (currentItem.icon != null)
                 {
-                    inventorySlots[i].image.sprite = currentItem.icon;
-                    inventorySlots[i].image.enabled = true;
+                    slot.image.sprite = currentItem.icon;
+                    slot.image.enabled = true;
                 }
                 else
                 {
-                    inventorySlots[i].image.enabled = false;
+                    slot.image.enabled = false;
                 }
-                
-                inventorySlots[i].onClick.AddListener(() => OnSlotClicked(currentItem));
+
+                int capturedIndex = i;
+                slot.onClick.AddListener(() => OnSlotClicked(currentItem, capturedIndex));
+                AddPointerEvents(slot, capturedIndex);
             }
             else
             {
-                inventorySlots[i].image.sprite = null;
-                inventorySlots[i].image.enabled = false;
+                slot.image.sprite = null;
+                slot.image.enabled = false;
+                AddPointerEvents(slot, i);
             }
         }
     }
 
-    private void OnSlotClicked(InventoryItem clickedItem)
+    private void AddPointerEvents(Button btn, int index)
     {
+        if (btn == null) return;
+        EventTrigger trigger = btn.GetComponent<EventTrigger>();
+        if (trigger == null) trigger = btn.gameObject.AddComponent<EventTrigger>();
+
+        // PointerEnter
+        var entryEnter = new EventTrigger.Entry { eventID = EventTriggerType.PointerEnter };
+        entryEnter.callback = new EventTrigger.TriggerEvent();
+        entryEnter.callback.AddListener((data) => { OnSlotPointerEnter(index); });
+        trigger.triggers.Add(entryEnter);
+
+        // PointerExit
+        var entryExit = new EventTrigger.Entry { eventID = EventTriggerType.PointerExit };
+        entryExit.callback = new EventTrigger.TriggerEvent();
+        entryExit.callback.AddListener((data) => { OnSlotPointerExit(index); });
+        trigger.triggers.Add(entryExit);
+    }
+
+    private void OnSlotPointerEnter(int slotIndex)
+    {
+        if (InventoryManager.Instance == null) return;
+        var items = InventoryManager.Instance.GetItems();
+        if (slotIndex < 0 || slotIndex >= items.Count)
+        {
+            ClearInspectionFields();
+            return;
+        }
+
+        var item = items[slotIndex];
+        if (inspectionIconImage != null)
+        {
+            if (item.icon != null)
+            {
+                inspectionIconImage.sprite = item.icon;
+                inspectionIconImage.enabled = true;
+            }
+            else
+            {
+                inspectionIconImage.enabled = false;
+            }
+        }
+        if (inspectionNameText != null) inspectionNameText.text = item.itemName;
+        if (inspectionDescriptionText != null) inspectionDescriptionText.text = item.description;
+        Debug.Log($"InventoryUI: Hover slot {slotIndex} -> '{item.itemName}'");
+    }
+
+    private void OnSlotPointerExit(int slotIndex)
+    {
+        ClearInspectionFields();
+        Debug.Log($"InventoryUI: Exit hover slot {slotIndex}");
+    }
+
+    private void ClearInspectionFields()
+    {
+        if (inspectionIconImage != null) { inspectionIconImage.sprite = null; inspectionIconImage.enabled = false; }
+        if (inspectionNameText != null) inspectionNameText.text = "";
+        if (inspectionDescriptionText != null) inspectionDescriptionText.text = "";
+    }
+
+    private void OnSlotClicked(InventoryItem clickedItem, int slotIndex)
+    {
+        Debug.Log($"InventoryUI: Slot clicked index={slotIndex}, item='{(clickedItem!=null?clickedItem.itemName:"<null>")}', inventoryOpen={isInventoryOpen}");
         if (currentUseTarget != null)
         {
             currentUseTarget.OnUseItem(clickedItem);
             currentUseTarget = null;
             isInventoryOpen = false;
-            inventoryPanel.SetActive(false);
+            if (inventoryPanel != null) inventoryPanel.SetActive(false);
             UIInputBlocker.Unblock("Inventory");
             GamePauseManager.Unpause("Inventory");
         }
         else
         {
-            // Abre o painel de inspeção do item
-            if (ItemInspectionController.Instance != null)
-            {
-                ItemInspectionController.Instance.ShowInspection(clickedItem);
-            }
-            else
-            {
-                Debug.LogError("ItemInspectionController.Instance não foi encontrado!");
-            }
+            // Inspection is handled on hover now; clicking without a use target is a no-op
+            Debug.Log("InventoryUI: click with no use target — inspection is shown on hover now.");
         }
     }
 }
