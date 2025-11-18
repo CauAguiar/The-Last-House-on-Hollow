@@ -43,3 +43,7 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 15cc6b7b27029e04d8808a8a88f9c167, type: 3}
   - soundName: Radio
     clip: {fileID: 8300000, guid: 653b2093136129941a382da30509198c, type: 3}
+  - soundName: type_key
+    clip: {fileID: 8300000, guid: 85289842a442da74fa3c74da257a71a1, type: 3}
+  - soundName: typing_loop
+    clip: {fileID: 8300000, guid: 9d2f0080014b7ab478bdc0d3f0832501, type: 3}
