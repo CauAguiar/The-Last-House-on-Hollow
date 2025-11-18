@@ -15,6 +15,10 @@ public class DiaryPage : InteractableBase
         {
             Destroy(gameObject);
         }
+        if (pageId == 0)
+        {
+            Debug.LogWarning($"DiaryPage on '{gameObject.name}' has pageId=0 — please set the correct pageId in the Inspector. Using 0 may map to the first journal page at runtime.");
+        }
     }
 
     [ContextMenu("Generate Unique ID")]
