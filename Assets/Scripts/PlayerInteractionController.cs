@@ -121,7 +121,6 @@ public class PlayerInteractionController : MonoBehaviour
 
         if (hitColliders == null || hitColliders.Length == 0)
         {
-            Debug.Log($"PlayerInteraction: clique não atingiu nenhum colisor. worldPos={worldPosition} mouseScreen={mousePosition} interactableLayerMask={(int)interactableLayerMask}");
             return;
         }
 
@@ -138,7 +137,6 @@ public class PlayerInteractionController : MonoBehaviour
 
         if (interactableColliders.Count == 0)
         {
-            Debug.Log("PlayerInteraction: havia colliders no ponto mas nenhum implementa IInteractable.");
             return;
         }
 
@@ -153,24 +151,14 @@ public class PlayerInteractionController : MonoBehaviour
 
         if (chosen == null)
         {
-            Debug.Log("PlayerInteraction: nenhum collider interativo selecionado.");
             return;
         }
 
         IInteractable interactableObject = chosen.GetComponent<IInteractable>();
-        if (interactableObject == null)
-        {
-            Debug.Log("PlayerInteraction: collider selecionado não implementa IInteractable (improvável).");
-            return;
-        }
-
+        if (interactableObject == null) return;
         if (nearbyInteractables.Contains(interactableObject))
         {
             interactableObject.Interact();
-        }
-        else
-        {
-            Debug.Log("PlayerInteraction: objeto clicado está fora do raio de interação.");
         }
     }
 

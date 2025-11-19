@@ -1,11 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// Controlador de portas. Pode operar em dois modos:
-/// - triggerMode (padrão): quando o jogador entra no trigger, carrega a cena automaticamente.
-/// - interactionMode: o jogador precisa interagir (click/usar) com a porta; opcionalmente a porta pode estar trancada e requerer uma chave.
-/// Esta implementação unifica comportamentos para evitar classes duplicadas.
-/// </summary>
 public class DoorController : InteractableBase
 {
     [Header("Configuração da Porta")]
@@ -20,6 +14,16 @@ public class DoorController : InteractableBase
     [SerializeField] private bool isLocked = false;
     [SerializeField] private InventoryItem requiredKey;
     
+    [Header("Unlocked Visuals & SFX")]
+    [Tooltip("Sprite a ser aplicado ao objeto quando a porta for destrancada (opcional).")]
+    [SerializeField] private Sprite unlockedSprite;
+    [Tooltip("Nome do som no SoundBank para tocar quando a porta for destrancada.")]
+    [SerializeField] private string unlockSfxName;
+    [Tooltip("Se >0, toca apenas um trecho (slice) começando em segundos")]
+    [SerializeField] private float unlockSfxStart = 0f;
+    [SerializeField] private float unlockSfxDuration = 0f;
+    [SerializeField] private float unlockSfxVolume = 1f;
+    
     [Header("Persistência e Identificação")]
     [SerializeField]
     [Tooltip("ID único desta porta para persistência de estado entre cenas. Use 'Generate Unique ID' no menu de contexto do componente.")]
@@ -33,23 +37,26 @@ public class DoorController : InteractableBase
 
     private void Start()
     {
-        // Se esta porta já foi destrancada em uma sessão anterior, respeitamos esse estado.
         if (!string.IsNullOrEmpty(uniqueId) && GameStateManager.Instance != null && GameStateManager.Instance.IsDoorUnlocked(uniqueId))
         {
             isLocked = false;
+            // Se a porta já estiver destrancada no estado persistido, aplica o sprite de destrancada
+            if (unlockedSprite != null)
+            {
+                if (spriteRenderer != null)
+                    spriteRenderer.sprite = unlockedSprite;
+                else
+                    Debug.LogWarning("DoorController.Start: spriteRenderer é nulo, não foi possível aplicar unlockedSprite.");
+            }
         }
     }
 
 #if UNITY_EDITOR
-    // Garante que, em modo de edição, objetos recebam um uniqueId persistente automaticamente
-    // quando o componente é adicionado ou o script recompila. Isso evita que IDs sejam gerados
-    // apenas em Play Mode (que não persiste mudanças ao sair do modo Play).
     private void OnValidate()
     {
         if (string.IsNullOrEmpty(uniqueId))
         {
             uniqueId = System.Guid.NewGuid().ToString();
-            // Marca o objeto e a cena como sujos para que a mudança seja salva.
             UnityEditor.EditorUtility.SetDirty(this);
             if (!Application.isPlaying)
             {
@@ -61,17 +68,12 @@ public class DoorController : InteractableBase
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // Se a porta exige interação, normalmente ignoramos o trigger.
-        // Porém, se a porta já estiver destrancada, permitimos que o jogador passe pelo trigger.
-        if (requireInteraction && isLocked) return; // modo de interação só bloqueia triggers quando trancada
+        if (requireInteraction && isLocked) return;
 
-        // Verifica se o objeto que entrou no trigger tem a tag "Player"
         if (other.CompareTag("Player"))
         {
-            // Se estiver trancada, não permite passar pelo trigger
             if (isLocked)
             {
-                // Mostra uma dica curta ao jogador
                 if (InteractionManager.Instance != null)
                 {
                     InteractionManager.Instance.ShowDialogue("A porta está trancada.");
@@ -79,37 +81,6 @@ public class DoorController : InteractableBase
                 return;
             }
 
-            // Salva a informação de para onde o jogador deve ir usando PlayerPrefs.
-            PlayerPrefs.SetString("NextSpawnPointID", targetSpawnID);
-            PlayerPrefs.Save(); // Garante que a informação seja salva imediatamente.
-
-            // Chama o SceneLoader para carregar a cena com o efeito de fade.
-            if (!string.IsNullOrEmpty(sceneToLoad))
-            {
-                SceneLoader.Instance.LoadScene(sceneToLoad);
-            }
-            else
-            {
-                Debug.LogWarning("DoorController: sceneToLoad não foi especificada.");
-            }
-        }
-    }
-
-    /// <summary>
-    /// Interação via menu de contexto. Se a porta não estiver trancada, carrega a cena; se trancada, abre o menu (base.Interact) para permitir "Usar Item".
-    /// </summary>
-    public override void Interact()
-    {
-        // Em modos que não exigem interação, manter o comportamento padrão de contexto
-        if (!requireInteraction)
-        {
-            base.Interact();
-            return;
-        }
-
-        if (!isLocked)
-        {
-            // Carrega cena do mesmo jeito que o trigger faria
             PlayerPrefs.SetString("NextSpawnPointID", targetSpawnID);
             PlayerPrefs.Save();
 
@@ -122,17 +93,37 @@ public class DoorController : InteractableBase
                 Debug.LogWarning("DoorController: sceneToLoad não foi especificada.");
             }
         }
-        else
-        {
-            // Porta trancada: abre o menu de contexto para permitir usar item (OnUseItem)
-            base.Interact();
-        }
     }
 
-    /// <summary>
-    /// Tenta usar um item do inventário na porta. Se for a chave correta, destranca e consome o item.
-    /// Caso contrário, delega para o comportamento base (mensagem de falha).
-    /// </summary>
+    public override void Interact()
+    {
+        // Se já estiver destrancada, abre/teleporta sem exibir o painel de interação
+        if (!isLocked)
+        {
+            PlayerPrefs.SetString("NextSpawnPointID", targetSpawnID);
+            PlayerPrefs.Save();
+
+            if (!string.IsNullOrEmpty(sceneToLoad))
+            {
+                SceneLoader.Instance.LoadScene(sceneToLoad);
+            }
+            else
+            {
+                Debug.LogWarning("DoorController: sceneToLoad não foi especificada.");
+            }
+            return;
+        }
+
+        // Porta está trancada: exibe painel de interação padrão
+        base.Interact();
+    }
+
+    public override bool CanShowContextMenu()
+    {
+        // Apenas permite o menu de contexto quando a porta estiver trancada.
+        return isLocked;
+    }
+
     public override void OnUseItem(InventoryItem item)
     {
         if (item == null)
@@ -145,22 +136,38 @@ public class DoorController : InteractableBase
         {
             isLocked = false;
 
-            // Persistir que a porta ficou destrancada
             if (!string.IsNullOrEmpty(uniqueId) && GameStateManager.Instance != null)
             {
                 GameStateManager.Instance.MarkDoorUnlocked(uniqueId);
             }
 
-            // Remove a chave do inventário
             if (InventoryManager.Instance != null)
             {
                 InventoryManager.Instance.RemoveItem(requiredKey);
             }
 
-            // Apenas destranca a porta e mostra feedback; o jogador deve entrar no colisor para atravessar.
             if (InteractionManager.Instance != null)
             {
                 InteractionManager.Instance.ShowDialogue("A porta foi destrancada.");
+            }
+
+            // Toca SFX de destrancamento se configurado
+            if (!string.IsNullOrEmpty(unlockSfxName) && AudioManager.Instance != null)
+            {
+                if (unlockSfxDuration > 0f)
+                {
+                    AudioManager.Instance.PlaySFXSlice(unlockSfxName, unlockSfxStart, unlockSfxDuration, unlockSfxVolume, AudioManager.Category.SFX);
+                }
+                else
+                {
+                    AudioManager.Instance.PlaySFX(unlockSfxName, AudioManager.Category.SFX, unlockSfxVolume);
+                }
+            }
+
+            // Aplica sprite de destrancada (se configurado)
+            if (unlockedSprite != null)
+            {
+                SetSprite(unlockedSprite);
             }
         }
         else
@@ -168,6 +175,25 @@ public class DoorController : InteractableBase
             base.OnUseItem(item);
         }
     }
+
+    /// <summary>
+    /// Aplica um novo sprite ao renderer deste interactable.
+    /// Útil para alterar visual quando a porta é destrancada dinamicamente.
+    /// </summary>
+    public void SetSprite(Sprite newSprite)
+    {
+        if (newSprite == null)
+        {
+            Debug.LogWarning("DoorController.SetSprite: novo sprite é nulo.");
+            return;
+        }
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.sprite = newSprite;
+        }
+        else
+        {
+            Debug.LogWarning("DoorController.SetSprite: spriteRenderer é nulo no objeto " + gameObject.name);
+        }
+    }
 }
-
-

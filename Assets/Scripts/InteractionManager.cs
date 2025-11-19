@@ -94,18 +94,10 @@ public class InteractionManager : MonoBehaviour
             return;
         }
         
-        // Prioridade 3: Se nenhuma UI de interação estiver aberta, o clique é para interagir com o mundo.
-        Vector2 mousePosition = Mouse.current.position.ReadValue();
-        RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(mousePosition), Vector2.zero);
-
-        if (hit.collider != null)
-        {
-            InteractableBase interactable = hit.collider.GetComponent<InteractableBase>();
-            if (interactable != null)
-            {
-                ShowContextMenu(interactable);
-            }
-        }
+        // Para evitar duplicação de input, o InteractionManager NÃO processa mais cliques no mundo.
+        // A responsabilidade por raycasts e seleção de interactables foi movida para
+        // `PlayerInteractionController`. Aqui mantemos apenas o comportamento de diálogo
+        // (avançar/fechar) para que o jogador possa usar o mesmo botão para dialogues.
     }
     
     private void HandleDialogueClick()
@@ -137,6 +129,12 @@ public class InteractionManager : MonoBehaviour
         if (!IsAlive(contextMenu))
         {
             Debug.LogWarning("ContextMenu não está atribuído ou foi destruído. Ignorando a abertura do menu de contexto.");
+            return;
+        }
+
+        // Allow the interactable to veto showing the context menu.
+        if (!interactable.CanShowContextMenu())
+        {
             return;
         }
 

@@ -15,6 +15,18 @@ public abstract class InteractableBase : MonoBehaviour, IInteractable
     [SerializeField] private Color proximityHighlightColor = new Color(1f, 1f, 1f, 0.75f); // Um branco semi-transparente
     [SerializeField] private float hoverScaleFactor = 1.1f;
 
+    [Header("Respostas para uso incorreto")]
+    [Tooltip("Frases que serão mostradas aleatoriamente quando o jogador tentar usar um item que não funciona aqui.")]
+    [SerializeField]
+    private string[] wrongItemResponses = new string[]
+    {
+        "Não acho que deva usar isso aqui.",
+        "Devo estar endoidando usando isso aqui.",
+        "Acho que isso não vai funcionar aqui.",
+        "Não parece o lugar certo para isso.",
+        "Essa merda não funciona aqui."
+    };
+
     protected SpriteRenderer spriteRenderer;
     private Color originalColor;
     private Vector3 originalScale;
@@ -34,6 +46,25 @@ public abstract class InteractableBase : MonoBehaviour, IInteractable
     {
         InteractionManager.Instance.ShowContextMenu(this);
     }
+
+    /// <summary>
+    /// Hook used by InteractionManager to determine whether the context menu
+    /// should be shown for this interactable. Override to customize behavior
+    /// (e.g., doors that are already unlocked should not show the menu).
+    /// </summary>
+    public virtual bool CanShowContextMenu()
+    {
+        return true;
+    }
+
+    /// <summary>
+    /// Returns true if the player is currently within proximity of this interactable.
+    /// This is set by the proximity detection system (`PlayerInteractionController`).
+    /// </summary>
+    public bool IsPlayerInProximity()
+    {
+        return isPlayerNearby;
+    }
     
     public virtual void OnInspect()
     {
@@ -45,7 +76,28 @@ public abstract class InteractableBase : MonoBehaviour, IInteractable
     
     public virtual void OnUseItem(InventoryItem item)
     {
-        Debug.Log($"O item '{item.itemName}' não funciona aqui.");
+        if (item == null)
+        {
+            // Nada a fazer se nenhum item foi passado
+            return;
+        }
+
+        string reply = "Não acho que deva usar isso aqui.";
+        if (wrongItemResponses != null && wrongItemResponses.Length > 0)
+        {
+            int idx = UnityEngine.Random.Range(0, wrongItemResponses.Length);
+            reply = wrongItemResponses[idx];
+        }
+
+        if (InteractionManager.Instance != null)
+        {
+            InteractionManager.Instance.ShowDialogue(reply);
+        }
+        else
+        {
+            // Fallback para quando o InteractionManager não estiver pronto
+            Debug.Log(reply);
+        }
     }
     
     // --- Lógica de Feedback Visual ---
