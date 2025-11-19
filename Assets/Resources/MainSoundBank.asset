@@ -47,3 +47,7 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 85289842a442da74fa3c74da257a71a1, type: 3}
   - soundName: typing_loop
     clip: {fileID: 8300000, guid: 9d2f0080014b7ab478bdc0d3f0832501, type: 3}
+  - soundName: Potion
+    clip: {fileID: 8300000, guid: b49015cf6d3c9dc4ea0eadefe5bac743, type: 3}
+  - soundName: Abrir
+    clip: {fileID: 8300000, guid: edebb43c16db7dd459a1319bfae2aa19, type: 3}

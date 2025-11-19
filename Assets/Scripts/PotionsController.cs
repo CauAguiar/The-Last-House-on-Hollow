@@ -10,6 +10,9 @@ public class PotionsController : InteractableBase
     [Header("Estado")]
     [SerializeField] private string uniqueId;
     private bool isSolved = false;
+    [Header("World Visuals")]
+    [Tooltip("Sprite a ser usado no mundo quando o puzzle estiver resolvido (ex: 'pocoes_certas').")]
+    [SerializeField] private Sprite solvedSprite;
 
     private void Start()
     {
@@ -51,6 +54,21 @@ public class PotionsController : InteractableBase
             Debug.LogWarning("JournalManager.Instance is null: não foi possível adicionar a página do diário.");
         }
 
+        // Atualiza sprite do objeto no mundo para estado resolvido (se configurado)
+        if (solvedSprite != null && spriteRenderer != null)
+        {
+            spriteRenderer.sprite = solvedSprite;
+        }
+
         InteractionManager.Instance.ShowDialogue("Um compartimento embaixo do armário abriu, que porra é essa? Tem uma <color=#5140ce>Chave</color> e uma <color=#5140ce>página do diário</color>.");
+    }
+
+    /// <summary>
+    /// Atualiza os sprites visuais das poções no mundo com base na ordem atual do UI puzzle.
+    /// </summary>
+    public void UpdateWorldSprites(System.Collections.Generic.List<Sprite> spritesInOrder)
+    {
+        // Deprecated: replaced by single solvedSprite behavior. Keep method for compatibility but no-op.
+        return;
     }
 }

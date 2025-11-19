@@ -83,6 +83,8 @@ public class PickupNotificationManager : MonoBehaviour
         // Garante que há um CanvasGroup para controlar alpha
         var cg = go.GetComponent<CanvasGroup>();
         if (cg == null) cg = go.AddComponent<CanvasGroup>();
+        // Notificações não devem interceptar cliques de UI (deixar passar para botões abaixo)
+        cg.blocksRaycasts = false;
 
         // Se o prefab tiver imagens com alpha zerado ou desabilitadas, habilita e corrige alpha
         var images = go.GetComponentsInChildren<Image>(true);
@@ -98,6 +100,8 @@ public class PickupNotificationManager : MonoBehaviour
                 img.color = new Color(c.r, c.g, c.b, 1f);
                 Debug.Log("PickupNotificationManager: Ajustei alpha de Image filha para 1. Verifique prefab para comportamento desejado.");
             }
+            // Evita que imagens de background capturem o clique. Se alguma imagem precisa capturar cliques, trate manualmente no prefab.
+            img.raycastTarget = false;
         }
 
         // Fade in

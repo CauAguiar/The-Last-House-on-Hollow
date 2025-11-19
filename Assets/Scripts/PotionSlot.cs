@@ -17,6 +17,15 @@ public class PotionSlot : MonoBehaviour, IPointerClickHandler, IPointerEnterHand
     [HideInInspector] public PotionColor currentColor;
     private int slotIndex;
     private Image highlightImage;
+    [Header("Audio")]
+    [Tooltip("Nome do som no SoundBank a ser tocado ao clicar neste slot")]
+    public string clickSfxName;
+    [Tooltip("Início em segundos da fatia do áudio a tocar (usado por PlaySFXSlice).")]
+    public float clickSfxStart = 0f;
+    [Tooltip("Duração em segundos da fatia do áudio a tocar (usado por PlaySFXSlice). Se 0 toca o clip inteiro.")]
+    public float clickSfxDuration = 0.12f;
+    public AudioManager.Category clickSfxCategory = AudioManager.Category.UI;
+    [Range(0f,1f)] public float clickSfxVolume = 1f;
     private Vector3 originalScale;
     private Coroutine scaleCoroutine;
     [Header("Hover")]
@@ -75,6 +84,16 @@ public class PotionSlot : MonoBehaviour, IPointerClickHandler, IPointerEnterHand
             return;
         }
         Debug.Log($"PotionSlot clicked: index={slotIndex}, color={currentColor}");
+
+        // Play click SFX slice if configured
+        if (!string.IsNullOrEmpty(clickSfxName) && AudioManager.Instance != null)
+        {
+            if (clickSfxDuration > 0f)
+                AudioManager.Instance.PlaySFXSlice(clickSfxName, clickSfxStart, clickSfxDuration, clickSfxVolume, clickSfxCategory);
+            else
+                AudioManager.Instance.PlaySFX(clickSfxName, clickSfxCategory, clickSfxVolume);
+        }
+
         PotionsUIManager.Instance.OnSlotClicked(slotIndex);
     }
 

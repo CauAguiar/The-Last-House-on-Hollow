@@ -28,6 +28,40 @@ public class JournalUIManager : MonoBehaviour
         prevButton.onClick.AddListener(PreviousPage);
     }
 
+    private void OnEnable()
+    {
+        if (JournalManager.Instance != null)
+            JournalManager.Instance.OnPageCollected += HandlePageCollected;
+    }
+
+    private void OnDisable()
+    {
+        if (JournalManager.Instance != null)
+            JournalManager.Instance.OnPageCollected -= HandlePageCollected;
+    }
+
+    private void HandlePageCollected(int pageId)
+    {
+        Debug.Log($"JournalUIManager: HandlePageCollected pageId={pageId}. journalPanel.activeSelf={journalPanel?.activeSelf}");
+        // If the journal is open, refresh the displayed page list and show the newly collected page
+        if (journalPanel != null && journalPanel.activeSelf)
+        {
+            var jm = JournalManager.Instance;
+            if (jm == null) return;
+            // find new page index
+            int idx = jm.collectedPages.IndexOf(pageId);
+            if (idx >= 0)
+            {
+                currentPageIndex = idx;
+                ShowPage(currentPageIndex);
+            }
+            else
+            {
+                Debug.LogWarning($"JournalUIManager: pageId={pageId} not found in collectedPages after collect.");
+            }
+        }
+    }
+
     private void Update()
     {
         if (JournalManager.Instance == null || JournalManager.Instance.collectedPages.Count == 0)
@@ -47,6 +81,62 @@ public class JournalUIManager : MonoBehaviour
 
         if (openPressed)
             ToggleJournal();
+
+        // Diagnostic: when left mouse clicked, log which UI element is under pointer
+#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
+        if (UnityEngine.InputSystem.Mouse.current != null && UnityEngine.InputSystem.Mouse.current.leftButton.wasPressedThisFrame)
+        {
+            LogUiUnderPointer();
+        }
+#else
+        if (UnityEngine.Input.GetMouseButtonDown(0))
+        {
+            LogUiUnderPointer();
+        }
+#endif
+    }
+
+    private void LogUiUnderPointer()
+    {
+        var es = UnityEngine.EventSystems.EventSystem.current;
+        string selected = es != null && es.currentSelectedGameObject != null ? es.currentSelectedGameObject.name : "<none>";
+        Debug.Log($"JournalUIManager: Mouse click detected. EventSystem.currentSelected={selected}");
+
+        // Raycast against UI
+        var pointerData = new UnityEngine.EventSystems.PointerEventData(es);
+        // Use the active input system to get pointer position when available
+#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
+        if (UnityEngine.InputSystem.Mouse.current != null)
+            pointerData.position = UnityEngine.InputSystem.Mouse.current.position.ReadValue();
+        else
+            pointerData.position = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+#else
+        pointerData.position = UnityEngine.Input.mousePosition;
+#endif
+        var results = new System.Collections.Generic.List<UnityEngine.EventSystems.RaycastResult>();
+        var gr = journalPanel != null ? journalPanel.GetComponentInParent<UnityEngine.Canvas>()?.GetComponent<UnityEngine.UI.GraphicRaycaster>() : null;
+        if (gr == null)
+        {
+            // try to find any GraphicRaycaster in scene
+#if UNITY_2023_1_OR_NEWER
+            gr = UnityEngine.Object.FindFirstObjectByType<UnityEngine.UI.GraphicRaycaster>();
+#else
+            gr = UnityEngine.Object.FindObjectOfType<UnityEngine.UI.GraphicRaycaster>();
+#endif
+        }
+        if (gr != null)
+        {
+            gr.Raycast(pointerData, results);
+            Debug.Log($"JournalUIManager: UI raycast hit count={results.Count}");
+            for (int i = 0; i < results.Count; i++)
+            {
+                Debug.Log($"  hit[{i}] = {results[i].gameObject.name} (module={results[i].module})");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("JournalUIManager: No GraphicRaycaster found for UI raycast diagnostics.");
+        }
     }
 
 // Dentro de JournalUIManager.cs
@@ -76,16 +166,35 @@ public void ToggleJournal()
     {
         var jm = JournalManager.Instance;
 
-        if (jm != null && jm.collectedPages.Count > 0 && index < jm.collectedPages.Count)
+        Debug.Log($"JournalUIManager.ShowPage called with index={index}");
+        if (jm == null)
         {
-            int pageId = jm.collectedPages[index];
-            string content = jm.GetPageContent(pageId);
-            pageText.text = content;
-        }
-        else
-        {
+            Debug.LogWarning("JournalUIManager.ShowPage: JournalManager.Instance == null");
             pageText.text = "Nenhuma página coletada ainda.";
+            UpdateButtonStates();
+            return;
         }
+
+        if (jm.collectedPages == null || jm.collectedPages.Count == 0)
+        {
+            Debug.Log("JournalUIManager.ShowPage: collectedPages empty");
+            pageText.text = "Nenhuma página coletada ainda.";
+            UpdateButtonStates();
+            return;
+        }
+
+        if (index < 0 || index >= jm.collectedPages.Count)
+        {
+            Debug.LogWarning($"JournalUIManager.ShowPage: index {index} out of range (count={jm.collectedPages.Count})");
+            pageText.text = "Página não encontrada.";
+            UpdateButtonStates();
+            return;
+        }
+
+        int pageId = jm.collectedPages[index];
+        Debug.Log($"JournalUIManager.ShowPage: displaying pageId={pageId} at collectedPages index={index}");
+        string content = jm.GetPageContent(pageId);
+        pageText.text = content;
 
         UpdateButtonStates();
     }
@@ -95,6 +204,7 @@ public void ToggleJournal()
         var jm = JournalManager.Instance;
         if (jm == null || jm.collectedPages.Count == 0) return;
 
+        Debug.Log($"JournalUIManager.NextPage called. currentPageIndex={currentPageIndex}, collectedCount={jm.collectedPages.Count}");
         if (currentPageIndex < jm.collectedPages.Count - 1)
         {
             currentPageIndex++;
@@ -112,6 +222,7 @@ public void ToggleJournal()
         var jm = JournalManager.Instance;
         if (jm == null || jm.collectedPages.Count == 0) return;
 
+        Debug.Log($"JournalUIManager.PreviousPage called. currentPageIndex={currentPageIndex}, collectedCount={jm.collectedPages.Count}");
         if (currentPageIndex > 0)
         {
             currentPageIndex--;
@@ -131,5 +242,6 @@ public void ToggleJournal()
 
         prevButton.interactable = (currentPageIndex > 0);
         nextButton.interactable = (currentPageIndex < jm.collectedPages.Count - 1);
+        Debug.Log($"JournalUIManager.UpdateButtonStates: currentPageIndex={currentPageIndex}, count={jm.collectedPages.Count}, prevInteractable={prevButton.interactable}, nextInteractable={nextButton.interactable}");
     }
 }

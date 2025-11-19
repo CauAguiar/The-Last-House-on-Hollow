@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 /// <summary>
 /// Controla o progresso do jogador com as páginas do diário.
@@ -17,6 +18,8 @@ public class JournalManager : MonoBehaviour
 
     [Header("Páginas coletadas")]
     public List<int> collectedPages = new List<int>();
+    // Evento disparado quando uma página é coletada (fornece o pageId)
+    public event Action<int> OnPageCollected;
 
     private void Awake()
     {
@@ -166,6 +169,8 @@ public class JournalManager : MonoBehaviour
 
             // Ordena a lista de IDs para que a navegação seja sempre crescente (1, 2, 3...)
             collectedPages.Sort();
+            // Notifica ouvintes (UI, etc.) que uma página foi coletada
+            try { OnPageCollected?.Invoke(pageId); } catch (Exception ex) { Debug.LogWarning($"JournalManager: erro ao notificar OnPageCollected: {ex}"); }
         }
         else
         {

@@ -30,6 +30,15 @@ public class PotionsUIManager : MonoBehaviour
     private List<PotionSlot> slots = new List<PotionSlot>();
     private int selectedSlotIndex = -1; // -1 significa "ninguém selecionado"
     private PotionsController currentController;
+    [Header("Áudio")]
+    [Tooltip("Som tocado quando o puzzle for completado (nome no SoundBank)")]
+    [SerializeField] private string completionSfxName;
+    [Tooltip("Start time (s) of completion SFX slice")]
+    [SerializeField] private float completionSfxStart = 0f;
+    [Tooltip("Duration (s) of completion SFX slice; if 0, plays full clip")]
+    [SerializeField] private float completionSfxDuration = 1.5f;
+    [SerializeField] private AudioManager.Category completionSfxCategory = AudioManager.Category.SFX;
+    [Range(0f,1f)] [SerializeField] private float completionSfxVolume = 1f;
 
     private void Awake()
     {
@@ -167,7 +176,17 @@ public class PotionsUIManager : MonoBehaviour
 
         // Se passou pelo loop, venceu!
         Debug.Log("Puzzle das Poções Resolvido!");
-        currentController.OnPuzzleSolved();
+
+        // Toca som de conclusão se houver
+        if (!string.IsNullOrEmpty(completionSfxName) && AudioManager.Instance != null)
+        {
+            if (completionSfxDuration > 0f)
+                AudioManager.Instance.PlaySFXSlice(completionSfxName, completionSfxStart, completionSfxDuration, completionSfxVolume, completionSfxCategory);
+            else
+                AudioManager.Instance.PlaySFX(completionSfxName, completionSfxCategory, completionSfxVolume);
+        }
+        // Atualiza visual do controller (potions) e notifica solução
+        if (currentController != null) currentController.OnPuzzleSolved();
         ClosePuzzle();
     }
     
