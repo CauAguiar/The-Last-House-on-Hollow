@@ -108,6 +108,12 @@ public class ItemInspectionController : MonoBehaviour
             inspectionPanel.SetActive(true);
         }
 
+        // Set keyboard/controller focus for accessibility
+        if (UnityEngine.EventSystems.EventSystem.current != null && closeButton != null)
+        {
+            UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(closeButton.gameObject);
+        }
+
         // Ajustes defensivos: desativa raycastTarget de imagens totalmente transparentes
         // e registra diagnósticos sobre sobreposição de elementos UI com os slots do inventário.
         TryFixTransparentRaycastTargets();
@@ -117,6 +123,14 @@ public class ItemInspectionController : MonoBehaviour
         PausePlayerMovement(true);
         UIInputBlocker.Block("ItemInspection");
         GamePauseManager.Pause("ItemInspection");
+
+        // Auto-attach ESC-close helper
+        if (inspectionPanel != null && inspectionPanel.GetComponent<UIAutoCloseOnCancel>() == null)
+        {
+            var helper = inspectionPanel.AddComponent<UIAutoCloseOnCancel>();
+            helper.panel = inspectionPanel;
+            helper.closeButton = closeButton;
+        }
     }
 
     private void TryFixTransparentRaycastTargets()

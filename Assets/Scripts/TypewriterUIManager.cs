@@ -157,6 +157,17 @@ public class TypewriterUIManager : MonoBehaviour
 
         typewriterPanel.SetActive(true);
         PlayerMovement.Instance.LockMovement();
+        // Focus first close/escape button for keyboard/controller
+        if (UnityEngine.EventSystems.EventSystem.current != null && closeButton != null)
+        {
+            UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(closeButton.gameObject);
+        }
+        if (typewriterPanel != null && typewriterPanel.GetComponent<UIAutoCloseOnCancel>() == null)
+        {
+            var helper = typewriterPanel.AddComponent<UIAutoCloseOnCancel>();
+            helper.panel = typewriterPanel;
+            helper.closeButton = closeButton;
+        }
     }
 
     public void ClosePuzzle()
@@ -164,6 +175,8 @@ public class TypewriterUIManager : MonoBehaviour
         typewriterPanel.SetActive(false);
         currentController = null;
         PlayerMovement.Instance.UnlockMovement();
+        if (UnityEngine.EventSystems.EventSystem.current != null)
+            UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
     }
 
     // --- Funções Públicas para os Botões ---

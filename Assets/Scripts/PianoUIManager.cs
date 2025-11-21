@@ -131,6 +131,19 @@ public class PianoUIManager : MonoBehaviour
         // Ensure close button is enabled unless we are processing (blocking)
         if (closeButton != null)
             closeButton.interactable = !isProcessing;
+
+        // Accessibility: select close button so keyboard users can press Escape or submit to close
+        if (UnityEngine.EventSystems.EventSystem.current != null && closeButton != null)
+        {
+            UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(closeButton.gameObject);
+        }
+
+        if (pianoPanel != null && pianoPanel.GetComponent<UIAutoCloseOnCancel>() == null)
+        {
+            var helper = pianoPanel.AddComponent<UIAutoCloseOnCancel>();
+            helper.panel = pianoPanel;
+            helper.closeButton = closeButton;
+        }
     }
 
     // Debugging helper: logs order of PianoKey objects sorted by X position (left-to-right)

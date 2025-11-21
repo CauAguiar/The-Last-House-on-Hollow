@@ -47,7 +47,9 @@ public class InteractionManager : MonoBehaviour
     private void OnEnable()
     {
         playerControls.Player.Enable();
+        playerControls.UI.Enable();
         playerControls.Player.Interact.performed += OnInteractPerformed; 
+        playerControls.UI.Cancel.performed += OnUICancelPerformed;
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
@@ -56,7 +58,9 @@ public class InteractionManager : MonoBehaviour
         if (playerControls != null)
         {
             playerControls.Player.Disable();
+            playerControls.UI.Disable();
             playerControls.Player.Interact.performed -= OnInteractPerformed;
+            playerControls.UI.Cancel.performed -= OnUICancelPerformed;
         }
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
@@ -334,6 +338,44 @@ public class InteractionManager : MonoBehaviour
             currentInteractable.OnInspect();
         }
         HideContextMenu();
+    }
+
+    private void OnUICancelPerformed(UnityEngine.InputSystem.InputAction.CallbackContext context)
+    {
+        // Close in most-recently-open order
+        if (dialogueBox != null && dialogueBox.activeSelf)
+        {
+            HideDialogueBox();
+            return;
+        }
+
+        if (contextMenu != null && contextMenu.activeSelf)
+        {
+            HideContextMenu();
+            return;
+        }
+
+        // Inventory
+        if (InventoryUIController.Instance != null && InventoryUIController.Instance.IsInventoryOpen())
+        {
+            InventoryUIController.Instance.CloseInventory();
+            return;
+        }
+
+        // Item inspection
+        if (ItemInspectionController.Instance != null && ItemInspectionController.Instance.IsInspectionOpen())
+        {
+            ItemInspectionController.Instance.CloseInspection();
+            return;
+        }
+
+        // Other puzzle UIs with standard ClosePuzzle naming pattern
+        // Call common ClosePuzzle methods (managers should no-op if already closed)
+        TypewriterUIManager.Instance?.ClosePuzzle();
+        PotionsUIManager.Instance?.ClosePuzzle();
+        PianoUIManager.Instance?.ClosePuzzle();
+        ChestUIManager.Instance?.ClosePuzzle();
+        ClockUIManager.Instance?.ClosePuzzle();
     }
 
     private void OnUseItemClicked()

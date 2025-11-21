@@ -52,6 +52,16 @@ public class ClockUIManager : MonoBehaviour
         PlayerMovement.Instance.LockMovement();
         UIInputBlocker.Block("ClockPuzzle");
         GamePauseManager.Pause("ClockPuzzle");
+        if (clockPanel != null && clockPanel.GetComponent<UIAutoCloseOnCancel>() == null)
+        {
+            var helper = clockPanel.AddComponent<UIAutoCloseOnCancel>();
+            helper.panel = clockPanel;
+            helper.closeButton = closeButton;
+        }
+        if (UnityEngine.EventSystems.EventSystem.current != null && closeButton != null)
+        {
+            UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(closeButton.gameObject);
+        }
         // Opcional: Pausar o jogo aqui
     }
 

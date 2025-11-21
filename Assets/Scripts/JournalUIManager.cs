@@ -32,6 +32,18 @@ public class JournalUIManager : MonoBehaviour
         {
             closeButton.onClick.AddListener(() => ToggleJournal());
         }
+
+        if (journalPanel != null && journalPanel.GetComponent<UIAutoCloseOnCancel>() == null)
+        {
+            var helper = journalPanel.AddComponent<UIAutoCloseOnCancel>();
+            helper.panel = journalPanel;
+            helper.closeButton = closeButton;
+        }
+
+        if (journalPanel != null && journalPanel.GetComponent<UIFocusTrap>() == null)
+        {
+            journalPanel.AddComponent<UIFocusTrap>();
+        }
     }
 
     private void OnEnable()
@@ -159,6 +171,10 @@ public void ToggleJournal()
         if (PlayerMovement.Instance != null) PlayerMovement.Instance.LockMovement();
         UIInputBlocker.Block("Journal");
         GamePauseManager.Pause("Journal");
+        if (UnityEngine.EventSystems.EventSystem.current != null && closeButton != null)
+        {
+            UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(closeButton.gameObject);
+        }
     }
     else
     {

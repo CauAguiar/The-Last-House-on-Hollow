@@ -107,6 +107,20 @@ public class PotionsUIManager : MonoBehaviour
         // Pausa o jogo para que efeitos de tempo sejam pausados (opcional)
         GamePauseManager.Pause("Potions");
 
+        // Set UI selection to close button for keyboard/controller users
+        if (UnityEngine.EventSystems.EventSystem.current != null && closeButton != null)
+        {
+            UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(closeButton.gameObject);
+        }
+
+        // Auto-attach ESC close helper when available
+        if (puzzlePanel != null && puzzlePanel.GetComponent<UIAutoCloseOnCancel>() == null)
+        {
+            var helper = puzzlePanel.AddComponent<UIAutoCloseOnCancel>();
+            helper.panel = puzzlePanel;
+            helper.closeButton = closeButton;
+        }
+
         // Reseta a seleção
         DeselectAll();
     }

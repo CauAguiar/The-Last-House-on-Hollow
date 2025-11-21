@@ -81,6 +81,20 @@ public class InventoryUIController : MonoBehaviour
         }
 
         UpdateInventoryUI();
+
+        // Auto-attach a small helper so ESC/CANCEL will close the panel consistently
+        if (inventoryPanel != null && inventoryPanel.GetComponent<UIAutoCloseOnCancel>() == null)
+        {
+            var helper = inventoryPanel.AddComponent<UIAutoCloseOnCancel>();
+            helper.panel = inventoryPanel;
+            helper.closeButton = closeButton;
+        }
+
+        // Add focus trap to keep keyboard tab cycling inside the inventory when open
+        if (inventoryPanel != null && inventoryPanel.GetComponent<UIFocusTrap>() == null)
+        {
+            inventoryPanel.AddComponent<UIFocusTrap>();
+        }
     }
 
     private void OnDestroy()
@@ -117,6 +131,21 @@ public class InventoryUIController : MonoBehaviour
         {
             currentUseTarget = null;
         }
+        else
+        {
+            // Set keyboard/controller focus to the close button if possible for easy ESC/UI navigation
+            if (UnityEngine.EventSystems.EventSystem.current != null)
+            {
+                if (closeButton != null && closeButton.gameObject.activeInHierarchy)
+                {
+                    UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(closeButton.gameObject);
+                }
+                else if (inventorySlots != null && inventorySlots.Count > 0 && inventorySlots[0] != null)
+                {
+                    UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(inventorySlots[0].gameObject);
+                }
+            }
+        }
     }
 
     public void OpenInventoryForUse(InteractableBase target)
@@ -135,6 +164,16 @@ public class InventoryUIController : MonoBehaviour
         if (inventoryPanel != null) inventoryPanel.SetActive(false);
         UIInputBlocker.Unblock("Inventory");
         GamePauseManager.Unpause("Inventory");
+        if (UnityEngine.EventSystems.EventSystem.current != null)
+        {
+            UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+        }
+        // Remove focus trap when closed
+        if (inventoryPanel != null)
+        {
+            var trap = inventoryPanel.GetComponent<UIFocusTrap>();
+            if (trap != null) Destroy(trap);
+        }
     }
 
     private void UpdateInventoryUI()
