@@ -10,6 +10,8 @@ public class JournalUIManager : MonoBehaviour
     public TMP_Text pageText;
     public Button nextButton;
     public Button prevButton;
+    [Tooltip("Botão para fechar o diário (opcional).")]
+    public Button closeButton;
 
     [Header("Controle interno")]
     private int currentPageIndex = 0;
@@ -26,6 +28,10 @@ public class JournalUIManager : MonoBehaviour
         journalPanel.SetActive(false);
         nextButton.onClick.AddListener(NextPage);
         prevButton.onClick.AddListener(PreviousPage);
+        if (closeButton != null)
+        {
+            closeButton.onClick.AddListener(() => ToggleJournal());
+        }
     }
 
     private void OnEnable()
