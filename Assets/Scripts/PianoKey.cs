@@ -42,7 +42,7 @@ public class PianoKey : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
     [SerializeField] private float blackKeyPerspectiveWidth = 40f; // Largura dos sprites de perspectiva (esquerda/direita)
     
     private bool isPressed = false;
-    private float pressedTimer = 0f;
+    private Coroutine pressedCoroutine = null;
     private Color originalColor;
     private Coroutine colorCoroutine;
     private bool hasPersistentColor = false;
@@ -58,6 +58,11 @@ public class PianoKey : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
     private float lastOverlayAlpha = -1f;
     private PerspectiveState currentPerspective = PerspectiveState.Normal;
     private Vector2 originalSize;
+    [Header("Áudio Avançado")]
+    [Tooltip("Se maior que 0, tocará apenas uma fatia do som começando nesse segundo (usado para cortar notas longas).")]
+    [SerializeField] private float noteSoundStart = 0f;
+    [Tooltip("Duração em segundos da fatia do som a tocar. Se <= 0, tocará o clip inteiro.")]
+    [SerializeField] private float noteSoundDuration = 0f;
     
     public enum KeyType
     {
@@ -74,6 +79,12 @@ public class PianoKey : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
     
     public string NoteName => noteName;
     public KeyType Type => keyType;
+    // Allow external control of note slice/duration (used by PianoUIManager global override)
+    public void SetNoteSoundSlice(float startSeconds, float durationSeconds)
+    {
+        noteSoundStart = startSeconds;
+        noteSoundDuration = durationSeconds;
+    }
     // Allow remapping note name at runtime (used if the visual layout is inverted)
     public void SetNoteName(string newNote)
     {
@@ -145,17 +156,6 @@ public class PianoKey : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
     
     private void Update()
     {
-        // Timer para despressionar a tecla automaticamente
-        // Use unscaledDeltaTime para garantir que teclas liberem mesmo quando o jogo está em pausa (timeScale = 0)
-        if (isPressed)
-        {
-            pressedTimer -= Time.unscaledDeltaTime;
-            if (pressedTimer <= 0f)
-            {
-                ReleaseKey();
-            }
-        }
-
         // Se o overlay estiver visível e o usuário mudou o overlayAlpha no Inspector em runtime,
         // atualizamos a cor alpha para refletir imediatamente a mudança.
         if (keyType == KeyType.Black && overlayImage != null && overlayImage.enabled)
@@ -212,13 +212,29 @@ public class PianoKey : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
         // Se a tecla estiver bloqueada (isPressed) e NÃO estivermos no modo de re-pressão, ignoramos a nova pressão
         if (!neverLockKey && isPressed) return;
         
-        isPressed = true;
-        // Sempre usamos 'pressedDuration' — isso garante que a tecla voltará ao estado normal
-        // após o tempo configurado. Quando 'neverLockKey' == true, pressionar enquanto já
-        // está pressionada apenas reinicia o timer, permitindo re-pressões.
-        pressedTimer = pressedDuration;
+        // Start or restart the pressed coroutine which will set the visual state, play sound and release after duration.
+        if (pressedCoroutine != null)
+        {
+            // If re-press allowed, restart the coroutine so visual/sound timing restarts.
+            StopCoroutine(pressedCoroutine);
+            pressedCoroutine = null;
+        }
+        pressedCoroutine = StartCoroutine(PressedRoutine());
         
-        // Aumenta a altura da tecla preta quando pressionada
+        // Update visuals/perspective is handled in the coroutine to sync with sound/duration
+    }
+
+    private System.Collections.IEnumerator PressedRoutine()
+    {
+        // Guard: if puzzle solved, ignore
+        if (PianoUIManager.Instance != null && PianoUIManager.Instance.IsSolved()) yield break;
+
+        // If key is locked and re-press not allowed, ignore
+        if (!neverLockKey && isPressed) yield break;
+
+        isPressed = true;
+
+        // Visual adjustments for black keys
         if (keyType == KeyType.Black)
         {
             RectTransform rect = GetComponent<RectTransform>();
@@ -227,24 +243,62 @@ public class PianoKey : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
                 rect.sizeDelta = new Vector2(originalSize.x, originalSize.y + blackKeyPressedHeightIncrease);
             }
         }
-        
-        // Atualiza o visual
+
         UpdateKeySprite();
-        
-        // Toca o som da nota
-        PlayNoteSound();
-        
-        // Notifica o PianoUIManager que uma tecla foi pressionada
+
+        // Play sound (slice if configured). If PianoUIManager requests fades, play via local AudioSource with fade.
+        if (!string.IsNullOrEmpty(noteSoundName) && AudioManager.Instance != null)
+        {
+            bool useFade = false;
+            float fadeDur = 0f;
+            if (PianoUIManager.Instance != null)
+            {
+                useFade = PianoUIManager.Instance.enableNoteFade;
+                fadeDur = PianoUIManager.Instance.noteFadeOutDuration;
+            }
+
+            if (noteSoundDuration > 0f && useFade)
+            {
+                // Try to get slice and play with fade
+                var sliceClip = AudioManager.Instance.GetOrCreateSlice(noteSoundName, noteSoundStart, noteSoundDuration, out bool valid);
+                if (valid && sliceClip != null)
+                {
+                    StartCoroutine(PlayClipWithFade(sliceClip, noteSoundDuration, fadeDur));
+                }
+                else
+                {
+                    AudioManager.Instance.PlaySFXSlice(noteSoundName, noteSoundStart, noteSoundDuration);
+                }
+            }
+            else
+            {
+                if (noteSoundDuration > 0f)
+                    AudioManager.Instance.PlaySFXSlice(noteSoundName, noteSoundStart, noteSoundDuration);
+                else
+                    AudioManager.Instance.PlaySFX(noteSoundName);
+            }
+        }
+
+        // Notify UI manager
         if (PianoUIManager.Instance != null)
         {
             PianoUIManager.Instance.OnKeyPressed(this);
         }
-        
-        // Se for tecla branca, atualiza perspectiva das teclas pretas adjacentes
+
+        // If white key, update adjacent black keys perspective immediately
         if (keyType == KeyType.White)
         {
             UpdateAdjacentBlackKeysPerspective();
         }
+
+        // Wait using unscaled time so it works during pause
+        float wait = Mathf.Max(0.01f, pressedDuration);
+        yield return new WaitForSecondsRealtime(wait);
+
+        // Release key
+        ReleaseKey();
+
+        pressedCoroutine = null;
     }
     
     /// <summary>
@@ -431,6 +485,46 @@ public class PianoKey : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
             }
         }
         UpdateKeySprite();
+    }
+
+    private System.Collections.IEnumerator PlayClipWithFade(AudioClip clip, float clipDuration, float fadeDuration)
+    {
+        if (clip == null) yield break;
+
+        // Create temporary audio source on this GameObject
+        AudioSource src = gameObject.AddComponent<AudioSource>();
+        src.clip = clip;
+        src.loop = false;
+        src.spatialBlend = 0f;
+
+        // Compute initial volume using AudioManager mixing
+        float master = AudioManager.Instance != null ? AudioManager.Instance.masterVolume : 1f;
+        float sfxVol = AudioManager.Instance != null ? AudioManager.Instance.sfxVolume : 1f;
+        float catVol = AudioManager.Instance != null ? AudioManager.Instance.GetCategoryVolume(AudioManager.Category.SFX) : 1f;
+        src.volume = Mathf.Clamp01(master * sfxVol * catVol);
+
+        src.Play();
+
+        float timeToStartFade = Mathf.Max(0f, clipDuration - fadeDuration);
+        if (timeToStartFade > 0f)
+            yield return new WaitForSecondsRealtime(timeToStartFade);
+
+        // Fade out
+        if (fadeDuration > 0f)
+        {
+            float startVol = src.volume;
+            float t = 0f;
+            while (t < fadeDuration)
+            {
+                t += Time.unscaledDeltaTime;
+                src.volume = Mathf.Lerp(startVol, 0f, t / fadeDuration);
+                yield return null;
+            }
+        }
+
+        // Ensure stopped and cleaned
+        try { src.Stop(); } catch { }
+        Destroy(src);
     }
 
     /// <summary>

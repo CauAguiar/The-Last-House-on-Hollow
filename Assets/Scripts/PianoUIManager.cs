@@ -43,10 +43,24 @@ public class PianoUIManager : MonoBehaviour
     [SerializeField] private float inactivityResetSeconds = 30f;
     
     [Header("Recompensas")]
-    [SerializeField] private string saraRingItemID = "Sara_Ring"; // ID da aliança de Sara
-    [SerializeField] private string diaryPage4ID = "DiaryPage_04"; // ID da página 4 do diário
+    [SerializeField] private string saraRingItemID = "Sara_Ring"; // ID da aliança de Sara (mantido apenas para compatibilidade)
+    [Tooltip("ID numérico da página do diário a desbloquear quando o piano for resolvido. Use o pageId definido em JournalData.")]
+    [SerializeField] private int diaryPage4Id = 4; // pageId da página 4 do diário
+    [Header("Recompensas (InventoryItems)")]
+    [Tooltip("Arraste aqui o InventoryItem (ScriptableObject) da aliança de Sara para adicioná-la ao inventário quando o piano for resolvido.")]
+    [SerializeField] private InventoryItem saraRingItem = null;
     
     // Áudio: removido, gerenciado por sistema global se necessário
+
+    [Header("Controle Global de Notas")]
+    [Tooltip("Se true, aplica a duração global de nota a todas as teclas ao abrir o puzzle.")]
+    public bool useGlobalNoteDuration = false;
+    [Tooltip("Duração padrão em segundos que cada nota deve durar quando useGlobalNoteDuration == true.")]
+    public float globalNoteDuration = 1.11f;
+    [Tooltip("Se true, aplica um fade out no final da nota quando a duração global é usada.")]
+    public bool enableNoteFade = true;
+    [Tooltip("Duração do fade out em segundos (aplicada ao final da nota).")]
+    public float noteFadeOutDuration = 0.15f;
     
     private PianoController currentPiano;
     private List<string> currentSequence = new List<string>();
@@ -113,6 +127,22 @@ public class PianoUIManager : MonoBehaviour
         {
             pianoPanel.SetActive(true);
         }
+
+        // Apply global note duration/fade settings to all keys when opening the puzzle
+        if (useGlobalNoteDuration)
+        {
+            PianoKey[] allKeys;
+#if UNITY_2023_1_OR_NEWER
+            allKeys = UnityEngine.Object.FindObjectsByType<PianoKey>(FindObjectsSortMode.None);
+#else
+            allKeys = FindObjectsOfType<PianoKey>(true);
+#endif
+            foreach (var k in allKeys)
+            {
+                if (k == null) continue;
+                k.SetNoteSoundSlice(0f, globalNoteDuration);
+            }
+        }
         
         // Bloqueia o movimento do jogador
         if (PlayerMovement.Instance != null)
@@ -149,7 +179,12 @@ public class PianoUIManager : MonoBehaviour
     // Debugging helper: logs order of PianoKey objects sorted by X position (left-to-right)
     private void LogPianoKeyOrder()
     {
-        PianoKey[] allKeys = FindObjectsByType<PianoKey>(FindObjectsSortMode.None);
+        PianoKey[] allKeys;
+    #if UNITY_2023_1_OR_NEWER
+        allKeys = UnityEngine.Object.FindObjectsByType<PianoKey>(FindObjectsSortMode.None);
+    #else
+        allKeys = FindObjectsOfType<PianoKey>(true);
+    #endif
         System.Array.Sort(allKeys, (a, b) =>
         {
             RectTransform ra = a.GetComponent<RectTransform>();
@@ -172,7 +207,12 @@ public class PianoUIManager : MonoBehaviour
     // or by other scripts at runtime.
     private void RemapKeysIfInverted()
     {
-        PianoKey[] allKeys = FindObjectsByType<PianoKey>(FindObjectsSortMode.None);
+        PianoKey[] allKeys;
+    #if UNITY_2023_1_OR_NEWER
+        allKeys = UnityEngine.Object.FindObjectsByType<PianoKey>(FindObjectsSortMode.None);
+    #else
+        allKeys = FindObjectsOfType<PianoKey>(true);
+    #endif
         if (allKeys == null || allKeys.Length == 0) return;
 
         // Sort left-to-right by anchored X
@@ -285,6 +325,10 @@ public class PianoUIManager : MonoBehaviour
     public void OnKeyPressed(PianoKey key)
     {
         if (isSolved) return;
+
+        // Debug: log da tecla pressionada e sequência atual para ajudar a diagnosticar mismatches
+        string pressed = key != null ? key.NoteName : "(null)";
+        Debug.Log($"PianoUIManager: Key pressed: {pressed}. CurrentSeq(before add)={string.Join(", ", currentSequence)}");
 
         // If a reset is already in progress, allow color feedback (so player sees red/green)
         // but don't modify the sequence or trigger logic until the reset completes.
@@ -496,7 +540,12 @@ public class PianoUIManager : MonoBehaviour
         
         
         // Força todas as teclas a soltar (caso necessário)
-        PianoKey[] allKeys = FindObjectsByType<PianoKey>(FindObjectsSortMode.None);
+        PianoKey[] allKeys;
+    #if UNITY_2023_1_OR_NEWER
+        allKeys = UnityEngine.Object.FindObjectsByType<PianoKey>(FindObjectsSortMode.None);
+    #else
+        allKeys = FindObjectsOfType<PianoKey>(true);
+    #endif
         foreach (var key in allKeys)
         {
             key.ForceRelease();
@@ -581,31 +630,28 @@ public class PianoUIManager : MonoBehaviour
     /// </summary>
     private void GiveRewards()
     {
-        // Adiciona a Aliança de Sara ao inventário
-        if (!string.IsNullOrEmpty(saraRingItemID) && InventoryManager.Instance != null)
+        // Preferir adicionar InventoryItems ao inventário (assets do tipo InventoryItem)
+        if (InventoryManager.Instance != null)
         {
-            // Você precisará criar um InventoryItem para a aliança
-            // Por enquanto, apenas marcamos como coletado
-            if (GameStateManager.Instance != null)
+            if (saraRingItem != null)
             {
-                GameStateManager.Instance.MarkAsCollected(saraRingItemID);
+                InventoryManager.Instance.AddItem(saraRingItem);
+                Debug.Log("Aliança de Sara adicionada ao inventário (InventoryItem).");
             }
-            
-            Debug.Log("Aliança de Sara adicionada ao inventário!");
+
+            // Add diary page by ID via JournalManager
+            if (JournalManager.Instance != null && diaryPage4Id > 0)
+            {
+                JournalManager.Instance.CollectPage(diaryPage4Id);
+                Debug.Log($"Página do Diário (pageId={diaryPage4Id}) adicionada via JournalManager.");
+            }
         }
-        
-        // Adiciona a Página 4 do Diário
-        if (!string.IsNullOrEmpty(diaryPage4ID))
+
+        // Fallback/compatibilidade: ainda marca IDs no GameState caso o designer prefira usar IDs
+        if (GameStateManager.Instance != null)
         {
-            if (GameStateManager.Instance != null)
-            {
-                GameStateManager.Instance.MarkAsCollected(diaryPage4ID);
-            }
-            
-            // Se você tiver um sistema de diário, adicione a página aqui
-            // JournalManager.Instance.UnlockPage(diaryPage4ID);
-            
-            Debug.Log("Página 4 do Diário desbloqueada!");
+            if (!string.IsNullOrEmpty(saraRingItemID)) GameStateManager.Instance.MarkAsCollected(saraRingItemID);
+            if (diaryPage4Id > 0) GameStateManager.Instance.MarkAsCollected(diaryPage4Id.ToString());
         }
     }
     
