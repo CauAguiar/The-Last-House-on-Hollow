@@ -14,7 +14,9 @@ public class PianoUIManager : MonoBehaviour
     
     [Header("Configuração da Solução")]
     [Tooltip("Sequência correta de notas que deve ser tocada (ex: C, D, E, F, G)")]
-    [SerializeField] private List<string> correctSequence = new List<string>();
+    [SerializeField] private List<string> correctSequence = new List<string>() { "B", "A#", "G", "A#", "G" };
+    [Tooltip("Se true e a lista 'Correct Sequence' estiver vazia no Inspector, será usada uma sequência padrão (B, A#, G, A#, G)")]
+    [SerializeField] private bool useDefaultSequenceIfEmpty = true;
     
     [Header("Referências da UI")]
     [SerializeField] private GameObject pianoPanel;
@@ -28,26 +30,30 @@ public class PianoUIManager : MonoBehaviour
     [SerializeField] private Color incorrectColor = Color.red;
     [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private float feedbackDuration = 2f;
+    [Header("Áudio")]
+    [SerializeField] private string successSfxName = ""; // SFX tocado ao completar a sequência
     
     [Header("Configurações de Gameplay")]
     [SerializeField] private bool allowResetOnError = true;
     [SerializeField] private bool autoCloseOnSuccess = true;
     [SerializeField] private float autoCloseDelay = 2f;
+    [Tooltip("If true, the current sequence will be reset after a period of inactivity. Default false to avoid accidental expiration.")]
+    [SerializeField] private bool enableInactivityReset = false;
+    [Tooltip("Seconds of inactivity before the sequence is reset when enabled.")]
+    [SerializeField] private float inactivityResetSeconds = 30f;
     
     [Header("Recompensas")]
     [SerializeField] private string saraRingItemID = "Sara_Ring"; // ID da aliança de Sara
     [SerializeField] private string diaryPage4ID = "DiaryPage_04"; // ID da página 4 do diário
     
-    [Header("Áudio")]
-    [SerializeField] private string correctSoundName = "puzzle_success";
-    [SerializeField] private string incorrectSoundName = "puzzle_error";
-    [SerializeField] private string resetSoundName = "ui_click";
+    // Áudio: removido, gerenciado por sistema global se necessário
     
     private PianoController currentPiano;
     private List<string> currentSequence = new List<string>();
     private bool isSolved = false;
     private bool isProcessing = false;
     private Coroutine feedbackCoroutine;
+    private Coroutine inactivityCoroutine;
     
     private void Awake()
     {
@@ -79,7 +85,13 @@ public class PianoUIManager : MonoBehaviour
         {
             pianoPanel.SetActive(false);
         }
-        
+        // Se a sequência correta não foi configurada via Inspector, opcionalmente usamos a sequência padrão
+        if ((correctSequence == null || correctSequence.Count == 0) && useDefaultSequenceIfEmpty)
+        {
+            correctSequence = new List<string>() { "B", "A#", "G", "A#", "G" };
+            Debug.LogWarning("PianoUIManager: 'Correct Sequence' não estava configurada; usando sequência padrão: B, A#, G, A#, G.");
+        }
+
         UpdateSequenceDisplay();
     }
     
@@ -113,13 +125,127 @@ public class PianoUIManager : MonoBehaviour
         
         UpdateSequenceDisplay();
         ShowFeedback("Toque a sequência correta de notas.", normalColor, 3f);
+        // Debug: log key order by position so we can verify mapping
+        LogPianoKeyOrder();
+        RemapKeysIfInverted();
+        // Ensure close button is enabled unless we are processing (blocking)
+        if (closeButton != null)
+            closeButton.interactable = !isProcessing;
+    }
+
+    // Debugging helper: logs order of PianoKey objects sorted by X position (left-to-right)
+    private void LogPianoKeyOrder()
+    {
+        PianoKey[] allKeys = FindObjectsByType<PianoKey>(FindObjectsSortMode.None);
+        System.Array.Sort(allKeys, (a, b) =>
+        {
+            RectTransform ra = a.GetComponent<RectTransform>();
+            RectTransform rb = b.GetComponent<RectTransform>();
+            if (ra == null || rb == null) return 0;
+            return ra.anchoredPosition.x.CompareTo(rb.anchoredPosition.x);
+        });
+
+        string order = "Piano key order (left to right): ";
+        foreach (var k in allKeys)
+        {
+            RectTransform r = k.GetComponent<RectTransform>();
+            order += $"{k.NoteName}@{r.anchoredPosition.x:F1} (sibling={k.transform.GetSiblingIndex()}), ";
+        }
+        Debug.Log(order);
+    }
+
+    // If the keys are visually in descending pitch order (left-to-right), remap note names
+    // so that leftmost is lowest pitch. This fixes inverted layouts created in the editor
+    // or by other scripts at runtime.
+    private void RemapKeysIfInverted()
+    {
+        PianoKey[] allKeys = FindObjectsByType<PianoKey>(FindObjectsSortMode.None);
+        if (allKeys == null || allKeys.Length == 0) return;
+
+        // Sort left-to-right by anchored X
+        System.Array.Sort(allKeys, (a, b) => a.GetComponent<RectTransform>().anchoredPosition.x.CompareTo(
+            b.GetComponent<RectTransform>().anchoredPosition.x));
+
+        // Convert NoteNames to numeric pitch values
+        List<int> pitches = new List<int>();
+        foreach (var k in allKeys)
+        {
+            int p = NoteNameToPitchValue(k.NoteName);
+            pitches.Add(p);
+        }
+
+        // Check if the sequence is reversed (first > last)
+        if (pitches.Count >= 2 && pitches[0] > pitches[pitches.Count - 1])
+        {
+            Debug.Log("Detectei ordem invertida — aplicando remap de notas para left-to-right asc.");
+            List<int> sortedPitches = new List<int>(pitches);
+            sortedPitches.Sort();
+
+            // Remap each key to the corresponding ascending pitch
+            for (int i = 0; i < allKeys.Length; i++)
+            {
+                string newName = PitchValueToNoteName(sortedPitches[i]);
+                allKeys[i].SetNoteName(newName);
+                allKeys[i].gameObject.name = "Key_" + newName; // keep GameObject name consistent
+            }
+        }
+    }
+
+    private static readonly string[] NOTE_NAMES = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+
+    // Converts "C#4" -> integer pitch (octave*12 + noteIndex)
+    private int NoteNameToPitchValue(string note)
+    {
+        if (string.IsNullOrEmpty(note)) return 0;
+        // extract numeric suffix
+        int idx = note.Length - 1;
+        while (idx >= 0 && char.IsDigit(note[idx])) idx--;
+        string baseNote = note.Substring(0, idx + 1);
+        int octave = 0;
+        if (idx + 1 < note.Length)
+            int.TryParse(note.Substring(idx + 1), out octave);
+        int noteIndex = System.Array.IndexOf(NOTE_NAMES, baseNote);
+        if (noteIndex < 0) noteIndex = 0;
+        return octave * 12 + noteIndex;
+    }
+
+    private string PitchValueToNoteName(int pitch)
+    {
+        int noteIndex = Mathf.FloorToInt(pitch % 12);
+        int octave = Mathf.FloorToInt(pitch / 12);
+        return NOTE_NAMES[noteIndex] + octave.ToString();
     }
     
     /// <summary>
     /// Fecha o painel do puzzle.
     /// </summary>
+    /// <summary>
+    /// Fecha o painel do puzzle.
+    /// This wrapper is callable by UI (no parameters). It will respect the
+    /// processing/solved guard and refuse to close when a success flow is running.
+    /// </summary>
     public void ClosePuzzle()
     {
+        ClosePuzzleInternal(false);
+    }
+
+    /// <summary>
+    /// Force-close the puzzle UI even if a success processing flow is running.
+    /// Used by code paths that must close the UI programmatically (e.g. auto-close).
+    /// </summary>
+    public void ClosePuzzleForce()
+    {
+        ClosePuzzleInternal(true);
+    }
+
+    private void ClosePuzzleInternal(bool force)
+    {
+        if (isProcessing && isSolved && !force)
+        {
+            // While success processing is running, prevent the player from closing the puzzle
+            ShowFeedback("Aguarde...", normalColor, 1f);
+            return;
+        }
         if (pianoPanel != null)
         {
             pianoPanel.SetActive(false);
@@ -145,17 +271,51 @@ public class PianoUIManager : MonoBehaviour
     /// </summary>
     public void OnKeyPressed(PianoKey key)
     {
-        if (isSolved || isProcessing) return;
+        if (isSolved) return;
+
+        // If a reset is already in progress, allow color feedback (so player sees red/green)
+        // but don't modify the sequence or trigger logic until the reset completes.
+        if (isProcessing)
+        {
+            // If we are processing a CORRECT sequence, fully block keys (no feedback)
+            if (isSolved)
+                return;
+
+            if (key != null)
+            {
+                // While processing (a reset is in progress), do not allow green feedback.
+                // Always flash incorrect so the player knows the sequence is locked
+                float flashDuration = feedbackDuration;
+                if (key.Type == PianoKey.KeyType.Black)
+                    flashDuration = key.PressedDuration;
+                key.FlashColor(incorrectColor, flashDuration);
+            }
+
+            return;
+        }
         
         // Validação: verifica se correctSequence foi configurada
         if (correctSequence == null || correctSequence.Count == 0)
         {
+            // Ainda não configurada: se não usarmos fallback, avisamos o desenvolvedor e não processamos a tecla
             Debug.LogError("Configure a Correct Sequence no PianoUIManager antes de tocar!");
             return;
         }
         
+        // Se a tecla já tem cor persistente, removemos e reaplicamos para "pintar de novo"
+        if (key != null && key.HasPersistentColor())
+        {
+            key.ForceRelease();
+        }
+
         // Adiciona a nota à sequência atual
         currentSequence.Add(key.NoteName);
+        // On any key press, restart inactivity timer
+        if (enableInactivityReset)
+        {
+            if (inactivityCoroutine != null) StopCoroutine(inactivityCoroutine);
+            inactivityCoroutine = StartCoroutine(ResetSequenceAfterInactivity(inactivityResetSeconds));
+        }
         
         UpdateSequenceDisplay();
         
@@ -163,15 +323,49 @@ public class PianoUIManager : MonoBehaviour
         if (!IsSequenceCorrectSoFar())
         {
             // Sequência incorreta
+            // Mostra feedback direto na tecla (vermelho)
+            if (key != null)
+            {
+                float flashDuration = feedbackDuration;
+                if (key.Type == PianoKey.KeyType.Black)
+                    flashDuration = key.PressedDuration;
+
+                // Reset sequence immediately so any subsequent click is treated as a fresh start.
+                ResetSequence();
+
+                // Still flash the wrong key for visual feedback (after reset)
+                key.FlashColor(incorrectColor, flashDuration);
+            }
+            // Show UI feedback but do not delay reset (we already cleared the sequence)
             if (allowResetOnError)
             {
-                StartCoroutine(HandleIncorrectSequence());
+                ShowFeedback("Sequência incorreta! Resetando...", incorrectColor, feedbackDuration);
             }
         }
         else if (currentSequence.Count == correctSequence.Count)
         {
             // Sequência completa e correta!
+            // Mostra feedback direto na tecla (verde) e mantém a cor até reset
+            if (key != null)
+            {
+                key.SetPersistentColor(correctColor);
+            }
+            // Toca som de sucesso, se configurado
+            if (!string.IsNullOrEmpty(successSfxName) && AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySFX(successSfxName);
+            }
+            // Disable close button during the success feedback
+            if (closeButton != null) closeButton.interactable = false;
             StartCoroutine(HandleCorrectSequence());
+        }
+        else
+        {
+            // Correto até aqui — pinta a tecla de verde e mantém a cor
+            if (key != null)
+            {
+                key.SetPersistentColor(correctColor);
+            }
         }
     }
     
@@ -195,12 +389,30 @@ public class PianoUIManager : MonoBehaviour
         
         for (int i = 0; i < currentSequence.Count; i++)
         {
-            if (currentSequence[i] != correctSequence[i])
+            string currentNote = NormalizeNoteName(currentSequence[i]);
+            string correctNote = NormalizeNoteName(correctSequence[i]);
+
+            if (!string.Equals(currentNote, correctNote, System.StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }
         }
         return true;
+    }
+
+    /// <summary>
+    /// Normaliza o nome da nota removendo o número da oitava (ex: "A#4" -> "A#").
+    /// Isso permite que a solução seja verificada apenas pela nota musical, sem considerar a oitava.
+    /// </summary>
+    private string NormalizeNoteName(string note)
+    {
+        if (string.IsNullOrEmpty(note)) return note;
+
+        // Remove todos os dígitos no final da string (ex: "G4" -> "G")
+        int idx = note.Length - 1;
+        while (idx >= 0 && char.IsDigit(note[idx])) idx--;
+
+        return note.Substring(0, idx + 1).Trim();
     }
     
     /// <summary>
@@ -210,18 +422,15 @@ public class PianoUIManager : MonoBehaviour
     {
         isProcessing = true;
         
-        // Toca som de erro
-        if (AudioManager.Instance != null && !string.IsNullOrEmpty(incorrectSoundName))
-        {
-            AudioManager.Instance.PlaySFX(incorrectSoundName);
-        }
         
         // Mostra feedback
         ShowFeedback("Sequência incorreta! Resetando...", incorrectColor, feedbackDuration);
-        
-        yield return new WaitForSeconds(1f);
-        
-        // Reseta a sequência
+
+        // Aguarda o tempo de feedback para que a cor vermelha seja exibida
+        // Adiciona um pequeno intervalo extra para garantir que o flash tenha terminado
+        yield return new WaitForSecondsRealtime(feedbackDuration + 0.05f);
+
+        // Depois que o feedback foi exibido, reseta a sequência
         ResetSequence();
         
         isProcessing = false;
@@ -235,16 +444,11 @@ public class PianoUIManager : MonoBehaviour
         isProcessing = true;
         isSolved = true;
         
-        // Toca som de sucesso
-        if (AudioManager.Instance != null && !string.IsNullOrEmpty(correctSoundName))
-        {
-            AudioManager.Instance.PlaySFX(correctSoundName);
-        }
         
         // Mostra feedback
         ShowFeedback("Sequência correta! O piano se abre...", correctColor, feedbackDuration);
         
-        yield return new WaitForSeconds(feedbackDuration);
+        yield return new WaitForSecondsRealtime(feedbackDuration);
         
         // Dá as recompensas
         GiveRewards();
@@ -258,9 +462,13 @@ public class PianoUIManager : MonoBehaviour
         // Fecha automaticamente se configurado
         if (autoCloseOnSuccess)
         {
-            yield return new WaitForSeconds(autoCloseDelay);
-            ClosePuzzle();
+            // Use unscaled time so auto-close works even if the game is paused (timeScale == 0)
+            yield return new WaitForSecondsRealtime(autoCloseDelay);
+            ClosePuzzleForce();
         }
+        // Re-enable close button after processing finished (if puzzle remains open)
+        if (closeButton != null)
+            closeButton.interactable = true;
         
         isProcessing = false;
     }
@@ -273,11 +481,6 @@ public class PianoUIManager : MonoBehaviour
         currentSequence.Clear();
         UpdateSequenceDisplay();
         
-        // Toca som de reset
-        if (AudioManager.Instance != null && !string.IsNullOrEmpty(resetSoundName))
-        {
-            AudioManager.Instance.PlaySFX(resetSoundName);
-        }
         
         // Força todas as teclas a soltar (caso necessário)
         PianoKey[] allKeys = FindObjectsByType<PianoKey>(FindObjectsSortMode.None);
@@ -285,6 +488,24 @@ public class PianoUIManager : MonoBehaviour
         {
             key.ForceRelease();
         }
+
+        // Make sure the close button is enabled again after reset
+        if (closeButton != null)
+            closeButton.interactable = true;
+
+        // stop inactivity reset when sequence cleared
+        if (inactivityCoroutine != null)
+        {
+            StopCoroutine(inactivityCoroutine);
+            inactivityCoroutine = null;
+        }
+    }
+
+    private IEnumerator ResetSequenceAfterInactivity(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        ResetSequence();
+        inactivityCoroutine = null;
     }
     
     /// <summary>

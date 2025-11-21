@@ -16,6 +16,9 @@ public class PianoLayoutHelper : MonoBehaviour
     [SerializeField] private int numberOfWhiteKeys = 24; // Número total de teclas brancas (24 = ~3.5 oitavas)
     [SerializeField] private bool includeBlackKeys = true;
     [SerializeField] private int startingOctave = 2; // Oitava inicial (C2, C3, C4, etc.)
+    [SerializeField]
+    [Tooltip("Se true, o layout é gerado visualmente da direita para a esquerda (invertendo a âncora). O mapeamento de notas permanece correto.")]
+    private bool layoutRightToLeft = false;
     
     [Header("Prefabs das Teclas")]
     [SerializeField] private GameObject whiteKeyPrefab;
@@ -110,28 +113,19 @@ public class PianoLayoutHelper : MonoBehaviour
             }
         }
         
-        // Segunda passagem: cria as teclas da DIREITA para ESQUERDA (ordem invertida)
-        for (int i = notesToCreate.Count - 1; i >= 0; i--)
+        // Segunda passagem: cria as teclas da ESQUERDA para DIREITA (ordem natural)
+        int currentWhiteIndex = 0;
+        for (int i = 0; i < notesToCreate.Count; i++)
         {
             var noteData = notesToCreate[i];
-            
-            // Calcula o índice da tecla branca na posição invertida
-            int whiteKeyIndex = 0;
-            for (int j = i; j < notesToCreate.Count; j++)
-            {
-                if (!notesToCreate[j].isBlack)
-                {
-                    whiteKeyIndex++;
-                }
-            }
-            whiteKeyIndex--; // Ajusta para zero-based
-            
+            int whiteKeyIndex = currentWhiteIndex;
+
             PianoKey key = CreateKey(noteData.noteName, noteData.isBlack, whiteKeyIndex, noteData.octave);
-            
+
             if (key != null)
             {
                 createdKeys.Add(key);
-                
+
                 if (noteData.isBlack)
                 {
                     blackKeys.Add(key);
@@ -139,11 +133,32 @@ public class PianoLayoutHelper : MonoBehaviour
                 else
                 {
                     whiteKeys.Add(key);
+                    currentWhiteIndex++;
                 }
             }
         }
         
         // Conecta teclas adjacentes
+        // Reorder sibling indices so white keys are left-to-right increasing pitch
+        // (some setups may end up with reversed creation order). This preserves
+        // the intended pitch mapping while keeping black keys rendered above.
+        whiteKeys.Sort((a, b) => a.GetComponent<RectTransform>().anchoredPosition.x.CompareTo(
+            b.GetComponent<RectTransform>().anchoredPosition.x));
+
+        for (int i = 0; i < whiteKeys.Count; i++)
+        {
+            whiteKeys[i].transform.SetSiblingIndex(i);
+        }
+
+        // Put black keys on top but maintain left-to-right order
+        blackKeys.Sort((a, b) => a.GetComponent<RectTransform>().anchoredPosition.x.CompareTo(
+            b.GetComponent<RectTransform>().anchoredPosition.x));
+
+        for (int i = 0; i < blackKeys.Count; i++)
+        {
+            blackKeys[i].transform.SetSiblingIndex(whiteKeys.Count + i);
+        }
+
         ConnectAdjacentKeys(whiteKeys, blackKeys);
         
         // IMPORTANTE: Garante que teclas pretas fiquem na frente das brancas
@@ -172,7 +187,7 @@ public class PianoLayoutHelper : MonoBehaviour
         image.sprite = isBlack ? blackKeyNormal : whiteKeyNormal;
         image.raycastTarget = true; // Importante para detectar cliques
         
-        // Configura RectTransform
+        // Configura RectTransform (ancora sempre no topo-esquerdo para manter o mapeamento)
         RectTransform rect = keyObj.GetComponent<RectTransform>();
         rect.anchorMin = new Vector2(0, 1); // Ancora no topo esquerdo
         rect.anchorMax = new Vector2(0, 1);
@@ -183,7 +198,14 @@ public class PianoLayoutHelper : MonoBehaviour
             rect.sizeDelta = new Vector2(blackKeyWidth, blackKeyHeight);
             
             // Posiciona entre as teclas brancas (considera espaçamento e offset X)
-            float xPos = (whiteKeyIndex * (whiteKeyWidth + whiteKeySpacing)) + (whiteKeyWidth / 2f) + blackKeyOffsetX;
+            float baseX = whiteKeyIndex * (whiteKeyWidth + whiteKeySpacing);
+            // If layout is right-to-left, compute the reversed position relative to total span
+            if (layoutRightToLeft)
+            {
+                float totalSpan = (numberOfWhiteKeys - 1) * (whiteKeyWidth + whiteKeySpacing);
+                baseX = totalSpan - baseX;
+            }
+            float xPos = baseX + (whiteKeyWidth / 2f) + blackKeyOffsetX;
             rect.anchoredPosition = new Vector2(xPos, -blackKeyOffsetY);
             
             Debug.Log($"Tecla preta criada: {noteName} em posição X={xPos}, Y={-blackKeyOffsetY}, Sprite={image.sprite?.name}");
@@ -191,7 +213,13 @@ public class PianoLayoutHelper : MonoBehaviour
         else
         {
             rect.sizeDelta = new Vector2(whiteKeyWidth, whiteKeyHeight);
-            rect.anchoredPosition = new Vector2(whiteKeyIndex * (whiteKeyWidth + whiteKeySpacing), 0);
+            float baseXWhite = whiteKeyIndex * (whiteKeyWidth + whiteKeySpacing);
+            if (layoutRightToLeft)
+            {
+                float totalSpanWhite = (numberOfWhiteKeys - 1) * (whiteKeyWidth + whiteKeySpacing);
+                baseXWhite = totalSpanWhite - baseXWhite;
+            }
+            rect.anchoredPosition = new Vector2(baseXWhite, 0);
         }
         
         // Adiciona componente PianoKey

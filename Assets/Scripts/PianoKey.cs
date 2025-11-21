@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 using UnityEngine.EventSystems;
 
 /// <summary>
@@ -29,6 +30,9 @@ public class PianoKey : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
     
     [Header("Áudio")]
     [SerializeField] private string noteSoundName; // Nome do som no SoundBank
+    [Header("Comportamento")]
+    [Tooltip("Se true, permite re-pressionar a tecla mesmo que ela esteja no estado 'pressionado'; a tecla ainda irá voltar ao normal após 'pressedDuration'.")]
+    [SerializeField] private bool neverLockKey = true;
     
     [Header("Feedback Visual")]
     [SerializeField] private float pressedDuration = 0.2f; // Tempo que a tecla fica pressionada
@@ -40,6 +44,18 @@ public class PianoKey : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
     private bool isPressed = false;
     private float pressedTimer = 0f;
     private Color originalColor;
+    private Coroutine colorCoroutine;
+    private bool hasPersistentColor = false;
+    private Color persistentColor;
+    // Removido: Outline e cor de outline. Agora só usa keyImage.color
+    // Overlay para teclas pretas
+    private Image overlayImage;
+    [SerializeField]
+    [Range(0f, 1f)]
+    [Tooltip("Opacidade do overlay para teclas pretas (0 = transparente, 1 = opaco)")]
+    private float overlayAlpha = 0.01f;
+    // Guarda o alpha anterior para detectar mudanças em runtime
+    private float lastOverlayAlpha = -1f;
     private PerspectiveState currentPerspective = PerspectiveState.Normal;
     private Vector2 originalSize;
     
@@ -58,6 +74,17 @@ public class PianoKey : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
     
     public string NoteName => noteName;
     public KeyType Type => keyType;
+    // Allow remapping note name at runtime (used if the visual layout is inverted)
+    public void SetNoteName(string newNote)
+    {
+        noteName = newNote;
+        // Keep note sound consistent with naming convention used by layout helper
+        noteSoundName = $"piano_{newNote}";
+    }
+    // Expose pressed duration so UI manager can sync overlay flash with key press duration
+    public float PressedDuration => pressedDuration;
+    // Public accessor so UI manager can check persistence
+    public bool HasPersistentColor() => hasPersistentColor;
     
     private void Awake()
     {
@@ -79,17 +106,66 @@ public class PianoKey : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
         }
         
         UpdateKeySprite();
+
+        // Outline removido: não é mais usado
+        // Se for tecla preta, procura ou cria overlay
+        if (keyType == KeyType.Black)
+        {
+            Transform overlayTransform = transform.Find("Overlay");
+            if (overlayTransform == null)
+            {
+                // Cria overlay se não existir
+                GameObject overlayObj = new GameObject("Overlay");
+                overlayObj.transform.SetParent(transform, false);
+                overlayImage = overlayObj.AddComponent<Image>();
+                overlayImage.raycastTarget = false;
+                overlayImage.color = Color.clear;
+                // Ajusta tamanho e ordem: fixa o overlay no centro com o mesmo tamanho da tecla
+                RectTransform overlayRect = overlayObj.GetComponent<RectTransform>();
+                RectTransform keyRect = GetComponent<RectTransform>();
+                if (overlayRect != null && keyRect != null)
+                {
+                    overlayRect.localScale = Vector3.one;
+                    overlayRect.anchorMin = new Vector2(0.5f, 0.5f);
+                    overlayRect.anchorMax = new Vector2(0.5f, 0.5f);
+                    overlayRect.anchoredPosition = Vector2.zero;
+                    overlayRect.sizeDelta = keyRect.sizeDelta;
+                }
+                overlayObj.transform.SetAsLastSibling();
+            }
+            else
+            {
+                overlayImage = overlayTransform.GetComponent<Image>();
+            }
+            if (overlayImage != null)
+                overlayImage.enabled = false;
+            lastOverlayAlpha = overlayAlpha;
+        }
     }
     
     private void Update()
     {
         // Timer para despressionar a tecla automaticamente
+        // Use unscaledDeltaTime para garantir que teclas liberem mesmo quando o jogo está em pausa (timeScale = 0)
         if (isPressed)
         {
-            pressedTimer -= Time.deltaTime;
+            pressedTimer -= Time.unscaledDeltaTime;
             if (pressedTimer <= 0f)
             {
                 ReleaseKey();
+            }
+        }
+
+        // Se o overlay estiver visível e o usuário mudou o overlayAlpha no Inspector em runtime,
+        // atualizamos a cor alpha para refletir imediatamente a mudança.
+        if (keyType == KeyType.Black && overlayImage != null && overlayImage.enabled)
+        {
+            if (!Mathf.Approximately(overlayAlpha, lastOverlayAlpha))
+            {
+                Color c = overlayImage.color;
+                c.a = overlayAlpha;
+                overlayImage.color = c;
+                lastOverlayAlpha = overlayAlpha;
             }
         }
     }
@@ -107,10 +183,12 @@ public class PianoKey : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
     /// </summary>
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (!isPressed && keyImage != null)
-        {
-            keyImage.color = hoverTint;
-        }
+        // Não aplicar hover tint se:
+        // - a tecla está pressionada,
+        // - a tecla tem cor persistente (ex: já marcada como correta),
+        // - ou se for tecla preta (evitar colorir sprite compartilhado)
+        if (isPressed || keyImage == null || hasPersistentColor || keyType == KeyType.Black) return;
+        keyImage.color = hoverTint;
     }
     
     /// <summary>
@@ -118,10 +196,10 @@ public class PianoKey : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
     /// </summary>
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (!isPressed && keyImage != null)
-        {
-            keyImage.color = originalColor;
-        }
+        // Somente restaura a cor para o original se não estivermos no estado 'pressed' e não houver cor persistente
+        if (isPressed || keyImage == null || hasPersistentColor) return;
+        if (keyType == KeyType.Black) return; // black keys use overlay for color; não tocar no sprite
+        keyImage.color = originalColor;
     }
     
     /// <summary>
@@ -129,9 +207,15 @@ public class PianoKey : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
     /// </summary>
     public void PressKey()
     {
-        if (isPressed) return;
+        // If the puzzle is already solved in the UI, ignore further input completely
+        if (PianoUIManager.Instance != null && PianoUIManager.Instance.IsSolved()) return;
+        // Se a tecla estiver bloqueada (isPressed) e NÃO estivermos no modo de re-pressão, ignoramos a nova pressão
+        if (!neverLockKey && isPressed) return;
         
         isPressed = true;
+        // Sempre usamos 'pressedDuration' — isso garante que a tecla voltará ao estado normal
+        // após o tempo configurado. Quando 'neverLockKey' == true, pressionar enquanto já
+        // está pressionada apenas reinicia o timer, permitindo re-pressões.
         pressedTimer = pressedDuration;
         
         // Aumenta a altura da tecla preta quando pressionada
@@ -182,10 +266,21 @@ public class PianoKey : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
             }
         }
         
-        // Restaura a cor original
+        // Restaura a cor original, exceto quando existe uma cor persistente marcada
         if (keyImage != null)
         {
-            keyImage.color = originalColor;
+            if (hasPersistentColor)
+            {
+                // Non-black keys receive the persistent color; black keys keep their outline
+                if (keyType != KeyType.Black)
+                {
+                    keyImage.color = persistentColor;
+                }
+            }
+            else
+            {
+                keyImage.color = originalColor;
+            }
         }
         
         // Atualiza o visual
@@ -196,6 +291,7 @@ public class PianoKey : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
         {
             ResetAdjacentBlackKeysPerspective();
         }
+
     }
     
     /// <summary>
@@ -256,7 +352,7 @@ public class PianoKey : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
         }
         else // Black key
         {
-            if (isPressed)
+            if (isPressed || hasPersistentColor)
             {
                 keyImage.sprite = blackKeyPressed;
             }
@@ -311,6 +407,117 @@ public class PianoKey : MonoBehaviour, IPointerClickHandler, IPointerEnterHandle
     {
         ReleaseKey();
         currentPerspective = PerspectiveState.Normal;
+        // Garante que a cor foi restaurada e cancela flashes
+        if (colorCoroutine != null)
+        {
+            StopCoroutine(colorCoroutine);
+            colorCoroutine = null;
+        }
+        // Clear any persistent color state on force release
+        hasPersistentColor = false;
+        if (keyType == KeyType.Black)
+        {
+            if (overlayImage != null)
+            {
+                overlayImage.enabled = false;
+                overlayImage.color = new Color(0f, 0f, 0f, 0f); // inicialmente transparente
+            }
+        }
+        else
+        {
+            if (keyImage != null)
+            {
+                keyImage.color = originalColor;
+            }
+        }
+        UpdateKeySprite();
+    }
+
+    /// <summary>
+    /// Muda a cor da tecla por um período e depois restaura a cor original.
+    /// Cancela corrotinas de cor anteriores para evitar sobreposição.
+    /// </summary>
+    public void FlashColor(Color color, float duration)
+    {
+        // Se já tem cor persistente, não faz flash
+        if (hasPersistentColor) return;
+        if (keyType == KeyType.Black)
+        {
+            if (overlayImage != null)
+            {
+                overlayImage.color = new Color(color.r, color.g, color.b, overlayAlpha);
+                overlayImage.enabled = true;
+                lastOverlayAlpha = overlayAlpha;
+                if (colorCoroutine != null)
+                {
+                    StopCoroutine(colorCoroutine);
+                    colorCoroutine = null;
+                }
+                colorCoroutine = StartCoroutine(FlashOverlayCoroutine(duration));
+            }
+        }
+        else
+        {
+            if (keyImage == null) return;
+            if (colorCoroutine != null)
+            {
+                StopCoroutine(colorCoroutine);
+                colorCoroutine = null;
+            }
+            colorCoroutine = StartCoroutine(FlashColorCoroutine(color, duration));
+        }
+        UpdateKeySprite();
+    }
+
+    private IEnumerator FlashColorCoroutine(Color color, float duration)
+    {
+        keyImage.color = color;
+        yield return new WaitForSecondsRealtime(duration);
+        keyImage.color = originalColor;
+        colorCoroutine = null;
+    }
+
+    private IEnumerator FlashOverlayCoroutine(float duration)
+    {
+        yield return new WaitForSecondsRealtime(duration);
+        if (!hasPersistentColor && overlayImage != null)
+        {
+            overlayImage.enabled = false;
+            overlayImage.color = Color.clear;
+        }
+        colorCoroutine = null;
+    }
+
+    // Removido: RemoveOutlineAfter. Não usa mais outline.
+
+    /// <summary>
+    /// Define uma cor persistente (ex: VERDE para nota correta) até que
+    /// a tecla seja resetada. Cancela quaisquer corrotinas de flash.
+    /// </summary>
+    public void SetPersistentColor(Color color)
+    {
+        // Cancela qualquer flash que esteja ocorrendo
+        if (colorCoroutine != null)
+        {
+            StopCoroutine(colorCoroutine);
+            colorCoroutine = null;
+        }
+        if (keyType == KeyType.Black)
+        {
+            if (overlayImage != null)
+            {
+                overlayImage.color = new Color(color.r, color.g, color.b, overlayAlpha);
+                overlayImage.enabled = true;
+                lastOverlayAlpha = overlayAlpha;
+            }
+        }
+        else
+        {
+            if (keyImage == null) return;
+            keyImage.color = color;
+        }
+        hasPersistentColor = true;
+        persistentColor = color;
         UpdateKeySprite();
     }
 }

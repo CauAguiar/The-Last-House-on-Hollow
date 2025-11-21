@@ -51,3 +51,89 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: b49015cf6d3c9dc4ea0eadefe5bac743, type: 3}
   - soundName: Abrir
     clip: {fileID: 8300000, guid: edebb43c16db7dd459a1319bfae2aa19, type: 3}
+  - soundName: piano_F4
+    clip: {fileID: 8300000, guid: 36555f41edfd0d7488a64f898e24fc73, type: 3}
+  - soundName: piano_F#4
+    clip: {fileID: 8300000, guid: 93c639ff5c3a5aa41a0ab2eab3b69821, type: 3}
+  - soundName: piano_F#2
+    clip: {fileID: 8300000, guid: 89e97e12d1a23ef4082033fae9b41903, type: 3}
+  - soundName: piano_F2
+    clip: {fileID: 8300000, guid: 342a78dfe89d01b4eac4e64b91c308df, type: 3}
+  - soundName: piano_F3
+    clip: {fileID: 8300000, guid: 056f375b1489d0440b46c61396af8359, type: 3}
+  - soundName: piano_F#3
+    clip: {fileID: 8300000, guid: 543bad74c1ea50346ba7e38ddc84a7a8, type: 3}
+  - soundName: piano_E5
+    clip: {fileID: 8300000, guid: 8a2ca4142da4b384398bfcb852dc81d0, type: 3}
+  - soundName: piano_E2
+    clip: {fileID: 8300000, guid: 810f81a25068bfd46b0935dc6013b8fb, type: 3}
+  - soundName: piano_E3
+    clip: {fileID: 8300000, guid: 13c563ed83fc28f4b8cf3f96b16a87b4, type: 3}
+  - soundName: piano_E4
+    clip: {fileID: 8300000, guid: a0ddef82b233bed41949c94fbb4aa705, type: 3}
+  - soundName: piano_C2
+    clip: {fileID: 8300000, guid: 8f1bc6bd596f31544a456f7555e0257c, type: 3}
+  - soundName: piano_C3
+    clip: {fileID: 8300000, guid: a8475abf7ff69d64b82e23d1d57e8b72, type: 3}
+  - soundName: piano_C4
+    clip: {fileID: 8300000, guid: 7a5565308c9e5c4428f91422eb663542, type: 3}
+  - soundName: piano_C5
+    clip: {fileID: 8300000, guid: eb35f78b50a857e4792fed9897706f6e, type: 3}
+  - soundName: piano_C#2
+    clip: {fileID: 8300000, guid: 01f79b95becba7d40a11c32b7d2b76d9, type: 3}
+  - soundName: piano_C#3
+    clip: {fileID: 8300000, guid: b905ecb009f8cb84180f675e4ad40750, type: 3}
+  - soundName: piano_C#4
+    clip: {fileID: 8300000, guid: ce8a5704277058345848b7d0d584a51a, type: 3}
+  - soundName: piano_C#5
+    clip: {fileID: 8300000, guid: f6d21f7c688e88345b51da0f2da704e2, type: 3}
+  - soundName: piano_D2
+    clip: {fileID: 8300000, guid: 23cc0a8a37090af41bdeffb52d0c6eab, type: 3}
+  - soundName: piano_D#2
+    clip: {fileID: 8300000, guid: 0a56b4a813db3184886854be0a77134a, type: 3}
+  - soundName: piano_D3
+    clip: {fileID: 8300000, guid: 996ec05a9dfb9774aa3c01517ee25047, type: 3}
+  - soundName: piano_D#3
+    clip: {fileID: 8300000, guid: 996ec05a9dfb9774aa3c01517ee25047, type: 3}
+  - soundName: piano_D4
+    clip: {fileID: 8300000, guid: 7113573bd5a1d1543983d653ff96c20b, type: 3}
+  - soundName: piano_D#4
+    clip: {fileID: 8300000, guid: 7113573bd5a1d1543983d653ff96c20b, type: 3}
+  - soundName: piano_D5
+    clip: {fileID: 8300000, guid: d85d6e4ed39ab14478924a5deebbf362, type: 3}
+  - soundName: piano_D#5
+    clip: {fileID: 8300000, guid: 45542b6944bd4fe4fb4fd06a5115a09e, type: 3}
+  - soundName: piano_G2
+    clip: {fileID: 8300000, guid: 037f82d3437ab9743b27bb54be7a3bbc, type: 3}
+  - soundName: piano_G#2
+    clip: {fileID: 8300000, guid: 3aa40ccf436716b4a8baf1f048288bab, type: 3}
+  - soundName: piano_G3
+    clip: {fileID: 8300000, guid: 2c0b21c4ca2098e4d879f86d5db2e309, type: 3}
+  - soundName: piano_G#3
+    clip: {fileID: 8300000, guid: 2c0b21c4ca2098e4d879f86d5db2e309, type: 3}
+  - soundName: piano_G4
+    clip: {fileID: 8300000, guid: 6bc2e8dcdc9994b49bd7f9dabdc58bcc, type: 3}
+  - soundName: piano_G#4
+    clip: {fileID: 8300000, guid: cba5785e6695ae243abbaa351056d086, type: 3}
+  - soundName: piano_A2
+    clip: {fileID: 8300000, guid: 2da498c2a9fc6154da05a30679ddb964, type: 3}
+  - soundName: piano_A#2
+    clip: {fileID: 8300000, guid: 9029cd60be9bba7459a2e26fefd45a63, type: 3}
+  - soundName: piano_A3
+    clip: {fileID: 8300000, guid: b54da8926a870024b8c60668afb57756, type: 3}
+  - soundName: piano_A#3
+    clip: {fileID: 8300000, guid: 592c485eefcea614ca4718522bf9b1a2, type: 3}
+  - soundName: piano_A4
+    clip: {fileID: 8300000, guid: 036ad106e591de042aea215603e44f32, type: 3}
+  - soundName: piano_A#4
+    clip: {fileID: 8300000, guid: 89e3ad3abe853034ba98b9c58f66d485, type: 3}
+  - soundName: piano_B2
+    clip: {fileID: 8300000, guid: 2f3696c82eb4037418c54826fab4c840, type: 3}
+  - soundName: piano_B3
+    clip: {fileID: 8300000, guid: 76835af44de77c84587f023b1ca9c9d3, type: 3}
+  - soundName: piano_B4
+    clip: {fileID: 8300000, guid: 328fb1c575a358346a8902d6763be966, type: 3}
+  - soundName: piano_open
+    clip: {fileID: 8300000, guid: 6221ac6c9162ef747ae6185858e10145, type: 3}
+  - soundName: success_piano
+    clip: {fileID: 8300000, guid: e3dd833010a70594a86e5080fb8d2848, type: 3}

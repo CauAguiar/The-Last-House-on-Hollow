@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// Controlador do piano no mundo do jogo.
@@ -15,6 +16,18 @@ public class PianoController : InteractableBase
     [SerializeField] private GameObject diaryPage4Object; // Página 4 do Diário (GameObject no mundo)
     [SerializeField] private GameObject pianoLidClosed; // Tampa do piano fechada
     [SerializeField] private GameObject pianoLidOpen; // Tampa do piano aberta
+    [Header("Lid Visual (Sprite mode)")]
+    [Tooltip("Se true, usa sprites para substituir o visual do tampo em vez de ativar/desativar os objetos de lid."
+        + " Você pode arrastar um SpriteRenderer do GameObject do tampo do piano ou uma Image UI.)")]
+    [SerializeField] private bool useSpriteForLid = false;
+    [Tooltip("Se você usa um SpriteRenderer para o tampo do piano, arraste ele aqui.")]
+    [SerializeField] private SpriteRenderer lidSpriteRenderer;
+    [Tooltip("Se você usa uma UI Image (Canvas) para o tampo do piano, arraste ela aqui.")]
+    [SerializeField] private Image lidUIImage;
+    [Tooltip("Sprite para tampo fechado (aplica a SpriteRenderer ou Image quando useSpriteForLid == true)")]
+    [SerializeField] private Sprite lidClosedSprite;
+    [Tooltip("Sprite para tampo aberto (aplica a SpriteRenderer ou Image quando useSpriteForLid == true)")]
+    [SerializeField] private Sprite lidOpenSprite;
     
     [Header("Áudio")]
     [SerializeField] private string pianoOpenSoundName = "piano_open";
@@ -32,6 +45,82 @@ public class PianoController : InteractableBase
         
         // Configura o estado inicial
         UpdateVisuals();
+        
+        // If using sprites and we don't have explicit sprites assigned, try to get them
+        if (useSpriteForLid)
+        {
+            // If the user didn't assign a SpriteRenderer, check on this GameObject or children
+            if (lidSpriteRenderer == null)
+            {
+                lidSpriteRenderer = GetComponent<SpriteRenderer>();
+                if (lidSpriteRenderer == null)
+                    lidSpriteRenderer = GetComponentInChildren<SpriteRenderer>(true);
+            }
+
+            // Auto-assign lidOpenSprite from the sprite renderer's current sprite if not set
+            if (lidOpenSprite == null && lidSpriteRenderer != null)
+            {
+                lidOpenSprite = lidSpriteRenderer.sprite;
+            }
+
+            // Auto-assign lidClosedSprite from pianoLidClosed if it's a SpriteRenderer or Image
+            if (lidClosedSprite == null && pianoLidClosed != null)
+            {
+                var sr = pianoLidClosed.GetComponent<SpriteRenderer>();
+                if (sr != null)
+                {
+                    lidClosedSprite = sr.sprite;
+                }
+                else
+                {
+                    var img = pianoLidClosed.GetComponent<Image>();
+                    if (img != null) lidClosedSprite = img.sprite;
+                }
+            }
+        }
+    }
+
+    // Ensure changes in the Inspector update sprites and GameObjects immediately in the Editor
+    private void OnValidate()
+    {
+        // Only update visuals in the Editor when not playing
+        if (Application.isPlaying) return;
+
+        // Validate configuration: if using sprite mode, warn when no sprite target assigned
+        if (useSpriteForLid)
+        {
+            if (lidSpriteRenderer == null && lidUIImage == null)
+            {
+                Debug.LogWarning("PianoController: 'useSpriteForLid' is true but no 'lidSpriteRenderer' or 'lidUIImage' is assigned.");
+            }
+            if (lidClosedSprite == null || lidOpenSprite == null)
+            {
+                Debug.LogWarning("PianoController: 'useSpriteForLid' is true but 'lidClosedSprite' or 'lidOpenSprite' is not assigned. Visuals will not swap correctly.");
+            }
+            // Try to auto-fill sprites in editor for convenience
+            if (lidSpriteRenderer == null)
+            {
+                lidSpriteRenderer = GetComponent<SpriteRenderer>();
+                if (lidSpriteRenderer == null)
+                    lidSpriteRenderer = GetComponentInChildren<SpriteRenderer>(true);
+            }
+            if (lidOpenSprite == null && lidSpriteRenderer != null)
+            {
+                lidOpenSprite = lidSpriteRenderer.sprite;
+            }
+            if (lidClosedSprite == null && pianoLidClosed != null)
+            {
+                var sr = pianoLidClosed.GetComponent<SpriteRenderer>();
+                if (sr != null) lidClosedSprite = sr.sprite;
+                else
+                {
+                    var img = pianoLidClosed.GetComponent<Image>();
+                    if (img != null) lidClosedSprite = img.sprite;
+                }
+            }
+        }
+
+        UpdateVisuals();
     }
     
     private void Start()
@@ -46,6 +135,11 @@ public class PianoController : InteractableBase
         {
             diaryPage4Object.SetActive(isPuzzleSolved);
         }
+        // For sprite-based lids, update the sprite at start
+        if (useSpriteForLid)
+        {
+            ApplyLidSprite();
+        }
     }
     
     public override void Interact()
@@ -55,7 +149,7 @@ public class PianoController : InteractableBase
             // Se já resolvido, mostra uma mensagem
             if (InteractionManager.Instance != null)
             {
-                InteractionManager.Instance.ShowDialogue("O piano já está aberto. As recompensas foram reveladas.");
+                InteractionManager.Instance.ShowDialogue("O piano já está fechado. As recompensas foram reveladas.");
             }
             return;
         }
@@ -135,6 +229,15 @@ public class PianoController : InteractableBase
     /// </summary>
     private void UpdateVisuals()
     {
+        if (useSpriteForLid)
+        {
+            ApplyLidSprite();
+            // Optionally hide the old objects if present so they don't overlay
+            if (pianoLidClosed != null) pianoLidClosed.SetActive(false);
+            if (pianoLidOpen != null) pianoLidOpen.SetActive(false);
+            return;
+        }
+
         if (pianoLidClosed != null)
         {
             pianoLidClosed.SetActive(!isPuzzleSolved);
@@ -143,6 +246,22 @@ public class PianoController : InteractableBase
         if (pianoLidOpen != null)
         {
             pianoLidOpen.SetActive(isPuzzleSolved);
+        }
+    }
+
+    private void ApplyLidSprite()
+    {
+        // If we have a SpriteRenderer (world object), set its sprite
+        if (lidSpriteRenderer != null)
+        {
+            lidSpriteRenderer.sprite = isPuzzleSolved ? lidOpenSprite : lidClosedSprite;
+            return;
+        }
+
+        // Otherwise, use UI Image
+        if (lidUIImage != null)
+        {
+            lidUIImage.sprite = isPuzzleSolved ? lidOpenSprite : lidClosedSprite;
         }
     }
     
