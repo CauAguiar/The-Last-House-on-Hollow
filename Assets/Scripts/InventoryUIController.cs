@@ -12,6 +12,8 @@ public class InventoryUIController : MonoBehaviour
     [Header("Componentes da UI")]
     public GameObject inventoryPanel;
     public List<Button> inventorySlots;
+    [Tooltip("Botão para fechar o painel do inventário (opcional).")]
+    public Button closeButton;
 
     [Header("Inspection UI (integrado)")]
     [Tooltip("Imagem do painel de inspeção integrada ao inventário")]
@@ -63,6 +65,11 @@ public class InventoryUIController : MonoBehaviour
     private void Start()
     {
         if (inventoryPanel != null) inventoryPanel.SetActive(false);
+
+        if (closeButton != null)
+        {
+            closeButton.onClick.AddListener(CloseInventory);
+        }
 
         if (InventoryManager.Instance != null)
         {
@@ -119,6 +126,15 @@ public class InventoryUIController : MonoBehaviour
         if (inventoryPanel != null) inventoryPanel.SetActive(true);
         UIInputBlocker.Block("Inventory");
         GamePauseManager.Pause("Inventory");
+    }
+
+    public void CloseInventory()
+    {
+        currentUseTarget = null;
+        isInventoryOpen = false;
+        if (inventoryPanel != null) inventoryPanel.SetActive(false);
+        UIInputBlocker.Unblock("Inventory");
+        GamePauseManager.Unpause("Inventory");
     }
 
     private void UpdateInventoryUI()
@@ -230,7 +246,7 @@ public class InventoryUIController : MonoBehaviour
 
     private void OnSlotClicked(InventoryItem clickedItem, int slotIndex)
     {
-        Debug.Log($"InventoryUI: Slot clicked index={slotIndex}, item='{(clickedItem!=null?clickedItem.itemName:"<null>")}', inventoryOpen={isInventoryOpen}");
+        // Slot clicked
         if (currentUseTarget != null)
         {
             currentUseTarget.OnUseItem(clickedItem);
