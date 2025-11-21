@@ -100,3 +100,10 @@ InitTestScene*.unity*
 README.md
 Assets/Sprites/.DS_Store
 Assets/Sprites/Elementos/.DS_Store
+
+# Ignore generated TextMeshPro SDF font assets (these are generated from TTFs and change on import)
+# If you prefer to commit font assets, remove these lines. Otherwise, keep them ignored and only commit the source TTFs.
+/Assets/Fontes/* SDF*.asset
+/Assets/Fontes/* SDF*.asset.meta
+/Assets/Fontes/*.fontsettings
+

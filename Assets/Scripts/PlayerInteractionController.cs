@@ -14,6 +14,8 @@ public class PlayerInteractionController : MonoBehaviour
     public float interactionRadius = 2f;
     [Tooltip("Camada para objetos interativos")]
     public LayerMask interactableLayerMask;
+    [Tooltip("Margem adicional (em unidades de mundo) para procurar colliders além do 'interactionRadius'.")]
+    public float proximityExtraMargin = 0.5f;
 
     private PlayerControls playerControls;
     private List<IInteractable> nearbyInteractables = new List<IInteractable>();
@@ -54,18 +56,49 @@ public class PlayerInteractionController : MonoBehaviour
             }
         }
 
-    // Use the same layer mask used for raycasts so proximity matches clickable objects
+        // Use the same layer mask used for raycasts so proximity matches clickable objects
+        // We query a slightly larger circle (interactionRadius + proximityExtraMargin) and then
+        // filter colliders based on per-interactable hoverScale so visuals that are slightly
+        // larger become interactable from a bit farther away.
         Collider2D[] colliders;
+        float queryRadius = interactionRadius + proximityExtraMargin;
         // If the layer mask is empty (value == 0) treat it as all layers to avoid accidental misconfiguration
         if (interactableLayerMask == 0)
         {
-            colliders = Physics2D.OverlapCircleAll(transform.position, interactionRadius);
+            colliders = Physics2D.OverlapCircleAll(transform.position, queryRadius);
         }
         else
         {
-            colliders = Physics2D.OverlapCircleAll(transform.position, interactionRadius, interactableLayerMask);
+            colliders = Physics2D.OverlapCircleAll(transform.position, queryRadius, interactableLayerMask);
         }
-        var currentInteractables = colliders.Select(c => c.GetComponent<IInteractable>()).Where(i => i != null).ToList();
+
+        // Filter and apply per-interactable hover-scale based proximity test.
+        var currentInteractables = new System.Collections.Generic.List<IInteractable>();
+        foreach (var c in colliders)
+        {
+            if (c == null) continue;
+            IInteractable ia = c.GetComponent<IInteractable>() ?? c.GetComponentInParent<IInteractable>();
+            if (ia == null) continue;
+
+            // Compute closest point on collider to player and distance
+            Vector2 playerPos = transform.position;
+            Vector2 closest = c.ClosestPoint(playerPos);
+            float dist = Vector2.Distance(playerPos, closest);
+
+            // Default multiplier = 1 (no change). If the interactable is an InteractableBase, use its HoverScaleFactor
+            float hoverMult = 1f;
+            var mb = ia as InteractableBase;
+            if (mb != null)
+            {
+                hoverMult = Mathf.Max(0.01f, mb.HoverScaleFactor);
+            }
+
+            // Consider the object 'nearby' if its closest-point distance is within the scaled interaction radius
+            if (dist <= interactionRadius * hoverMult)
+            {
+                currentInteractables.Add(ia);
+            }
+        }
 
         // Only call exit on interactables that are still valid
         foreach (var interactable in nearbyInteractables.Except(currentInteractables).ToList())
@@ -124,12 +157,12 @@ public class PlayerInteractionController : MonoBehaviour
             return;
         }
 
-        // Filter colliders that implement IInteractable
+        // Filter colliders that implement IInteractable (allow the IInteractable to be on a parent)
         List<Collider2D> interactableColliders = new List<Collider2D>();
         foreach (var col in hitColliders)
         {
             if (col == null) continue;
-            if (col.GetComponent<IInteractable>() != null)
+            if (col.GetComponent<IInteractable>() != null || col.GetComponentInParent<IInteractable>() != null)
             {
                 interactableColliders.Add(col);
             }
@@ -140,21 +173,29 @@ public class PlayerInteractionController : MonoBehaviour
             return;
         }
 
-        // Choose the topmost interactable by sortingOrder (if SpriteRenderer available), then by Z (descending)
-        Collider2D chosen = interactableColliders.OrderByDescending(c =>
-        {
-            var sr = c.GetComponent<SpriteRenderer>() ?? c.GetComponentInParent<SpriteRenderer>();
-            int order = sr != null ? sr.sortingOrder : 0;
-            float z = c.transform.position.z;
-            return (order * 1000) - (int)(z * 100); // composite key: prioritize order, then nearer z
-        }).FirstOrDefault();
+        // Choose the most visually-top interactable. Priority:
+        // 1) Sorting layer value, 2) sortingOrder, 3) nearest to camera (z), 4) closest to click point.
+        Collider2D chosen = interactableColliders
+            .Select(c => new {
+                col = c,
+                sr = c.GetComponent<SpriteRenderer>() ?? c.GetComponentInParent<SpriteRenderer>(),
+                z = c.transform.position.z,
+                dist = Vector2.Distance(worldPosition, c.bounds.center)
+            })
+            .OrderByDescending(x => x.sr != null ? UnityEngine.SortingLayer.GetLayerValueFromID(x.sr.sortingLayerID) : 0)
+            .ThenByDescending(x => x.sr != null ? x.sr.sortingOrder : 0)
+            .ThenBy(x => x.z)
+            .ThenBy(x => x.dist)
+            .Select(x => x.col)
+            .FirstOrDefault();
 
         if (chosen == null)
         {
             return;
         }
 
-        IInteractable interactableObject = chosen.GetComponent<IInteractable>();
+        // Try to get the IInteractable directly on the collider, otherwise search parents (common for setups where collider is on a child)
+        IInteractable interactableObject = chosen.GetComponent<IInteractable>() ?? chosen.GetComponentInParent<IInteractable>();
         if (interactableObject == null) return;
         if (nearbyInteractables.Contains(interactableObject))
         {

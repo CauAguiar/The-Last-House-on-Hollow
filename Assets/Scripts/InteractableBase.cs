@@ -14,6 +14,8 @@ public abstract class InteractableBase : MonoBehaviour, IInteractable
     [Header("Feedback Visual")]
     [SerializeField] private Color proximityHighlightColor = new Color(1f, 1f, 1f, 0.75f); // Um branco semi-transparente
     [SerializeField] private float hoverScaleFactor = 1.1f;
+    // Expose hover scale so proximity logic can consider it when deciding "nearby"
+    public float HoverScaleFactor => hoverScaleFactor;
 
     [Header("Respostas para uso incorreto")]
     [Tooltip("Frases que serão mostradas aleatoriamente quando o jogador tentar usar um item que não funciona aqui.")]
