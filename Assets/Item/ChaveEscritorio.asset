@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8abaad337c630044887c98e68fc5b12, type: 3}
   m_Name: ChaveEscritorio
   m_EditorClassIdentifier: 
-  itemName: "Chave do Escrit\xF3rio"
-  description: Chave que abre o escritorio
-  icon: {fileID: 21300000, guid: 6609985ce9bdd4836825f219dd2f6b7f, type: 3}
+  itemName: Chave
+  description: "Uma chave de prata com um s\xEDmbolo pag\xE3o. "
+  icon: {fileID: 21300000, guid: 735e5f7aa0baf77418937791a61faffa, type: 3}

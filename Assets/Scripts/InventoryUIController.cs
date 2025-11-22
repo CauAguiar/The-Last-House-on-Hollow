@@ -82,6 +82,36 @@ public class InventoryUIController : MonoBehaviour
 
         UpdateInventoryUI();
 
+        // Ensure all slot images and inspection UI start disabled until items/inspection occur
+        if (inventorySlots != null)
+        {
+            foreach (var slot in inventorySlots)
+            {
+                if (slot == null) continue;
+                if (slot.image != null)
+                {
+                    slot.image.sprite = null;
+                    slot.image.enabled = false;
+                }
+            }
+        }
+
+        if (inspectionIconImage != null)
+        {
+            inspectionIconImage.sprite = null;
+            inspectionIconImage.enabled = false;
+        }
+        if (inspectionNameText != null)
+        {
+            inspectionNameText.text = "";
+            inspectionNameText.enabled = false;
+        }
+        if (inspectionDescriptionText != null)
+        {
+            inspectionDescriptionText.text = "";
+            inspectionDescriptionText.enabled = false;
+        }
+
         // Auto-attach a small helper so ESC/CANCEL will close the panel consistently
         if (inventoryPanel != null && inventoryPanel.GetComponent<UIAutoCloseOnCancel>() == null)
         {
@@ -265,8 +295,16 @@ public class InventoryUIController : MonoBehaviour
                 inspectionIconImage.enabled = false;
             }
         }
-        if (inspectionNameText != null) inspectionNameText.text = item.itemName;
-        if (inspectionDescriptionText != null) inspectionDescriptionText.text = item.description;
+        if (inspectionNameText != null)
+        {
+            inspectionNameText.text = item.itemName;
+            inspectionNameText.enabled = true;
+        }
+        if (inspectionDescriptionText != null)
+        {
+            inspectionDescriptionText.text = item.description;
+            inspectionDescriptionText.enabled = true;
+        }
         Debug.Log($"InventoryUI: Hover slot {slotIndex} -> '{item.itemName}'");
     }
 
@@ -278,9 +316,21 @@ public class InventoryUIController : MonoBehaviour
 
     private void ClearInspectionFields()
     {
-        if (inspectionIconImage != null) { inspectionIconImage.sprite = null; inspectionIconImage.enabled = false; }
-        if (inspectionNameText != null) inspectionNameText.text = "";
-        if (inspectionDescriptionText != null) inspectionDescriptionText.text = "";
+        if (inspectionIconImage != null)
+        {
+            inspectionIconImage.sprite = null;
+            inspectionIconImage.enabled = false;
+        }
+        if (inspectionNameText != null)
+        {
+            inspectionNameText.text = "";
+            inspectionNameText.enabled = false;
+        }
+        if (inspectionDescriptionText != null)
+        {
+            inspectionDescriptionText.text = "";
+            inspectionDescriptionText.enabled = false;
+        }
     }
 
     private void OnSlotClicked(InventoryItem clickedItem, int slotIndex)

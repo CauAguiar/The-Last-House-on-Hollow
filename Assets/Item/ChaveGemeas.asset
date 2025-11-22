@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8abaad337c630044887c98e68fc5b12, type: 3}
   m_Name: ChaveGemeas
   m_EditorClassIdentifier: 
-  itemName: "Chave do Quarto das G\xEAmeas"
-  description: Chave que abre o quarto das gemeas
-  icon: {fileID: 21300000, guid: c4f2a5eb8f7da498181b596c46dc0925, type: 3}
+  itemName: Chave
+  description: "Uma chave de cobre r\xFAstica e enferrujada. "
+  icon: {fileID: 21300000, guid: 608d93ce431f73547806d87e7a5f1b0e, type: 3}

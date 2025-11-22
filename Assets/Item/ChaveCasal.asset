@@ -12,8 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8abaad337c630044887c98e68fc5b12, type: 3}
   m_Name: ChaveCasal
   m_EditorClassIdentifier: 
-  itemName: Chave do Quarto do Casal
-  description: 'Chave que abre o quarto do casal
-
-'
-  icon: {fileID: 21300000, guid: 90a0f0f04fd71492f943c215dcf370fe, type: 3}
+  itemName: Chave
+  description: Uma chave de cobre velha mas bem conservada.
+  icon: {fileID: 21300000, guid: 0f5a108b29605e24bbc97946f33ed9d5, type: 3}

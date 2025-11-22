@@ -14,6 +14,11 @@ public abstract class InteractableBase : MonoBehaviour, IInteractable
     [Header("Feedback Visual")]
     [SerializeField] private Color proximityHighlightColor = new Color(1f, 1f, 1f, 0.75f); // Um branco semi-transparente
     [SerializeField] private float hoverScaleFactor = 1.1f;
+    [Header("Cursor")]
+    [Tooltip("Cursor a ser exibido quando o mouse estiver sobre o objeto e o jogador estiver próximo. Use uma textura pequena (ex: 32x32) com transparência.")]
+    [SerializeField] private Texture2D cursorHand = null;
+    [Tooltip("Hotspot (offset) do cursor em pixels. Geralmente (0,0) ou centro da imagem.")]
+    [SerializeField] private Vector2 cursorHotspot = new Vector2(0, 0);
     // Expose hover scale so proximity logic can consider it when deciding "nearby"
     public float HoverScaleFactor => hoverScaleFactor;
 
@@ -42,6 +47,21 @@ public abstract class InteractableBase : MonoBehaviour, IInteractable
             originalColor = spriteRenderer.color;
         }
         originalScale = transform.localScale;
+        // Ensure a Collider2D exists - some objects may have lost it and Unity will warn about RequiredComponent
+        var col = GetComponent<Collider2D>();
+        if (col == null)
+        {
+            // Add a BoxCollider2D as a safe default and mark as trigger so it doesn't affect physics
+            var added = gameObject.AddComponent<BoxCollider2D>();
+            added.isTrigger = true;
+            Debug.LogWarning($"InteractableBase: no Collider2D found on '{gameObject.name}'. Added default BoxCollider2D (isTrigger=true).");
+        }
+        // Ensure there is a global InteractableDefaults instance in the scene for default cursor settings
+        if (InteractableDefaults.Instance == null)
+        {
+            var go = new GameObject("InteractableDefaults");
+            go.AddComponent<InteractableDefaults>();
+        }
     }
 
     public virtual void Interact()
@@ -122,6 +142,12 @@ public abstract class InteractableBase : MonoBehaviour, IInteractable
         }
         // Garante que a escala volte ao normal se o jogador se afastar enquanto o mouse está sobre o objeto
         transform.localScale = originalScale;
+        // Se o cursor estava alterado, restaura para o padrão quando o jogador sai da proximidade
+        var cursorToUse = cursorHand != null ? cursorHand : (InteractableDefaults.Instance != null ? InteractableDefaults.Instance.defaultCursor : null);
+        if (cursorToUse != null)
+        {
+            Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+        }
     }
 
     protected virtual void OnMouseEnter()
@@ -130,12 +156,28 @@ public abstract class InteractableBase : MonoBehaviour, IInteractable
         if (isPlayerNearby)
         {
             transform.localScale = originalScale * hoverScaleFactor;
+            // Muda o cursor para a mão: usa o cursor local se configurado, caso contrário usa o default global
+            if (!UIInputBlocker.IsBlocked)
+            {
+                Texture2D toSet = cursorHand != null ? cursorHand : (InteractableDefaults.Instance != null ? InteractableDefaults.Instance.defaultCursor : null);
+                Vector2 hs = cursorHand != null ? cursorHotspot : (InteractableDefaults.Instance != null ? InteractableDefaults.Instance.defaultHotspot : Vector2.zero);
+                if (toSet != null)
+                {
+                    Cursor.SetCursor(toSet, hs, CursorMode.Auto);
+                }
+            }
         }
     }
 
     protected virtual void OnMouseExit()
     {
         transform.localScale = originalScale;
+        // Restaura cursor ao sair do objeto
+        var cursorToUse = cursorHand != null ? cursorHand : (InteractableDefaults.Instance != null ? InteractableDefaults.Instance.defaultCursor : null);
+        if (cursorToUse != null)
+        {
+            Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+        }
     }
 }
 

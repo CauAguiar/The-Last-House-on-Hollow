@@ -21,6 +21,10 @@ public class DiaryPage : InteractableBase
         }
     }
 
+    [Header("Recompensa de Inventário (opcional)")]
+    [Tooltip("Se atribuído, este InventoryItem será adicionado ao inventário quando a página for coletada.")]
+    [SerializeField] private InventoryItem inventoryReward;
+
     [ContextMenu("Generate Unique ID")]
     private void GenerateGuid()
     {
@@ -32,6 +36,28 @@ public class DiaryPage : InteractableBase
         base.OnInspect();
         JournalManager.Instance.CollectPage(pageId);
         GameStateManager.Instance.MarkAsCollected(uniqueId);
+
+        // Se houver um item de recompensa configurado, adiciona ao inventário (se ainda não estiver presente)
+        if (inventoryReward != null)
+        {
+            if (InventoryManager.Instance != null)
+            {
+                if (!InventoryManager.Instance.HasItem(inventoryReward))
+                {
+                    InventoryManager.Instance.AddItem(inventoryReward);
+                    Debug.Log($"DiaryPage: inventoryReward '{inventoryReward.itemName}' adicionado ao inventário para a página {pageId}.");
+                }
+                else
+                {
+                    Debug.Log($"DiaryPage: inventoryReward da página {pageId} já presente no inventário.");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("DiaryPage: InventoryManager.Instance é null — não foi possível adicionar o inventoryReward da página.");
+            }
+        }
+
         Destroy(gameObject);
     }
 

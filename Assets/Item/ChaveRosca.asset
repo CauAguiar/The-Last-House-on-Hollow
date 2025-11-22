@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: ChaveRosca
   m_EditorClassIdentifier: 
   itemName: Chave de Rosca
-  description: Uma chave de rosca com aspecto enferrujado.
-  icon: {fileID: 21300000, guid: c07695798f326ae44902f22c88464d86, type: 3}
+  description: Uma chave de rosca bem cuidada.
+  icon: {fileID: 21300000, guid: bea116a061306274fb8fa379b8892264, type: 3}

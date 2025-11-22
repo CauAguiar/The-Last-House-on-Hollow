@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8abaad337c630044887c98e68fc5b12, type: 3}
   m_Name: ChaveBanheiro
   m_EditorClassIdentifier: 
-  itemName: Chave do Banheiro
-  description: Chave que abre o banheiro
-  icon: {fileID: 21300000, guid: 1690aa5bf4be9c244a0b38360b932ed5, type: 3}
+  itemName: Chave
+  description: 'Chave de ferro simples, mas antiga. '
+  icon: {fileID: 21300000, guid: 01744c8f4d3533a46b77b6614632efe2, type: 3}

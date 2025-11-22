@@ -9,10 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 07c0d7aebfa9ba74dbe9e284df2a515b, type: 3}
-  m_Name: PortraitData_Aula
+  m_Script: {fileID: 11500000, guid: f8abaad337c630044887c98e68fc5b12, type: 3}
+  m_Name: New Item
   m_EditorClassIdentifier: 
-  portraitID: PrimeiroDiaAula
-  image: {fileID: 0}
-  inspectionText: 
-  debugColor: {r: 0.84276724, g: 0.16166274, b: 0.23153472, a: 1}
+  itemName: "L\xE2mpada"
+  description: "Uma l\xE2mpada velha, mas parece estar funcionando. "
+  icon: {fileID: 21300000, guid: 7636a7a2042a92a4c8e8967224a3ca14, type: 3}

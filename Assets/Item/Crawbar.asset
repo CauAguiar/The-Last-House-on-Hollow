@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: "P\xE9 de Cabra"
   description: "Um p\xE9 de cabra maci\xE7o"
-  icon: {fileID: 21300000, guid: f89df35b6ccc74843991d5d4532226a5, type: 3}
+  icon: {fileID: 21300000, guid: d2f310ec9f461e346bbed7db0d7eb181, type: 3}

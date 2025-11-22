@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: "Di\xE1rio de Tim Craven"
   description: "Um di\xE1rio velho e surrado."
-  icon: {fileID: 21300000, guid: f20476094a8453040b6745f1ed69a0f9, type: 3}
+  icon: {fileID: 21300000, guid: 405f0dd4aa148634ba558d967acd1c30, type: 3}
