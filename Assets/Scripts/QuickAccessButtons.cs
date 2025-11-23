@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 /// <summary>
 /// Conecta botões rápidos (Inventory, Journal, Tome) às respectivas UIs
@@ -12,6 +13,19 @@ public class QuickAccessButtons : MonoBehaviour
     public Button inventoryButton;
     public Button journalButton;
     public Button tomoButton; // reservado para uso futuro
+    [Header("Icon Images (optional)")]
+    [Tooltip("Imagem do ícone do botão do Diário; será ativada somente quando o diário estiver disponível.")]
+    public Image journalIcon;
+    [Tooltip("Imagem do ícone do botão do Tomo; reservado para uso futuro.")]
+    public Image tomoIcon;
+
+    [Header("Optional Labels (TextMeshPro)")]
+    [Tooltip("Label (TMP) do botão do Diário — será ativada junto com o ícone quando o diário estiver disponível.")]
+    public TextMeshProUGUI journalLabel;
+    [Tooltip("Label (TMP) do botão do Tomo — reservado para uso futuro.")]
+    public TextMeshProUGUI tomoLabel;
+    [Tooltip("Label (TMP) do botão do Inventário — opcional, caso queira ocultar quando vazio.")]
+    public TextMeshProUGUI inventoryLabel;
 
     [Header("Referências de UI")]
     public InventoryUIController inventoryUI;
@@ -29,6 +43,9 @@ public class QuickAccessButtons : MonoBehaviour
 
         // Inicialmente, o botão do diário fica interagível somente se já temos o diário
         UpdateJournalButtonState();
+
+        // Tome starts hidden/unavailable until implemented/collected
+        UpdateTomeButtonState(false);
 
         // Subscrições de inventário para atualizar disponibilidade do diário
         if (InventoryManager.Instance != null)
@@ -74,7 +91,11 @@ public class QuickAccessButtons : MonoBehaviour
         if (jm == null)
         {
             // try to locate JournalManager in scene if the singleton wasn't set for some reason
+#if UNITY_2023_1_OR_NEWER
+            jm = UnityEngine.Object.FindFirstObjectByType<JournalManager>();
+#else
             jm = UnityEngine.Object.FindObjectOfType<JournalManager>();
+#endif
         }
         if (jm != null)
         {
@@ -92,6 +113,53 @@ public class QuickAccessButtons : MonoBehaviour
         }
 
         journalButton.interactable = enabled;
+
+        // Atualiza também a visibilidade do ícone (se atribuído). O ícone só aparece quando o diário estiver disponível.
+        if (journalIcon != null)
+        {
+            journalIcon.enabled = enabled;
+        }
+        else if (journalButton.image != null)
+        {
+            // Fallback: use a imagem do próprio Button
+            journalButton.image.enabled = enabled;
+        }
+
+        // Atualiza label TMP: prefer explicit, senão procura um child TMP e ativa/desativa
+        if (journalLabel != null)
+        {
+            journalLabel.enabled = enabled;
+        }
+        else
+        {
+            var tmp = journalButton.GetComponentInChildren<TextMeshProUGUI>(true);
+            if (tmp != null) tmp.enabled = enabled;
+        }
+    }
+
+    private void UpdateTomeButtonState(bool available)
+    {
+        if (tomoButton == null) return;
+        tomoButton.interactable = available;
+
+        if (tomoIcon != null)
+        {
+            tomoIcon.enabled = available;
+        }
+        else if (tomoButton.image != null)
+        {
+            tomoButton.image.enabled = available;
+        }
+
+        if (tomoLabel != null)
+        {
+            tomoLabel.enabled = available;
+        }
+        else
+        {
+            var tmp = tomoButton.GetComponentInChildren<TextMeshProUGUI>(true);
+            if (tmp != null) tmp.enabled = available;
+        }
     }
 
     private void OnInventoryButtonClicked()
@@ -111,7 +179,11 @@ public class QuickAccessButtons : MonoBehaviour
     private void OnJournalButtonClicked()
     {
         if (journalUI == null)
+    #if UNITY_2023_1_OR_NEWER
+            journalUI = UnityEngine.Object.FindFirstObjectByType<JournalUIManager>();
+    #else
             journalUI = UnityEngine.Object.FindObjectOfType<JournalUIManager>();
+    #endif
 
         if (journalUI != null)
         {

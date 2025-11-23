@@ -87,12 +87,12 @@ public class ChestController : InteractableBase
             }
         }
 
-        // Adiciona as páginas do diário
+        // Adiciona as páginas do diário (usar CollectPage para disparar eventos UI/notifications)
         if (diaryPageIds != null && diaryPageIds.Length > 0)
         {
             foreach (int pageId in diaryPageIds)
             {
-                JournalManager.Instance.AddPage(pageId);
+                JournalManager.Instance.CollectPage(pageId);
             }
         }
 

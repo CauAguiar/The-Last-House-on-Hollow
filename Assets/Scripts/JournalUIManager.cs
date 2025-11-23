@@ -162,6 +162,14 @@ public class JournalUIManager : MonoBehaviour
 public void ToggleJournal()
 {
     bool isActive = !journalPanel.activeSelf;
+
+    // If opening, notify exclusive manager to close other panels first
+    if (isActive)
+    {
+        // Ensure exclusivity (create manager if missing)
+        UIExclusiveManager.GetOrCreate().PanelOpening(journalPanel);
+    }
+
     journalPanel.SetActive(isActive);
 
     if (isActive)
@@ -177,6 +185,18 @@ public void ToggleJournal()
         }
     }
     else
+    {
+        if (PlayerMovement.Instance != null) PlayerMovement.Instance.UnlockMovement();
+        UIInputBlocker.Unblock("Journal");
+        GamePauseManager.Unpause("Journal");
+    }
+}
+
+// Called by UIExclusiveManager when another panel causes this one to close
+private void OnExclusivePanelClosed()
+{
+    // Ensure cleanup steps are applied when the panel is closed externally
+    if (journalPanel != null && !journalPanel.activeSelf)
     {
         if (PlayerMovement.Instance != null) PlayerMovement.Instance.UnlockMovement();
         UIInputBlocker.Unblock("Journal");

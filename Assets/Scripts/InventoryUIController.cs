@@ -146,7 +146,16 @@ public class InventoryUIController : MonoBehaviour
     private void ToggleInventory(InputAction.CallbackContext context)
     {
         isInventoryOpen = !isInventoryOpen;
-        if (inventoryPanel != null) inventoryPanel.SetActive(isInventoryOpen);
+        if (inventoryPanel != null)
+        {
+            if (isInventoryOpen)
+            {
+                // Ensure exclusive UI: notify manager to close other panels (create if missing)
+                UIExclusiveManager.GetOrCreate().PanelOpening(inventoryPanel);
+            }
+            inventoryPanel.SetActive(isInventoryOpen);
+        }
+
         if (isInventoryOpen)
         {
             UIInputBlocker.Block("Inventory");
@@ -182,7 +191,12 @@ public class InventoryUIController : MonoBehaviour
     {
         currentUseTarget = target;
         isInventoryOpen = true;
-        if (inventoryPanel != null) inventoryPanel.SetActive(true);
+        if (inventoryPanel != null)
+        {
+            // Ensure exclusive UI: notify manager to close other panels (create manager if missing)
+            UIExclusiveManager.GetOrCreate().PanelOpening(inventoryPanel);
+            inventoryPanel.SetActive(true);
+        }
         UIInputBlocker.Block("Inventory");
         GamePauseManager.Pause("Inventory");
     }
@@ -192,6 +206,7 @@ public class InventoryUIController : MonoBehaviour
         currentUseTarget = null;
         isInventoryOpen = false;
         if (inventoryPanel != null) inventoryPanel.SetActive(false);
+        UIExclusiveManager.GetOrCreate().PanelClosed(inventoryPanel);
         UIInputBlocker.Unblock("Inventory");
         GamePauseManager.Unpause("Inventory");
         if (UnityEngine.EventSystems.EventSystem.current != null)
@@ -199,6 +214,27 @@ public class InventoryUIController : MonoBehaviour
             UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
         }
         // Remove focus trap when closed
+        if (inventoryPanel != null)
+        {
+            var trap = inventoryPanel.GetComponent<UIFocusTrap>();
+            if (trap != null) Destroy(trap);
+        }
+    }
+    
+    // Called by UIExclusiveManager when another panel forces this one to close
+    private void OnExclusivePanelClosed()
+    {
+        // If we were open, ensure we cleanup the same as CloseInventory
+        if (!isInventoryOpen) return;
+        currentUseTarget = null;
+        isInventoryOpen = false;
+        if (inventoryPanel != null) inventoryPanel.SetActive(false);
+        UIInputBlocker.Unblock("Inventory");
+        GamePauseManager.Unpause("Inventory");
+        if (UnityEngine.EventSystems.EventSystem.current != null)
+        {
+            UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+        }
         if (inventoryPanel != null)
         {
             var trap = inventoryPanel.GetComponent<UIFocusTrap>();

@@ -137,3 +137,5 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 6221ac6c9162ef747ae6185858e10145, type: 3}
   - soundName: success_piano
     clip: {fileID: 8300000, guid: e3dd833010a70594a86e5080fb8d2848, type: 3}
+  - soundName: escrever
+    clip: {fileID: 8300000, guid: e16846c4ca0e1fe458c25315e13aafaf, type: 3}

@@ -40,6 +40,8 @@ public class DoorController : InteractableBase
         if (!string.IsNullOrEmpty(uniqueId) && GameStateManager.Instance != null && GameStateManager.Instance.IsDoorUnlocked(uniqueId))
         {
             isLocked = false;
+            // After a door is already unlocked (persisted), require explicit interaction to enter
+            requireInteraction = true;
             // Se a porta já estiver destrancada no estado persistido, aplica o sprite de destrancada
             if (unlockedSprite != null)
             {
@@ -135,6 +137,8 @@ public class DoorController : InteractableBase
         if (requiredKey != null && item == requiredKey)
         {
             isLocked = false;
+            // After unlocking via key, require explicit interaction (click) to enter
+            requireInteraction = true;
 
             if (!string.IsNullOrEmpty(uniqueId) && GameStateManager.Instance != null)
             {

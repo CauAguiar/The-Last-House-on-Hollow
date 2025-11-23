@@ -154,6 +154,14 @@ MonoBehaviour:
   inspectionText: 
   proximityHighlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   hoverScaleFactor: 1.1
+  cursorHand: {fileID: 0}
+  cursorHotspot: {x: 0, y: 0}
+  wrongItemResponses:
+  - "N\xE3o acho que deva usar isso aqui."
+  - Devo estar endoidando usando isso aqui.
+  - "Acho que isso n\xE3o vai funcionar aqui."
+  - "N\xE3o parece o lugar certo para isso."
+  - "Essa merda n\xE3o funciona aqui."
   data: {fileID: 11400000, guid: d6ae1559bd991d7458a917aaaa231291, type: 2}
 --- !u!61 &7688518
 BoxCollider2D:
@@ -6028,6 +6036,14 @@ MonoBehaviour:
   inspectionText: Trancadinha da silva.
   proximityHighlightColor: {r: 0.5137255, g: 0.3137255, b: 0.7254902, a: 1}
   hoverScaleFactor: 1.1
+  cursorHand: {fileID: 0}
+  cursorHotspot: {x: 0, y: 0}
+  wrongItemResponses:
+  - "N\xE3o acho que deva usar isso aqui."
+  - Devo estar endoidando usando isso aqui.
+  - "Acho que isso n\xE3o vai funcionar aqui."
+  - "N\xE3o parece o lugar certo para isso."
+  - "Essa merda n\xE3o funciona aqui."
   sceneToLoad: EscritorioScene
   targetSpawnID: Escritorio
   requireInteraction: 1
@@ -6069,7 +6085,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -6105,6 +6121,14 @@ MonoBehaviour:
   inspectionText: "Est\xE1 trancada. "
   proximityHighlightColor: {r: 0.5137255, g: 0.3137255, b: 0.7254902, a: 1}
   hoverScaleFactor: 1.1
+  cursorHand: {fileID: 0}
+  cursorHotspot: {x: 0, y: 0}
+  wrongItemResponses:
+  - "N\xE3o acho que deva usar isso aqui."
+  - Devo estar endoidando usando isso aqui.
+  - "Acho que isso n\xE3o vai funcionar aqui."
+  - "N\xE3o parece o lugar certo para isso."
+  - "Essa merda n\xE3o funciona aqui."
   sceneToLoad: BanheiroScene
   targetSpawnID: Banheiro
   requireInteraction: 1
@@ -6146,7 +6170,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -6348,6 +6372,14 @@ MonoBehaviour:
   inspectionText: 
   proximityHighlightColor: {r: 1, g: 1, b: 1, a: 0.75}
   hoverScaleFactor: 1.1
+  cursorHand: {fileID: 0}
+  cursorHotspot: {x: 0, y: 0}
+  wrongItemResponses:
+  - "N\xE3o acho que deva usar isso aqui."
+  - Devo estar endoidando usando isso aqui.
+  - "Acho que isso n\xE3o vai funcionar aqui."
+  - "N\xE3o parece o lugar certo para isso."
+  - "Essa merda n\xE3o funciona aqui."
   sceneToLoad: SalaoPrincipalScene
   targetSpawnID: FromCorredor
   requireInteraction: 0
