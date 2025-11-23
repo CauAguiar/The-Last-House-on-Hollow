@@ -21,13 +21,7 @@ public class CandelabroController : MonoBehaviour
 
     void Start()
     {
-        // *** CÓDIGO TEMPORÁRIO DE TESTE (REMOVER DEPOIS) ***
-        if (InventoryManager.Instance != null && testVelaAcesa != null)
-        {
-            // Adiciona a Vela Acesa no início do jogo para testar
-            InventoryManager.Instance.AddItem(testVelaAcesa);
-            Debug.LogWarning("ITEM DE TESTE ADICIONADO: Vela Acesa.");
-        }
+        // Test setup removed for release; do not add test item at Start.
         
     }
 
@@ -62,7 +56,6 @@ public class CandelabroController : MonoBehaviour
             // Se alguma vela clicada na posição 'i' não for igual à ID esperada
             if (playerSequence[i] != correctOrder[i])
             {
-                Debug.Log("Sequência Incorreta! Todas as velas foram apagadas.");
                 ResetPuzzle();
                 return; // Sai da função, pois a sequência falhou
             }
@@ -96,7 +89,6 @@ public class CandelabroController : MonoBehaviour
         {
            
             AudioManager.Instance.PlaySFX("PuzzleSolved"); 
-            Debug.Log("[Candelabro] Som de Solução Tocado!"); 
         }
 
         // 2. A chave do Banheiro aparece (RewardKey)
@@ -104,8 +96,6 @@ public class CandelabroController : MonoBehaviour
         {
             rewardKey.SetActive(true); // Faz a chave do banheiro aparecer
         }
-        
-        Debug.Log("[Candelabro] Puzzle Resolvido! Chave do Banheiro Obtida!");
     }
         
 

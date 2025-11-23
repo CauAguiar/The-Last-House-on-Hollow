@@ -59,13 +59,13 @@ using UnityEngine.InputSystem.Utilities;
 ///     // Invoked when "Move" action is either started, performed or canceled.
 ///     public void OnMove(InputAction.CallbackContext context)
 ///     {
-///         Debug.Log($"OnMove: {context.ReadValue&lt;Vector2&gt;()}");
+///         // Debug log removed for input event
 ///     }
 ///
 ///     // Invoked when "Attack" action is either started, performed or canceled.
 ///     public void OnAttack(InputAction.CallbackContext context)
 ///     {
-///         Debug.Log($"OnAttack: {context.ReadValue&lt;float&gt;()}");
+///         // Debug log removed for input event
 ///     }
 ///
 ///     #endregion

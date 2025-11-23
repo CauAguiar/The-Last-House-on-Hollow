@@ -29,7 +29,10 @@ public class UIExclusiveManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            // DontDestroyOnLoad only works on root GameObjects.
+            // Use the root of this transform to avoid the Unity warning when this component
+            // is placed on a child object.
+            DontDestroyOnLoad(transform.root.gameObject);
         }
         else
         {

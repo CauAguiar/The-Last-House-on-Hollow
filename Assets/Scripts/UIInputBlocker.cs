@@ -24,7 +24,7 @@ public static class UIInputBlocker
         tokens.Add(token);
         if (verboseLogging)
         {
-            UnityEngine.Debug.Log($"UIInputBlocker: Block('{token}') called. Active tokens={{ {string.Join(",", tokens)} }}");
+            // UIInputBlocker: Block called (log removed)
         }
     }
 
@@ -37,7 +37,7 @@ public static class UIInputBlocker
         tokens.Remove(token);
         if (verboseLogging)
         {
-            UnityEngine.Debug.Log($"UIInputBlocker: Unblock('{token}') called. Active tokens={{ {string.Join(",", tokens)} }}");
+            // UIInputBlocker: Unblock called (log removed)
         }
     }
 
@@ -49,7 +49,7 @@ public static class UIInputBlocker
         tokens.Clear();
         if (verboseLogging)
         {
-            UnityEngine.Debug.Log("UIInputBlocker: ClearAll() called. Active tokens cleared.");
+            // UIInputBlocker: ClearAll() called (log removed)
         }
     }
 }

@@ -58,7 +58,7 @@ public class PickupNotificationManager : MonoBehaviour
     {
         if (notificationPrefab == null)
         {
-            Debug.LogWarning("PickupNotificationManager: notificationPrefab não está atribuído.");
+            // PickupNotificationManager: notificationPrefab não está atribuído. (log removed)
             yield break;
         }
 
@@ -98,7 +98,7 @@ public class PickupNotificationManager : MonoBehaviour
             {
                 Color c = img.color;
                 img.color = new Color(c.r, c.g, c.b, 1f);
-                Debug.Log("PickupNotificationManager: Ajustei alpha de Image filha para 1. Verifique prefab para comportamento desejado.");
+                // PickupNotificationManager: Ajustei alpha de Image filha para 1. (log removed)
             }
             // Evita que imagens de background capturem o clique. Se alguma imagem precisa capturar cliques, trate manualmente no prefab.
             img.raycastTarget = false;

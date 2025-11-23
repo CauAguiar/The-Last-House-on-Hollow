@@ -103,7 +103,7 @@ public class PianoUIManager : MonoBehaviour
         if ((correctSequence == null || correctSequence.Count == 0) && useDefaultSequenceIfEmpty)
         {
             correctSequence = new List<string>() { "B", "A#", "G", "A#", "G" };
-            Debug.LogWarning("PianoUIManager: 'Correct Sequence' não estava configurada; usando sequência padrão: B, A#, G, A#, G.");
+            // PianoUIManager: 'Correct Sequence' não estava configurada; usando sequência padrão. (log removed)
         }
 
         UpdateSequenceDisplay();
@@ -199,7 +199,7 @@ public class PianoUIManager : MonoBehaviour
             RectTransform r = k.GetComponent<RectTransform>();
             order += $"{k.NoteName}@{r.anchoredPosition.x:F1} (sibling={k.transform.GetSiblingIndex()}), ";
         }
-        Debug.Log(order);
+        // Debug output removed: order
     }
 
     // If the keys are visually in descending pitch order (left-to-right), remap note names
@@ -230,7 +230,7 @@ public class PianoUIManager : MonoBehaviour
         // Check if the sequence is reversed (first > last)
         if (pitches.Count >= 2 && pitches[0] > pitches[pitches.Count - 1])
         {
-            Debug.Log("Detectei ordem invertida — aplicando remap de notas para left-to-right asc.");
+            // Detectei ordem invertida — remap aplicado (log removed)
             List<int> sortedPitches = new List<int>(pitches);
             sortedPitches.Sort();
 
@@ -328,7 +328,7 @@ public class PianoUIManager : MonoBehaviour
 
         // Debug: log da tecla pressionada e sequência atual para ajudar a diagnosticar mismatches
         string pressed = key != null ? key.NoteName : "(null)";
-        Debug.Log($"PianoUIManager: Key pressed: {pressed}. CurrentSeq(before add)={string.Join(", ", currentSequence)}");
+        // PianoUIManager: Key pressed (log removed)
 
         // If a reset is already in progress, allow color feedback (so player sees red/green)
         // but don't modify the sequence or trigger logic until the reset completes.
@@ -636,14 +636,14 @@ public class PianoUIManager : MonoBehaviour
             if (saraRingItem != null)
             {
                 InventoryManager.Instance.AddItem(saraRingItem);
-                Debug.Log("Aliança de Sara adicionada ao inventário (InventoryItem).");
+                // Aliança de Sara adicionada ao inventário (log removed)
             }
 
             // Add diary page by ID via JournalManager
             if (JournalManager.Instance != null && diaryPage4Id > 0)
             {
                 JournalManager.Instance.CollectPage(diaryPage4Id);
-                Debug.Log($"Página do Diário (pageId={diaryPage4Id}) adicionada via JournalManager.");
+                // Página do Diário adicionada via JournalManager (log removed)
             }
         }
 

@@ -35,9 +35,7 @@ public class CandelabroTrigger : InteractableBase
         // Verifica se o objeto que entrou é o Player (baseado no tag ou nome)
         if (other.gameObject.CompareTag("Player")) 
         {
-            Debug.LogWarning("DETECÇÃO POR PROXIMIDADE FUNCIONOU! Agora o menu deve abrir.");
-            
-            // A lógica de abertura de menu
+            // proximity detected; open context menu
             if (InteractionManager.Instance != null)
             {
                 InteractionManager.Instance.ShowContextMenu(this);

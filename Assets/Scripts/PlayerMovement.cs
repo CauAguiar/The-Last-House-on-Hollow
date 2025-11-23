@@ -200,7 +200,7 @@ public class PlayerMovement : MonoBehaviour
             if (footstepClip == null)
             {
                 // Evita spam: apenas um aviso discreto
-                // Debug.LogWarning($"Clip de passos '{footstepSoundName}' não encontrado no SoundBank.");
+                // Clip de passos não encontrado no SoundBank. (log removed)
             }
         }
 

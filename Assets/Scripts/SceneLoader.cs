@@ -53,7 +53,7 @@ public class SceneLoader : MonoBehaviour
     {
         if (fadePanel == null)
         {
-            Debug.LogWarning("O Painel de Fade não foi atribuído no SceneLoader.");
+            // O Painel de Fade não foi atribuído no SceneLoader. (log removed)
             yield break; // Interrompe a coroutine se o painel não existir
         }
 

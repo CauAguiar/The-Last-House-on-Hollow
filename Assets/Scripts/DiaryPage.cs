@@ -17,7 +17,7 @@ public class DiaryPage : InteractableBase
         }
         if (pageId == 0)
         {
-            Debug.LogWarning($"DiaryPage on '{gameObject.name}' has pageId=0 — please set the correct pageId in the Inspector. Using 0 may map to the first journal page at runtime.");
+            // DiaryPage has pageId=0 — please set the correct pageId in the Inspector. (log removed)
         }
     }
 
@@ -45,16 +45,11 @@ public class DiaryPage : InteractableBase
                 if (!InventoryManager.Instance.HasItem(inventoryReward))
                 {
                     InventoryManager.Instance.AddItem(inventoryReward);
-                    Debug.Log($"DiaryPage: inventoryReward '{inventoryReward.itemName}' adicionado ao inventário para a página {pageId}.");
-                }
-                else
-                {
-                    Debug.Log($"DiaryPage: inventoryReward da página {pageId} já presente no inventário.");
                 }
             }
             else
             {
-                Debug.LogWarning("DiaryPage: InventoryManager.Instance é null — não foi possível adicionar o inventoryReward da página.");
+                // DiaryPage: InventoryManager.Instance é null — não foi possível adicionar o inventoryReward da página. (log removed)
             }
         }
 

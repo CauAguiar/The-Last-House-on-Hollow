@@ -91,11 +91,11 @@ public class PianoController : InteractableBase
         {
             if (lidSpriteRenderer == null && lidUIImage == null)
             {
-                Debug.LogWarning("PianoController: 'useSpriteForLid' is true but no 'lidSpriteRenderer' or 'lidUIImage' is assigned.");
+                // PianoController: 'useSpriteForLid' is true but no 'lidSpriteRenderer' or 'lidUIImage' is assigned. (log removed)
             }
             if (lidClosedSprite == null || lidOpenSprite == null)
             {
-                Debug.LogWarning("PianoController: 'useSpriteForLid' is true but 'lidClosedSprite' or 'lidOpenSprite' is not assigned. Visuals will not swap correctly.");
+                // PianoController: 'useSpriteForLid' is true but 'lidClosedSprite' or 'lidOpenSprite' is not assigned. Visuals will not swap correctly. (log removed)
             }
             // Try to auto-fill sprites in editor for convenience
             if (lidSpriteRenderer == null)
@@ -210,7 +210,7 @@ public class PianoController : InteractableBase
             AudioManager.Instance.PlaySFX(pianoOpenSoundName);
         }
         
-        Debug.Log("Piano resolvido! Recompensas reveladas.");
+        // Piano resolvido! Recompensas reveladas. (log removed)
     }
     
     /// <summary>
@@ -322,6 +322,6 @@ public class PianoController : InteractableBase
             diaryPage4Object.SetActive(false);
         }
         
-        Debug.Log("Piano resetado!");
+        // Piano resetado! (log removed)
     }
 }

@@ -78,7 +78,6 @@ public class PotionsUIManager : MonoBehaviour
                 {
                     if (potionSprites != null && potionSprites.Count > 0)
                         inferred = potionSprites[0].color;
-                    Debug.LogWarning($"PotionSlot at index {idx} has no matching sprite in PotionsUIManager.potionSprites. Defaulting to {inferred}.");
                 }
 
                 slot.Setup(idx, inferred, sprite);
@@ -93,7 +92,7 @@ public class PotionsUIManager : MonoBehaviour
         currentController = controller;
         if (puzzlePanel == null)
         {
-            Debug.LogWarning("PotionsUIManager: puzzlePanel está nulo.");
+            // PotionsUIManager: puzzlePanel está nulo. (log removed)
             return;
         }
 
@@ -189,7 +188,7 @@ public class PotionsUIManager : MonoBehaviour
         }
 
         // Se passou pelo loop, venceu!
-        Debug.Log("Puzzle das Poções Resolvido!");
+        // Puzzle resolved (debug log removed to reduce console noise)
 
         // Toca som de conclusão se houver
         if (!string.IsNullOrEmpty(completionSfxName) && AudioManager.Instance != null)

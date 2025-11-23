@@ -45,11 +45,11 @@ public class PortraitPuzzleController : MonoBehaviour
     
     public void OpenPuzzleUI(string clickedPortraitID)
     {
-        Debug.Log("[Controller] Recebeu chamada para Abrir UI!");
+        // [Controller] Recebeu chamada para Abrir UI! (log removed)
 
         if (puzzleSolved) 
         {
-            Debug.Log("[Controller] Puzzle já resolvido, ignorando abertura.");
+            // [Controller] Puzzle já resolvido, ignorando abertura. (log removed)
             return;
         }
 
@@ -81,26 +81,26 @@ public class PortraitPuzzleController : MonoBehaviour
     {
         if (puzzleSolved) return; 
 
-        Debug.Log($"[Controller] Recebeu seleção: {piece.data.portraitID}");
+        // [Controller] Recebeu seleção (log removed)
         
         if (firstSelection == null)
         {
             // 1. Primeira seleção
             firstSelection = piece;
-            Debug.Log($"[Controller] Peça 1 Selecionada: {piece.data.portraitID}"); 
+            // [Controller] Peça 1 Selecionada (log removed)
             return;
         }
 
         if (firstSelection == piece)
         {
             // 2. Clica no mesmo: cancela
-            Debug.Log($"[Controller] Seleção cancelada: {piece.data.portraitID}");
+            // [Controller] Seleção cancelada (log removed)
             firstSelection = null;
             return;
         }
 
         // 3. Segunda seleção: Troca
-        Debug.Log($"[Controller] Peça 2 Selecionada: {piece.data.portraitID}. Realizando Troca.");
+        // [Controller] Peça 2 Selecionada. Realizando Troca. (log removed)
         SwapUIPieces(firstSelection, piece);
         firstSelection = null; 
         
@@ -109,7 +109,7 @@ public class PortraitPuzzleController : MonoBehaviour
 
     private void SwapUIPieces(PortraitUIPiece p1, PortraitUIPiece p2)
     {
-        Debug.Log($"[Controller] SWAP: Trocando {p1.gameObject.name} com {p2.gameObject.name}.");
+        // [Controller] SWAP: Trocando (log removed)
         
         // Troca APENAS a ordem na hierarquia (Visual na UI)
         int index1 = p1.transform.GetSiblingIndex();
@@ -184,16 +184,16 @@ public class PortraitPuzzleController : MonoBehaviour
     private void PuzzleSolved()
     {
         puzzleSolved = true;
-        Debug.Log("[PortraitPuzzle] SOLUÇÃO ENCONTRADA!");
+        // [PortraitPuzzle] SOLUÇÃO ENCONTRADA! (log removed)
         
         if (AudioManager.Instance != null)
         {
             AudioManager.Instance.PlaySFX("PuzzleSolved"); 
-            Debug.Log("[PortraitPuzzle] Som de Solução Tocado!"); // Log de confirmação
+            // [PortraitPuzzle] Som de Solução Tocado! (log removed)
         }
         else
         {
-            Debug.LogWarning("[PortraitPuzzle] AudioManager não encontrado. Impossível tocar o som!");
+            // [PortraitPuzzle] AudioManager não encontrado. Impossível tocar o som! (log removed)
         }
         // Recompensa
         if (rewardObject != null) rewardObject.SetActive(true);

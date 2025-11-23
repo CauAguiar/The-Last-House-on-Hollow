@@ -126,13 +126,13 @@ public class InteractionManager : MonoBehaviour
         // Validate references – avoid MissingReferenceException when objects were destroyed (e.g., after scene change)
         if (!IsAlive(interactable))
         {
-            Debug.LogWarning("ShowContextMenu chamado com um Interactable destruído ou nulo. Ignorando.");
+            // Interactable is null/destroyed; silently ignore
             return;
         }
 
         if (!IsAlive(contextMenu))
         {
-            Debug.LogWarning("ContextMenu não está atribuído ou foi destruído. Ignorando a abertura do menu de contexto.");
+            // Context menu missing or destroyed; silently ignore
             return;
         }
 
@@ -295,7 +295,7 @@ public class InteractionManager : MonoBehaviour
 #else
     es.AddComponent<StandaloneInputModule>();
 #endif
-    Debug.LogWarning("EventSystem ausente na cena — um EventSystem fallback foi criado automaticamente.");
+    // EventSystem absent in scene — created a fallback EventSystem automatically (silenced log).
     }
 
     private void NormalizeEventSystems(Scene scene)

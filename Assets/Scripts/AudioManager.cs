@@ -116,7 +116,7 @@ public class AudioManager : MonoBehaviour
         var clip = soundBank.GetClip(soundName);
         if (clip == null)
         {
-            Debug.LogWarning($"[AudioManager] Loop '{soundName}' não encontrado no SoundBank.");
+            // sound not found in soundbank
             return;
         }
         if (!restartIfSame && targetSource.isPlaying && targetSource.clip == clip)
@@ -173,7 +173,7 @@ public class AudioManager : MonoBehaviour
         AudioClip clip = soundBank.GetClip(soundName);
         if (clip == null)
         {
-            Debug.LogWarning($"M?sica '{soundName}' n?o encontrada no SoundBank!");
+            // music not found in soundbank
             return;
         }
 

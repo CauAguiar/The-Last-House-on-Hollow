@@ -194,6 +194,6 @@ public class QuickAccessButtons : MonoBehaviour
     private void OnTomeButtonClicked()
     {
         // Espaço reservado: abra o UI do tomo quando for implementado.
-        Debug.Log("Tome button pressed: Tome UI not implemented yet.");
+        // Tome button pressed: Tome UI not implemented yet. (log removed)
     }
 }

@@ -130,16 +130,7 @@ public class ClockHand : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
             }
 
             // DEBUG: reporta somente o que faz sentido para este ponteiro
-            if (handType == HandType.Hour)
-            {
-                Debug.Log($"{gameObject.name} (HORAS) -> Hora: {currentValue} | Ângulo: {snappedAngle}");
-            }
-            else // Minute
-            {
-                int displayedMinutes = (currentValue % 12) * 5; // 12 -> 60
-                if (displayedMinutes == 0) displayedMinutes = 60;
-                Debug.Log($"{gameObject.name} (MINUTOS) -> Minutos: {displayedMinutes} (índice {currentValue}) | Ângulo: {snappedAngle}");
-            }
+            // Debug lines removed for cleaner console output
         }
     }
 

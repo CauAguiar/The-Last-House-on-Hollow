@@ -73,7 +73,7 @@ public class SinkController : InteractableBase
         {
             // Gera automaticamente para prevenir colisões de estado
             uniqueId = System.Guid.NewGuid().ToString();
-            Debug.LogWarning($"[SinkController] UniqueId estava vazio. Gerado novo: {uniqueId}");
+            // [SinkController] UniqueId estava vazio. Gerado novo. (log removed)
         }
 
         animatorSupportsBool = animator != null && !string.IsNullOrEmpty(animatorOnBool) && HasAnimatorParameter(animatorOnBool, AnimatorControllerParameterType.Bool);
@@ -196,7 +196,7 @@ public class SinkController : InteractableBase
     {
         if (sinkLoopSource == null)
         {
-            if (debugAudio) Debug.LogWarning("[SinkController] StartSinkAudio abortado: sinkLoopSource nulo.");
+            if (debugAudio) { /* [SinkController] StartSinkAudio abortado: sinkLoopSource nulo. (log removed) */ }
             return;
         }
 
@@ -206,7 +206,7 @@ public class SinkController : InteractableBase
         sinkLoopSource.loop = true;
         sinkLoopSource.playOnAwake = false;
 
-        bool usedSoundBank = false;
+        // Local flag removed (was assigned but unused) to silence compiler warning.
 
         if (AudioManager.Instance != null)
         {
@@ -218,7 +218,7 @@ public class SinkController : InteractableBase
                 {
                     if (sinkAudioRoutine != null) StopCoroutine(sinkAudioRoutine);
                     sinkAudioRoutine = StartCoroutine(StartSinkAudioRoutine(clipName));
-                    usedSoundBank = true;
+                    // usedSoundBank flag removed (log removed)
                 }
             }
             else
@@ -226,7 +226,7 @@ public class SinkController : InteractableBase
                 if (!string.IsNullOrEmpty(sinkLoopSoundName))
                 {
                     AudioManager.Instance.PlayLoopOnSource(sinkLoopSource, sinkLoopSoundName, AudioManager.Category.Ambience, 1f, false);
-                    usedSoundBank = true;
+                    // usedSoundBank flag removed (log removed)
                 }
                 else if (sinkLoopSource.clip != null)
                 {
@@ -238,7 +238,7 @@ public class SinkController : InteractableBase
         else
         {
             // Fallback sem AudioManager
-            if (debugAudio) Debug.LogWarning("[SinkController] AudioManager.Instance nulo. Usando fallback manual para tocar loop.");
+            if (debugAudio) { /* [SinkController] AudioManager.Instance nulo. Fallback (log removed) */ }
         }
 
         // Fallback manual caso clip tenha sido atribuído mas não esteja tocando
@@ -247,14 +247,14 @@ public class SinkController : InteractableBase
             if (!sinkLoopSource.isPlaying && sinkLoopSource.clip != null)
             {
                 sinkLoopSource.Play();
-                if (debugAudio) Debug.Log("[SinkController] Fallback manual: Play() chamado.");
+                if (debugAudio) { /* Fallback manual Play called (log removed) */ }
             }
         }
 
         if (debugAudio)
         {
             string clipName = sinkLoopSource.clip != null ? sinkLoopSource.clip.name : "(sem clip)";
-            Debug.Log($"[SinkController] StartSinkAudio -> clip={clipName}, isPlaying={sinkLoopSource.isPlaying}, volume={sinkLoopSource.volume:F3}, usedSoundBank={usedSoundBank}");
+            // SinkController StartSinkAudio details (log removed)
         }
     }
 
@@ -264,7 +264,7 @@ public class SinkController : InteractableBase
         if (startSfxDuration > 0.01f)
         {
             AudioManager.Instance.PlaySFXSlice(clipName, startSfxStart, startSfxDuration, 1f, AudioManager.Category.Ambience);
-            if (debugAudio) Debug.Log($"[SinkController] SFX inicial tocado: {clipName} @ {startSfxStart:F2}s x {startSfxDuration:F2}s");
+            if (debugAudio) { /* SinkController initial SFX played (log removed) */ }
             yield return new WaitForSecondsRealtime(startSfxDuration);
         }
 
@@ -272,13 +272,13 @@ public class SinkController : InteractableBase
         if (loopRegionDuration > 0.01f)
         {
             AudioManager.Instance.PlayLoopSliceOnSource(sinkLoopSource, clipName, loopRegionStart, loopRegionDuration, AudioManager.Category.Ambience, 1f, false);
-            if (debugAudio) Debug.Log($"[SinkController] Loop slice iniciado: {clipName} @ {loopRegionStart:F2}s x {loopRegionDuration:F2}s");
+            if (debugAudio) { /* SinkController loop slice started (log removed) */ }
         }
         else
         {
             // Duração inválida -> fallback para loop inteiro
             AudioManager.Instance.PlayLoopOnSource(sinkLoopSource, clipName, AudioManager.Category.Ambience, 1f, false);
-            if (debugAudio) Debug.LogWarning("[SinkController] loopRegionDuration inválido. Fallback para loop completo.");
+            if (debugAudio) { /* loopRegionDuration inválido. (log removed) */ }
         }
     }
 

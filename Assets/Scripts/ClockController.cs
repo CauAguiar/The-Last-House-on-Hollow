@@ -50,7 +50,6 @@ public class ClockController : InteractableBase
 
     public void OnPuzzleSolved()
     {
-        Debug.Log("Puzzle do Relógio Resolvido!");
         isSolved = true;
         GameStateManager.Instance.MarkAsCollected(uniqueId);
         spriteRenderer.sprite = openSprite;

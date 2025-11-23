@@ -232,7 +232,6 @@ public class ChestUIManager : MonoBehaviour
         if (enteredPassword.Equals(correctPassword, System.StringComparison.OrdinalIgnoreCase))
         {
             // Senha correta!
-            Debug.Log("Senha correta! Abrindo baú...");
             
             // Som de sucesso (opcional)
             if (AudioManager.Instance != null)
@@ -257,7 +256,6 @@ public class ChestUIManager : MonoBehaviour
         else
         {
             // Senha incorreta
-            Debug.Log($"Senha incorreta: '{enteredPassword}' != '{correctPassword}'");
             
             // Som de erro (opcional)
             if (AudioManager.Instance != null)

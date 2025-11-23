@@ -15,7 +15,6 @@ public class FireplaceController : InteractableBase {
     {
         if (item == unlitCandle)
         {
-            Debug.Log("Voce usa a vela apagada no fogo e ela se acende");
             InventoryManager.Instance.RemoveItem(unlitCandle);
             InventoryManager.Instance.AddItem(litCandle);
 

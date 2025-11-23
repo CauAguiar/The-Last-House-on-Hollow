@@ -59,7 +59,7 @@ public class AmbientEmitter : MonoBehaviour
 
         if (AudioManager.Instance == null)
         {
-            Debug.LogWarning("AmbientEmitter: AudioManager.Instance não encontrado após espera. O som não será registrado.");
+            // AudioManager not found; abort registering this emitter
             yield break;
         }
 
@@ -79,13 +79,12 @@ public class AmbientEmitter : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"AmbientEmitter: SoundBank não possui clip '{soundName}'. Usando clip do AudioSource (se houver)." );
+                // sound not found in bank; fallback to whatever clip is on the AudioSource
             }
         }
 
         AudioManager.Instance.PlayLoopOnSource(source, soundName, category, Mathf.Clamp01(localVolumeScale));
         isRegistered = true;
-        Debug.Log($"AmbientEmitter: registrado '{(string.IsNullOrEmpty(soundName) ? source.clip?.name ?? "(sem clip)" : soundName)}' no AudioManager.");
     }
 
     private void OnDisable()

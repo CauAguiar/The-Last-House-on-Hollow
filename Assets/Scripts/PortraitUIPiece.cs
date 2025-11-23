@@ -39,7 +39,7 @@ public class PortraitUIPiece : MonoBehaviour
             buttonComponent.onClick.AddListener(() =>
             {
                
-                Debug.Log($"[UIPiece] Clique registrado para: {portraitData.portraitID}");
+                // [UIPiece] Clique registrado para: (log removed)
 
                 PortraitPuzzleController.Instance.OnUIPieceSelected(this);
             });

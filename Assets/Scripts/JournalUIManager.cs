@@ -60,7 +60,7 @@ public class JournalUIManager : MonoBehaviour
 
     private void HandlePageCollected(int pageId)
     {
-        Debug.Log($"JournalUIManager: HandlePageCollected pageId={pageId}. journalPanel.activeSelf={journalPanel?.activeSelf}");
+        // HandlePageCollected: log removed
         // If the journal is open, refresh the displayed page list and show the newly collected page
         if (journalPanel != null && journalPanel.activeSelf)
         {
@@ -75,7 +75,7 @@ public class JournalUIManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"JournalUIManager: pageId={pageId} not found in collectedPages after collect.");
+                // JournalUIManager: pageId not found in collectedPages after collect. (log removed)
             }
         }
     }
@@ -104,7 +104,7 @@ public class JournalUIManager : MonoBehaviour
 #if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
         if (UnityEngine.InputSystem.Mouse.current != null && UnityEngine.InputSystem.Mouse.current.leftButton.wasPressedThisFrame)
         {
-            LogUiUnderPointer();
+            // UI pointer diagnostic log removed
         }
 #else
         if (UnityEngine.Input.GetMouseButtonDown(0))
@@ -118,7 +118,7 @@ public class JournalUIManager : MonoBehaviour
     {
         var es = UnityEngine.EventSystems.EventSystem.current;
         string selected = es != null && es.currentSelectedGameObject != null ? es.currentSelectedGameObject.name : "<none>";
-        Debug.Log($"JournalUIManager: Mouse click detected. EventSystem.currentSelected={selected}");
+        // Mouse click diagnostic log removed
 
         // Raycast against UI
         var pointerData = new UnityEngine.EventSystems.PointerEventData(es);
@@ -142,18 +142,14 @@ public class JournalUIManager : MonoBehaviour
             gr = UnityEngine.Object.FindObjectOfType<UnityEngine.UI.GraphicRaycaster>();
 #endif
         }
-        if (gr != null)
+            if (gr != null)
         {
             gr.Raycast(pointerData, results);
-            Debug.Log($"JournalUIManager: UI raycast hit count={results.Count}");
-            for (int i = 0; i < results.Count; i++)
-            {
-                Debug.Log($"  hit[{i}] = {results[i].gameObject.name} (module={results[i].module})");
-            }
+            // UI raycast diagnostics suppressed
         }
         else
         {
-            Debug.LogWarning("JournalUIManager: No GraphicRaycaster found for UI raycast diagnostics.");
+            // JournalUIManager: No GraphicRaycaster found for UI raycast diagnostics. (log removed)
         }
     }
 
@@ -208,10 +204,10 @@ private void OnExclusivePanelClosed()
     {
         var jm = JournalManager.Instance;
 
-        Debug.Log($"JournalUIManager.ShowPage called with index={index}");
+        // ShowPage called (log removed)
         if (jm == null)
         {
-            Debug.LogWarning("JournalUIManager.ShowPage: JournalManager.Instance == null");
+            // JournalUIManager.ShowPage: JournalManager.Instance == null (log removed)
             pageText.text = "Nenhuma página coletada ainda.";
             UpdateButtonStates();
             return;
@@ -219,7 +215,6 @@ private void OnExclusivePanelClosed()
 
         if (jm.collectedPages == null || jm.collectedPages.Count == 0)
         {
-            Debug.Log("JournalUIManager.ShowPage: collectedPages empty");
             pageText.text = "Nenhuma página coletada ainda.";
             UpdateButtonStates();
             return;
@@ -227,14 +222,14 @@ private void OnExclusivePanelClosed()
 
         if (index < 0 || index >= jm.collectedPages.Count)
         {
-            Debug.LogWarning($"JournalUIManager.ShowPage: index {index} out of range (count={jm.collectedPages.Count})");
+            // JournalUIManager.ShowPage: index out of range (log removed)
             pageText.text = "Página não encontrada.";
             UpdateButtonStates();
             return;
         }
 
         int pageId = jm.collectedPages[index];
-        Debug.Log($"JournalUIManager.ShowPage: displaying pageId={pageId} at collectedPages index={index}");
+        // Displaying page (log removed)
         string content = jm.GetPageContent(pageId);
         pageText.text = content;
 
@@ -246,7 +241,7 @@ private void OnExclusivePanelClosed()
         var jm = JournalManager.Instance;
         if (jm == null || jm.collectedPages.Count == 0) return;
 
-        Debug.Log($"JournalUIManager.NextPage called. currentPageIndex={currentPageIndex}, collectedCount={jm.collectedPages.Count}");
+        // NextPage called (log removed)
         if (currentPageIndex < jm.collectedPages.Count - 1)
         {
             currentPageIndex++;
@@ -264,7 +259,7 @@ private void OnExclusivePanelClosed()
         var jm = JournalManager.Instance;
         if (jm == null || jm.collectedPages.Count == 0) return;
 
-        Debug.Log($"JournalUIManager.PreviousPage called. currentPageIndex={currentPageIndex}, collectedCount={jm.collectedPages.Count}");
+        // PreviousPage called (log removed)
         if (currentPageIndex > 0)
         {
             currentPageIndex--;
@@ -284,6 +279,6 @@ private void OnExclusivePanelClosed()
 
         prevButton.interactable = (currentPageIndex > 0);
         nextButton.interactable = (currentPageIndex < jm.collectedPages.Count - 1);
-        Debug.Log($"JournalUIManager.UpdateButtonStates: currentPageIndex={currentPageIndex}, count={jm.collectedPages.Count}, prevInteractable={prevButton.interactable}, nextInteractable={nextButton.interactable}");
+        // UpdateButtonStates: diagnostic log removed
     }
 }

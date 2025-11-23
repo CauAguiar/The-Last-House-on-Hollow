@@ -296,7 +296,7 @@ public class TypewriterUIManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("TypewriterUIManager: currentController é null ao finalizar ShowResponse().");
+            // TypewriterUIManager: currentController é null ao finalizar ShowResponse(). (log removed)
         }
         // O jogador agora pode ler a resposta e clicar em "Close"
     }

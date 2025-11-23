@@ -22,7 +22,7 @@ public class Portrait : InteractableBase
         puzzleController = PortraitPuzzleController.Instance;
 
         // Log para garantir que o script está carregado
-        Debug.Log("[Portrait] Trigger carregado e pronto para a interação.");
+        // [Portrait] Trigger carregado e pronto para a interação. (log removed)
 
         if (puzzleController == null)
         {

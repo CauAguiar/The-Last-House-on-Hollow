@@ -54,7 +54,6 @@ public abstract class InteractableBase : MonoBehaviour, IInteractable
             // Add a BoxCollider2D as a safe default and mark as trigger so it doesn't affect physics
             var added = gameObject.AddComponent<BoxCollider2D>();
             added.isTrigger = true;
-            Debug.LogWarning($"InteractableBase: no Collider2D found on '{gameObject.name}'. Added default BoxCollider2D (isTrigger=true).");
         }
         // Ensure there is a global InteractableDefaults instance in the scene for default cursor settings
         if (InteractableDefaults.Instance == null)
@@ -117,8 +116,7 @@ public abstract class InteractableBase : MonoBehaviour, IInteractable
         }
         else
         {
-            // Fallback para quando o InteractionManager não estiver pronto
-            Debug.Log(reply);
+            // Fallback para quando o InteractionManager não estiver pronto (silenciado)
         }
     }
     

@@ -60,7 +60,7 @@ public class ItemInspectionController : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("ItemInspectionController: closeButton não está atribuído na cena. Verifique o prefab/UI.");
+            // ItemInspectionController: closeButton não está atribuído na cena. (log removed)
         }
     }
 
@@ -72,7 +72,7 @@ public class ItemInspectionController : MonoBehaviour
     {
         if (item == null)
         {
-            Debug.LogWarning("Tentativa de inspecionar um item nulo!");
+            // Tentativa de inspecionar um item nulo! (log removed)
             return;
         }
 
@@ -142,10 +142,9 @@ public class ItemInspectionController : MonoBehaviour
             if (img == null) continue;
             // If image is essentially invisible (no sprite and near-zero alpha) it should not block raycasts
             bool transparent = (img.sprite == null && img.color.a <= 0.01f) || img.color.a <= 0.01f;
-            if (transparent && img.raycastTarget)
+                if (transparent && img.raycastTarget)
             {
                 img.raycastTarget = false;
-                Debug.Log($"ItemInspectionController: disabled raycastTarget on transparent image '{img.gameObject.name}'");
             }
         }
     }
@@ -167,9 +166,9 @@ public class ItemInspectionController : MonoBehaviour
             var slotRt = btn.GetComponent<RectTransform>();
             Rect slotRect = GetScreenRect(slotRt);
 
-            if (slotRect.Overlaps(panelRect))
+                if (slotRect.Overlaps(panelRect))
             {
-                Debug.Log($"ItemInspectionController: inventory slot index {i} ('{btn.gameObject.name}') overlaps inspectionPanel rect — this can block clicks.");
+                // overlap detected (silenced log)
             }
 
             // Also check individual images inside the panel
@@ -180,7 +179,7 @@ public class ItemInspectionController : MonoBehaviour
                 Rect imgRect = GetScreenRect(img.GetComponent<RectTransform>());
                 if (slotRect.Overlaps(imgRect))
                 {
-                    Debug.Log($"ItemInspectionController: slot index {i} ('{btn.gameObject.name}') overlaps image '{img.gameObject.name}' (raycastTarget={img.raycastTarget}).");
+                    // overlap detected between slot and image (silenced log)
                 }
             }
         }
@@ -212,7 +211,7 @@ public class ItemInspectionController : MonoBehaviour
         // Despausa o movimento do jogador
         PausePlayerMovement(false);
         UIInputBlocker.Unblock("ItemInspection");
-        Debug.Log($"ItemInspectionController: CloseInspection called. UIInputBlocker.IsBlocked={UIInputBlocker.IsBlocked}");
+        // CloseInspection called (log removed)
         GamePauseManager.Unpause("ItemInspection");
     }
 

@@ -44,17 +44,17 @@ public class MainMenu : MonoBehaviour
 
     public void CarregarJogo()
     {
-        Debug.Log("Carregar jogo...");
+        // Carregar jogo (log removed)
     }
 
     public void Opcoes()
     {
-        Debug.Log("Abrir opções...");
+        // Abrir opÃ§Ãµes (log removed)
     }
 
     public void SairJogo()
     {
         Application.Quit();
-        Debug.Log("Saindo do jogo...");
+        // Saindo do jogo (log removed)
     }
 }

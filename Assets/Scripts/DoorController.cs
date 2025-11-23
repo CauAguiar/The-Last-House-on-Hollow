@@ -47,8 +47,6 @@ public class DoorController : InteractableBase
             {
                 if (spriteRenderer != null)
                     spriteRenderer.sprite = unlockedSprite;
-                else
-                    Debug.LogWarning("DoorController.Start: spriteRenderer é nulo, não foi possível aplicar unlockedSprite.");
             }
         }
     }
@@ -90,10 +88,6 @@ public class DoorController : InteractableBase
             {
                 SceneLoader.Instance.LoadScene(sceneToLoad);
             }
-            else
-            {
-                Debug.LogWarning("DoorController: sceneToLoad não foi especificada.");
-            }
         }
     }
 
@@ -108,10 +102,6 @@ public class DoorController : InteractableBase
             if (!string.IsNullOrEmpty(sceneToLoad))
             {
                 SceneLoader.Instance.LoadScene(sceneToLoad);
-            }
-            else
-            {
-                Debug.LogWarning("DoorController: sceneToLoad não foi especificada.");
             }
             return;
         }
@@ -188,7 +178,7 @@ public class DoorController : InteractableBase
     {
         if (newSprite == null)
         {
-            Debug.LogWarning("DoorController.SetSprite: novo sprite é nulo.");
+            // DoorController.SetSprite: novo sprite é nulo. (log removed)
             return;
         }
         if (spriteRenderer != null)
@@ -197,7 +187,7 @@ public class DoorController : InteractableBase
         }
         else
         {
-            Debug.LogWarning("DoorController.SetSprite: spriteRenderer é nulo no objeto " + gameObject.name);
+            // DoorController.SetSprite: spriteRenderer é nulo no objeto (log removed)
         }
     }
 }

@@ -80,10 +80,8 @@ public class PotionSlot : MonoBehaviour, IPointerClickHandler, IPointerEnterHand
     {
         if (PotionsUIManager.Instance == null)
         {
-            Debug.LogWarning("PotionsUIManager.Instance is null when clicking a potion slot.");
             return;
         }
-        Debug.Log($"PotionSlot clicked: index={slotIndex}, color={currentColor}");
 
         // Play click SFX slice if configured
         if (!string.IsNullOrEmpty(clickSfxName) && AudioManager.Instance != null)

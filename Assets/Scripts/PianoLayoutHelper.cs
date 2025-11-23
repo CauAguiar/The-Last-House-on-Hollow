@@ -167,7 +167,7 @@ public class PianoLayoutHelper : MonoBehaviour
             blackKey.transform.SetAsLastSibling();
         }
         
-        Debug.Log($"Layout de piano criado! Total: {createdKeys.Count} teclas ({whiteKeys.Count} brancas, {blackKeys.Count} pretas)");
+        // Layout de piano criado (log removed)
     }
     
     /// <summary>
@@ -208,7 +208,7 @@ public class PianoLayoutHelper : MonoBehaviour
             float xPos = baseX + (whiteKeyWidth / 2f) + blackKeyOffsetX;
             rect.anchoredPosition = new Vector2(xPos, -blackKeyOffsetY);
             
-            Debug.Log($"Tecla preta criada: {noteName} em posição X={xPos}, Y={-blackKeyOffsetY}, Sprite={image.sprite?.name}");
+            // Tecla preta criada (log removed)
         }
         else
         {
@@ -483,7 +483,7 @@ public class PianoLayoutHelper : MonoBehaviour
         }
         
         createdKeys.Clear();
-        Debug.Log("Teclas removidas!");
+        // Teclas removidas! (log removed)
     }
 #endif
 }

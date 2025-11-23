@@ -341,13 +341,13 @@ public class InventoryUIController : MonoBehaviour
             inspectionDescriptionText.text = item.description;
             inspectionDescriptionText.enabled = true;
         }
-        Debug.Log($"InventoryUI: Hover slot {slotIndex} -> '{item.itemName}'");
+        // Debug: hover slot log removed to reduce console noise
     }
 
     private void OnSlotPointerExit(int slotIndex)
     {
         ClearInspectionFields();
-        Debug.Log($"InventoryUI: Exit hover slot {slotIndex}");
+        // Debug: exit hover log removed
     }
 
     private void ClearInspectionFields()
@@ -384,7 +384,7 @@ public class InventoryUIController : MonoBehaviour
         else
         {
             // Inspection is handled on hover now; clicking without a use target is a no-op
-            Debug.Log("InventoryUI: click with no use target — inspection is shown on hover now.");
+            // Click with no use target — inspection is shown on hover now. (log removed)
         }
     }
 }

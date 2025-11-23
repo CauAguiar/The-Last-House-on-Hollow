@@ -33,7 +33,7 @@ public class SoundBank : ScriptableObject
             return soundDictionary[soundName];
         }
 
-        Debug.LogWarning($"Som '{soundName}' n?o encontrado no SoundBank!");
+        // Som not found in SoundBank: (log removed)
         return null;
     }
 }

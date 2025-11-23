@@ -59,11 +59,10 @@ public class JournalManager : MonoBehaviour
             {
                 int firstPageId = journalData.pages[0].pageId;
                 CollectPage(firstPageId);
-                Debug.Log("JournalManager: Item do diário coletado — primeira página adicionada automaticamente.");
             }
             else
             {
-                Debug.LogWarning("JournalManager: journalData não está atribuído ou não contém páginas — não foi possível desbloquear a primeira página automaticamente.");
+                // JournalManager: journalData não está atribuído ou não contém páginas — (log removed)
             }
         }
     }
@@ -76,11 +75,10 @@ public class JournalManager : MonoBehaviour
         if (!collectedPages.Contains(pageId))
         {
             collectedPages.Add(pageId);
-            Debug.Log($"Página {pageId} adicionada ao diário!");
         }
         else
         {
-            Debug.Log($"A página {pageId} já foi coletada.");
+            // already collected (silenced log)
         }
     }
 
@@ -91,7 +89,7 @@ public class JournalManager : MonoBehaviour
     {
         if (journalData == null || journalData.pages == null)
         {
-            Debug.LogWarning($"JournalManager.GetPageContent: journalData não atribuído. pageId={pageId}");
+            // JournalManager.GetPageContent: journalData não atribuído. (log removed)
             return "Página não encontrada.";
         }
 
@@ -107,12 +105,12 @@ public class JournalManager : MonoBehaviour
         {
             available += (i == 0 ? "" : ", ") + journalData.pages[i].pageId;
         }
-        Debug.LogWarning($"JournalManager: GetPageContent não encontrou pageId={pageId}. Available IDs: [{available}]. Trying fallback by index... ");
+        // JournalManager: GetPageContent não encontrou pageId. (log removed)
 
         // Fallback útil: alguns designers usam pageId como 1-based index. Se o pageId cair dentro do range 1..count, retornar pages[pageId-1]
         if (pageId >= 1 && pageId <= journalData.pages.Count)
         {
-            Debug.LogWarning($"JournalManager: Usando fallback: retornando journalData.pages[{pageId - 1}] (pageId field={journalData.pages[pageId - 1].pageId}).");
+            // JournalManager: usando fallback para retornar journalData.pages[...] (log removed)
             return journalData.pages[pageId - 1].pageContent;
         }
 
@@ -139,12 +137,12 @@ public class JournalManager : MonoBehaviour
             if (journalData != null && journalData.pages != null && journalData.pages.Count > 0)
             {
                 int mapped = journalData.pages[0].pageId;
-                Debug.LogWarning($"JournalManager: CollectPage recebeu pageId=0. Mapeando para primeiro pageId do JournalData: {mapped}.");
+                // JournalManager: CollectPage recebeu pageId=0. Mapeado para primeiro pageId (log removed)
                 pageId = mapped;
             }
             else
             {
-                Debug.LogWarning("JournalManager: CollectPage recebeu pageId=0 e não há journalData válido para mapear. Ignorando a adição de 0.");
+                // JournalManager: CollectPage recebeu pageId=0 e não há journalData válido para mapear (log removed)
                 return;
             }
         }
@@ -153,7 +151,6 @@ public class JournalManager : MonoBehaviour
         if (!collectedPages.Contains(pageId))
         {
             collectedPages.Add(pageId);
-            Debug.Log($"[JournalManager] Página {pageId} coletada com sucesso! CollectedPages now: [{string.Join(",", collectedPages)}]");
 
             // Log available page IDs for debugging
             if (journalData != null && journalData.pages != null)
@@ -164,17 +161,17 @@ public class JournalManager : MonoBehaviour
                     if (i > 0) ids.Append(",");
                     ids.Append(journalData.pages[i].pageId);
                 }
-                Debug.Log($"[JournalManager] journalData available page IDs: [{ids}]");
+                // [JournalManager] journalData available page IDs (log removed)
             }
 
             // Ordena a lista de IDs para que a navegação seja sempre crescente (1, 2, 3...)
             collectedPages.Sort();
             // Notifica ouvintes (UI, etc.) que uma página foi coletada
-            try { OnPageCollected?.Invoke(pageId); } catch (Exception ex) { Debug.LogWarning($"JournalManager: erro ao notificar OnPageCollected: {ex}"); }
+            try { OnPageCollected?.Invoke(pageId); } catch (Exception) { /* JournalManager: erro ao notificar OnPageCollected (log removed) */ }
         }
         else
         {
-            Debug.Log($"[JournalManager] A página {pageId} já havia sido coletada.");
+            // [JournalManager] A página já havia sido coletada. (log removed)
         }
     }
 
@@ -197,7 +194,7 @@ public class JournalManager : MonoBehaviour
         }
 
         collectedPages.Sort(); // Ordena as páginas
-        Debug.LogWarning($"[JournalManager] MODO DE TESTE: Todas as {collectedPages.Count} páginas foram adicionadas ao diário.");
+        // [JournalManager] MODO DE TESTE: todas as páginas adicionadas (log removed)
     }
 
 }

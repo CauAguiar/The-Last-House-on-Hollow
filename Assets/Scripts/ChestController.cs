@@ -65,7 +65,7 @@ public class ChestController : InteractableBase
     /// </summary>
     public void OnPuzzleSolved()
     {
-        Debug.Log("Baú destrancado!");
+        // chest unlocked (log removed)
         isOpened = true;
         GameStateManager.Instance.MarkAsCollected(uniqueId);
         

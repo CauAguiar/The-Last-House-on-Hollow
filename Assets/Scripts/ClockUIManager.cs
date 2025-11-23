@@ -97,7 +97,7 @@ public class ClockUIManager : MonoBehaviour
 
         bool solved = (currentHour == solutionHour && minuteMatch);
 
-            // Debug detalhado (construído em partes para evitar erros de escape)
+            // Debug detalhado (silenciado em builds de teste)
             string expectedMinutesStr;
             if (solutionMinute >= 1 && solutionMinute <= 12)
             {
@@ -108,16 +108,11 @@ public class ClockUIManager : MonoBehaviour
                 expectedMinutesStr = solutionMinute.ToString();
             }
             string matchStr = solved ? "OK" : "NO";
-            Debug.Log("[Clock Puzzle] Check: HoraAtual=" + currentHour +
-                      " | MinIndexAtual=" + currentMinuteIndex +
-                      " -> MinutosAtuais=" + currentMinutes +
-                      " | EsperadoHora=" + solutionHour +
-                      " | EsperadoMin=" + expectedMinutesStr +
-                      " | Match=" + matchStr);
+            // detailed debug omitted
         if (solved)
         {
             // Sucesso! Dispara sequência com pequeno atraso para permitir feedback (som)
-            Debug.Log($"[Clock Puzzle] Solvido! Hora={currentHour} Minutos={currentMinutes} (ÍndiceMinuto={currentMinuteIndex})");
+            // clock puzzle solved (debug log removed)
             StartCoroutine(SolveSequence());
         }
     }

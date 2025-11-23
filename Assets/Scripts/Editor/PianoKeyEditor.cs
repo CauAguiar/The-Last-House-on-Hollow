@@ -54,19 +54,18 @@ public class PianoKeyEditor : Editor
         
         if (noteSoundProp != null && !string.IsNullOrEmpty(noteSoundProp.stringValue))
         {
-            if (AudioManager.Instance != null)
-            {
-                AudioManager.Instance.PlaySFX(noteSoundProp.stringValue);
-                Debug.Log($"Testando som: {noteSoundProp.stringValue}");
-            }
-            else
-            {
-                Debug.LogWarning("AudioManager não encontrado na cena!");
-            }
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.PlaySFX(noteSoundProp.stringValue);
+                }
+                else
+                {
+                    // AudioManager not found in scene (editor test)
+                }
         }
         else
         {
-            Debug.LogWarning("Nome do som não configurado!");
+            // Nome do som não configurado (editor)
         }
     }
 }

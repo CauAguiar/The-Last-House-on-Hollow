@@ -51,7 +51,7 @@ public class PotionsController : InteractableBase
         }
         else
         {
-            Debug.LogWarning("JournalManager.Instance is null: não foi possível adicionar a página do diário.");
+            // JournalManager.Instance is null: não foi possível adicionar a página do diário. (log removed)
         }
 
         // Atualiza sprite do objeto no mundo para estado resolvido (se configurado)
