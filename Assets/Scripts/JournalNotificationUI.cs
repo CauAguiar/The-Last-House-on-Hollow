@@ -130,14 +130,8 @@ public class JournalNotificationUI : MonoBehaviour
         }
         isPlaying = false;
     }
-
     private IEnumerator PlayNotification(string msg)
     {
-        if (notificationText == null) yield break;
-
-        notificationText.gameObject.SetActive(true);
-        notificationText.text = "";
-
         // Play audio once when notification begins
         if (sfxClip != null && audioSource != null)
         {
@@ -150,26 +144,14 @@ public class JournalNotificationUI : MonoBehaviour
             audioSource.PlayOneShot(sfxClip, sfxVolume);
         }
 
-        // Typewriter forward
-        int len = msg.Length;
-        for (int i = 1; i <= len; i++)
+        // Instead of showing the typewriter text, pulse the quick-access journal button to draw attention
+        if (QuickAccessButtons.Instance != null)
         {
-            notificationText.text = msg.Substring(0, i);
-            yield return new WaitForSeconds(charDelay);
+            QuickAccessButtons.Instance.PulseJournalButton(1.25f, 0.6f);
         }
 
-        // Stay fully visible
-        yield return new WaitForSeconds(displayDuration);
-
-        // Reverse typewriter
-        for (int i = len - 1; i >= 0; i--)
-        {
-            notificationText.text = msg.Substring(0, i);
-            yield return new WaitForSeconds(charDelay);
-        }
-
-        notificationText.text = "";
-        notificationText.gameObject.SetActive(false);
+        // Wait a short duration to avoid overlapping pulses for rapid collects
+        yield return new WaitForSecondsRealtime(0.6f);
     }
 
     // Public API to update audio settings at runtime if needed

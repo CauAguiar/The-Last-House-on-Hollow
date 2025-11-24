@@ -20,11 +20,14 @@ public class ChestController : InteractableBase
     [Tooltip("ID único para salvar o estado 'aberto' do baú.")]
     [SerializeField] private string uniqueId;
 
+    // Audio and delay are handled by the Chest UI manager (moved to ChestUIManager)
+
     private bool isOpened = false;
 
     protected override void Awake()
     {
         base.Awake();
+        // Chest has no special audio initialization; UI manages SFX and delay.
     }
 
     private void Start()
@@ -65,17 +68,17 @@ public class ChestController : InteractableBase
     /// </summary>
     public void OnPuzzleSolved()
     {
-        // chest unlocked (log removed)
+        // Chest resolved immediately by the controller (UI already handled SFX + delay)
         isOpened = true;
         GameStateManager.Instance.MarkAsCollected(uniqueId);
-        
-        // Muda o sprite para o baú aberto
+
+        // Change sprite
         if (spriteRenderer != null && openSprite != null)
         {
             spriteRenderer.sprite = openSprite;
         }
 
-        // Adiciona os itens ao inventário
+        // Give items
         if (rewardItems != null && rewardItems.Length > 0)
         {
             foreach (InventoryItem item in rewardItems)
@@ -87,7 +90,7 @@ public class ChestController : InteractableBase
             }
         }
 
-        // Adiciona as páginas do diário (usar CollectPage para disparar eventos UI/notifications)
+        // Collect diary pages (use CollectPage to trigger UI notifications)
         if (diaryPageIds != null && diaryPageIds.Length > 0)
         {
             foreach (int pageId in diaryPageIds)
@@ -96,7 +99,7 @@ public class ChestController : InteractableBase
             }
         }
 
-        // Mostra mensagem de sucesso
+        // Show success dialogue
         string itemsText = "";
         if (rewardItems != null && rewardItems.Length > 0)
         {
@@ -124,7 +127,6 @@ public class ChestController : InteractableBase
             {
                 itemsText += "Encontrei: ";
             }
-            
             if (diaryPageIds.Length == 1)
             {
                 itemsText += $"<color=#fef08a>Página {diaryPageIds[0]} do Diário</color>";

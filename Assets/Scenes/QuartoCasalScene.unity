@@ -392,6 +392,14 @@ MonoBehaviour:
   inspectionText: "Ainda est\xE1 funcionando? "
   proximityHighlightColor: {r: 0.5601656, g: 0.17986828, b: 0.8867924, a: 0.75}
   hoverScaleFactor: 1.1
+  cursorHand: {fileID: 0}
+  cursorHotspot: {x: 0, y: 0}
+  wrongItemResponses:
+  - "N\xE3o acho que deva usar isso aqui."
+  - Devo estar endoidando usando isso aqui.
+  - "Acho que isso n\xE3o vai funcionar aqui."
+  - "N\xE3o parece o lugar certo para isso."
+  - "Essa merda n\xE3o funciona aqui."
   directInspect: 1
   inspectSfx: Radio
   sfxCategory: 2
@@ -927,6 +935,14 @@ MonoBehaviour:
     melhor. '
   proximityHighlightColor: {r: 0.6151294, g: 0.15641688, b: 0.8962264, a: 0.75}
   hoverScaleFactor: 1.1
+  cursorHand: {fileID: 0}
+  cursorHotspot: {x: 0, y: 0}
+  wrongItemResponses:
+  - "N\xE3o acho que deva usar isso aqui."
+  - Devo estar endoidando usando isso aqui.
+  - "Acho que isso n\xE3o vai funcionar aqui."
+  - "N\xE3o parece o lugar certo para isso."
+  - "Essa merda n\xE3o funciona aqui."
   itemsToGive:
   - {fileID: 11400000, guid: 762dafa8ee0dee44cbc80cfb39102b89, type: 2}
   alreadyLootedDialogue: "N\xE3o tem mais nada \xFAtil aqui."
@@ -1100,7 +1116,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
@@ -1402,11 +1418,24 @@ MonoBehaviour:
   inspectionText: 
   proximityHighlightColor: {r: 1, g: 1, b: 1, a: 0.75}
   hoverScaleFactor: 1.1
+  cursorHand: {fileID: 0}
+  cursorHotspot: {x: 0, y: 0}
+  wrongItemResponses:
+  - "N\xE3o acho que deva usar isso aqui."
+  - Devo estar endoidando usando isso aqui.
+  - "Acho que isso n\xE3o vai funcionar aqui."
+  - "N\xE3o parece o lugar certo para isso."
+  - "Essa merda n\xE3o funciona aqui."
   sceneToLoad: SalaJantarScene
   targetSpawnID: FromQuartoCasal
   requireInteraction: 0
   isLocked: 0
   requiredKey: {fileID: 0}
+  unlockedSprite: {fileID: 0}
+  unlockSfxName: 
+  unlockSfxStart: 0
+  unlockSfxDuration: 0
+  unlockSfxVolume: 1
   uniqueId: e511337e-3a1d-425a-8e13-d349ac3f6417
 --- !u!61 &1194135272
 BoxCollider2D:

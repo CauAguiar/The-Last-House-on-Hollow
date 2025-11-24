@@ -32,6 +32,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/QuartoCasalScene.unity
     guid: 3b94e83dd7cd9d3438f082f7384a3c1d
+  - enabled: 1
+    path: Assets/Scenes/PoraoScene.unity
+    guid: ac7c340ce036dc34db3e90963823b66c
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

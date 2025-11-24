@@ -64,9 +64,10 @@ public class PasswordDial : MonoBehaviour
         UpdateRotation();
 
         // Som de clique (opcional)
-        if (AudioManager.Instance != null)
+        // Notify UI manager and play configured UI SFX (if present)
+        if (ChestUIManager.Instance != null)
         {
-            // AudioManager.Instance.PlaySFX("dial_click");
+            ChestUIManager.Instance.OnDialValueChanged();
         }
     }
 
@@ -84,9 +85,10 @@ public class PasswordDial : MonoBehaviour
         UpdateRotation();
 
         // Som de clique (opcional)
-        if (AudioManager.Instance != null)
+        // Notify UI manager and play configured UI SFX (if present)
+        if (ChestUIManager.Instance != null)
         {
-            // AudioManager.Instance.PlaySFX("dial_click");
+            ChestUIManager.Instance.OnDialValueChanged();
         }
     }
 

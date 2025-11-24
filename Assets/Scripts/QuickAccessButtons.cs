@@ -9,6 +9,8 @@ using TMPro;
 /// </summary>
 public class QuickAccessButtons : MonoBehaviour
 {
+    public static QuickAccessButtons Instance { get; private set; }
+
     [Header("Botões UI")]
     public Button inventoryButton;
     public Button journalButton;
@@ -34,6 +36,9 @@ public class QuickAccessButtons : MonoBehaviour
 
     private void Start()
     {
+        if (Instance == null) Instance = this;
+        else if (Instance != this) Destroy(gameObject);
+
         if (inventoryButton != null)
             inventoryButton.onClick.AddListener(OnInventoryButtonClicked);
         if (journalButton != null)
@@ -57,6 +62,8 @@ public class QuickAccessButtons : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (Instance == this) Instance = null;
+
         if (inventoryButton != null)
             inventoryButton.onClick.RemoveListener(OnInventoryButtonClicked);
         if (journalButton != null)
@@ -69,6 +76,46 @@ public class QuickAccessButtons : MonoBehaviour
             InventoryManager.Instance.OnItemAdded -= HandleItemAdded;
             InventoryManager.Instance.OnInventoryChanged -= HandleInventoryChanged;
         }
+    }
+
+    /// <summary>
+    /// Pulse the journal button to draw attention (scale animation).
+    /// Safe to call even if the journal button is disabled; it will still animate the transform.
+    /// </summary>
+    public void PulseJournalButton(float pulseScale = 1.25f, float pulseDuration = 0.6f)
+    {
+        if (journalButton == null) return;
+        StopCoroutine("PulseCoroutine");
+        StartCoroutine(PulseCoroutine(pulseScale, pulseDuration));
+    }
+
+    private System.Collections.IEnumerator PulseCoroutine(float targetScale, float duration)
+    {
+        Transform t = journalButton.transform;
+        Vector3 original = t.localScale;
+        float half = duration * 0.5f;
+        float elapsed = 0f;
+
+        // scale up
+        while (elapsed < half)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float p = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / half));
+            t.localScale = Vector3.Lerp(original, original * targetScale, p);
+            yield return null;
+        }
+
+        // scale down
+        elapsed = 0f;
+        while (elapsed < half)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float p = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / half));
+            t.localScale = Vector3.Lerp(original * targetScale, original, p);
+            yield return null;
+        }
+
+        t.localScale = original;
     }
 
     private void HandleItemAdded(InventoryItem item)
