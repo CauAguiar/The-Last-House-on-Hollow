@@ -129,7 +129,7 @@ ScriptedImporter:
   animatedSpriteImportData:
   - name: objetos_porao
     originalName: 
-    pivot: {x: 1, y: 0}
+    pivot: {x: 0.4929577, y: 0}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
@@ -137,8 +137,8 @@ ScriptedImporter:
       serializedVersion: 2
       x: 4
       y: 4
-      width: 32
-      height: 80
+      width: 142
+      height: 96
     spriteID: ddc2af85894f726458b54c514df9f14c
     spriteBone: []
     spriteOutline: []
@@ -148,6 +148,90 @@ ScriptedImporter:
     edges: []
     tessellationDetail: 0
     uvTransform: {x: 4, y: 4}
+  - name: Frame_1
+    originalName: 
+    pivot: {x: 0.6603774, y: -0.032258064}
+    alignment: 9
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 4
+      y: 108
+      width: 106
+      height: 93
+    spriteID: a1f2ac1111177a340bbde39f20bbdb30
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 4, y: 108}
+  - name: Frame_2
+    originalName: 
+    pivot: {x: 0.4, y: -0.20000002}
+    alignment: 9
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 154
+      y: 4
+      width: 60
+      height: 80
+    spriteID: 60138783ad9288347b9bb5e9177871f4
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 154, y: 4}
+  - name: Frame_3
+    originalName: 
+    pivot: {x: 0.4, y: -0.20000002}
+    alignment: 9
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 118
+      y: 108
+      width: 60
+      height: 80
+    spriteID: 0382f6c1c1f78fe439527a4a51ec9980
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 118, y: 108}
+  - name: Frame_4
+    originalName: 
+    pivot: {x: 0.4, y: -0.20000002}
+    alignment: 9
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 186
+      y: 108
+      width: 60
+      height: 80
+    spriteID: 7b174039ca4e0c54cab170f57f7b29cf
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 186, y: 108}
   spriteSheetImportData: []
   tileSetImportData: []
   asepriteLayers:
@@ -163,15 +247,51 @@ ScriptedImporter:
     layerType: 0
     blendMode: 0
     cells:
-    - name: objetos_porao
+    - name: Frame_0
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
-        x: 0
+        x: 2
         y: 0
-        width: 32
-        height: 80
+        width: 142
+        height: 96
       spriteId: ddc2af85894f726458b54c514df9f14c
+    - name: Frame_1
+      frameIndex: 1
+      additiveSortOrder: 0
+      cellRect:
+        x: 2
+        y: 3
+        width: 106
+        height: 93
+      spriteId: a1f2ac1111177a340bbde39f20bbdb30
+    - name: Frame_2
+      frameIndex: 2
+      additiveSortOrder: 0
+      cellRect:
+        x: 48
+        y: 16
+        width: 60
+        height: 80
+      spriteId: 60138783ad9288347b9bb5e9177871f4
+    - name: Frame_3
+      frameIndex: 3
+      additiveSortOrder: 0
+      cellRect:
+        x: 48
+        y: 16
+        width: 60
+        height: 80
+      spriteId: 0382f6c1c1f78fe439527a4a51ec9980
+    - name: Frame_4
+      frameIndex: 4
+      additiveSortOrder: 0
+      cellRect:
+        x: 48
+        y: 16
+        width: 60
+        height: 80
+      spriteId: 7b174039ca4e0c54cab170f57f7b29cf
     linkedCells: []
     tileCells: []
     tileSetIndex: 0
@@ -181,5 +301,5 @@ ScriptedImporter:
   generatePhysicsShape: 0
   secondarySpriteTextures: []
   spritePackingTag: 
-  canvasSize: {x: 64, y: 80}
-  previousTextureSize: {x: 64, y: 128}
+  canvasSize: {x: 144, y: 96}
+  previousTextureSize: {x: 256, y: 256}

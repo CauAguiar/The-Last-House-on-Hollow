@@ -139,3 +139,13 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: e3dd833010a70594a86e5080fb8d2848, type: 3}
   - soundName: escrever
     clip: {fileID: 8300000, guid: e16846c4ca0e1fe458c25315e13aafaf, type: 3}
+  - soundName: Frame
+    clip: {fileID: 8300000, guid: 36bd8d14b8932b149a8ec3448b7d8570, type: 3}
+  - soundName: FrameComplete
+    clip: {fileID: 8300000, guid: 1a69caebb0ed9bc4c9ef3e28e323550d, type: 3}
+  - soundName: Vela
+    clip: {fileID: 8300000, guid: 829d73ec6dedaf2449815a888f642c67, type: 3}
+  - soundName: Vento
+    clip: {fileID: 8300000, guid: 829d73ec6dedaf2449815a888f642c67, type: 3}
+  - soundName: Chave
+    clip: {fileID: 8300000, guid: 00641c16a671b2640bd53aa236853707, type: 3}

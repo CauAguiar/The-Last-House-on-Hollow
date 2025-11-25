@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 24d873eaf3f179943b746325031cb73c
+guid: 03dd4bc2ec2af33449a70c8de17f44d8
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -127,9 +127,72 @@ ScriptedImporter:
     tessellationDetail: 0
     uvTransform: {x: 0, y: 0}
   animatedSpriteImportData:
-  - name: itens de inventario
+  - name: Frame_0
     originalName: 
-    pivot: {x: 0.50199205, y: -0.010526316}
+    pivot: {x: 0.5, y: 0}
+    alignment: 9
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 144
+      y: 4
+      width: 62
+      height: 88
+    spriteID: 40bc246c6b59e984c9dd7182836e993d
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 144, y: 4}
+  - name: Frame_1
+    originalName: 
+    pivot: {x: 0.5, y: 0}
+    alignment: 9
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 74
+      y: 105
+      width: 62
+      height: 90
+    spriteID: c9f17e474ec59904285038883a12bc88
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 74, y: 105}
+  - name: Frame_2
+    originalName: 
+    pivot: {x: 0.5, y: 0}
+    alignment: 9
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 4
+      y: 108
+      width: 62
+      height: 93
+    spriteID: b53f2dbffce253c489e8d94d0c71f788
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 4, y: 108}
+  - name: Frame_3
+    originalName: 
+    pivot: {x: 0.5, y: 0}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
@@ -137,9 +200,9 @@ ScriptedImporter:
       serializedVersion: 2
       x: 4
       y: 4
-      width: 251
-      height: 95
-    spriteID: 50e85a4a75ddf3240a5c47de8f6582c6
+      width: 62
+      height: 96
+    spriteID: d36b3b6c75520974290ae04b2d7d76c6
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -148,30 +211,87 @@ ScriptedImporter:
     edges: []
     tessellationDetail: 0
     uvTransform: {x: 4, y: 4}
+  - name: Frame_4
+    originalName: 
+    pivot: {x: 0.5, y: 0}
+    alignment: 9
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 74
+      y: 4
+      width: 62
+      height: 93
+    spriteID: 095666483a5a97044bf105752947aaae
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 74, y: 4}
   spriteSheetImportData: []
   tileSetImportData: []
   asepriteLayers:
   - layerIndex: 0
     uuid:
-      value0: 668362731
+      value0: 1195404038
       value1: 0
       value2: 0
       value3: 0
     guid: 0
-    name: itens de inventario
+    name: vela_candelabro
     layerFlags: 0
     layerType: 0
     blendMode: 0
     cells:
-    - name: itens de inventario
+    - name: Frame_0
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
-        x: 2
-        y: 1
-        width: 251
-        height: 95
-      spriteId: 50e85a4a75ddf3240a5c47de8f6582c6
+        x: 81
+        y: 0
+        width: 62
+        height: 88
+      spriteId: 40bc246c6b59e984c9dd7182836e993d
+    - name: Frame_1
+      frameIndex: 1
+      additiveSortOrder: 0
+      cellRect:
+        x: 81
+        y: 0
+        width: 62
+        height: 90
+      spriteId: c9f17e474ec59904285038883a12bc88
+    - name: Frame_2
+      frameIndex: 2
+      additiveSortOrder: 0
+      cellRect:
+        x: 81
+        y: 0
+        width: 62
+        height: 93
+      spriteId: b53f2dbffce253c489e8d94d0c71f788
+    - name: Frame_3
+      frameIndex: 3
+      additiveSortOrder: 0
+      cellRect:
+        x: 81
+        y: 0
+        width: 62
+        height: 96
+      spriteId: d36b3b6c75520974290ae04b2d7d76c6
+    - name: Frame_4
+      frameIndex: 4
+      additiveSortOrder: 0
+      cellRect:
+        x: 81
+        y: 0
+        width: 62
+        height: 93
+      spriteId: 095666483a5a97044bf105752947aaae
     linkedCells: []
     tileCells: []
     tileSetIndex: 0
@@ -181,5 +301,5 @@ ScriptedImporter:
   generatePhysicsShape: 0
   secondarySpriteTextures: []
   spritePackingTag: 
-  canvasSize: {x: 256, y: 96}
-  previousTextureSize: {x: 512, y: 128}
+  canvasSize: {x: 224, y: 96}
+  previousTextureSize: {x: 256, y: 256}
