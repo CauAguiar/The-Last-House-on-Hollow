@@ -37,6 +37,7 @@ public class TypewriterUIManager : MonoBehaviour
     private string poemToDisplay;
     private TypewriterController currentController;
     private bool inputLocked = false; // Trava o input enquanto Tim responde
+    private bool isTyping = false; // true enquanto a máquina de escrever está exibindo o texto
 
     private void Awake()
     {
@@ -172,6 +173,9 @@ public class TypewriterUIManager : MonoBehaviour
 
     public void ClosePuzzle()
     {
+        // Não permite fechar enquanto o efeito de digitação estiver em progresso
+        if (isTyping) return;
+
         typewriterPanel.SetActive(false);
         currentController = null;
         PlayerMovement.Instance.UnlockMovement();
@@ -247,6 +251,8 @@ public class TypewriterUIManager : MonoBehaviour
 
     private IEnumerator ShowResponse()
     {
+        isTyping = true;
+        if (closeButton != null) closeButton.interactable = false;
         responseDisplay.gameObject.SetActive(true); // Mostra o campo de resposta
         
         // Lógica de "máquina de escrever" para o poema
@@ -288,6 +294,10 @@ public class TypewriterUIManager : MonoBehaviour
         {
             AudioManager.Instance.StopLoopOnSource(loopSource);
         }
+
+        // Permite fechar a UI depois que a digitação terminar
+        isTyping = false;
+        if (closeButton != null) closeButton.interactable = true;
 
         // Marca o puzzle como resolvido no GameManager (se houver um controller válido)
         if (currentController != null)
