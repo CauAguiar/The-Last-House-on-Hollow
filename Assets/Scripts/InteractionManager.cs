@@ -16,7 +16,12 @@ public class InteractionManager : MonoBehaviour
     [Header("Componentes do Menu de Contexto")]
     [SerializeField] private GameObject contextMenu;
     [SerializeField] private Button inspectButton;
-    [SerializeField] private Button useItemButton;
+    [SerializeField] private Button useItemButton;    
+    [SerializeField] private Button closeButton;
+    [Tooltip("Se verdadeiro, o menu de contexto seguirá o objeto enquanto estiver aberto.")]
+    [SerializeField] private bool anchorToObject = true;
+    [Tooltip("Offset em pixels aplicado quando o menu é posicionado em relação ao objeto")]
+    [SerializeField] private Vector2 anchorOffset = new Vector2(10f, 10f);
 
     [Header("Componentes da Caixa de Diálogo")]
     [SerializeField] private GameObject dialogueBox;
@@ -28,6 +33,7 @@ public class InteractionManager : MonoBehaviour
     private bool isTyping = false;
     private string fullDialogueText;
     private PlayerControls playerControls;
+    private Transform currentAnchorTransform;
 
     private void Awake()
     {
@@ -72,6 +78,28 @@ public class InteractionManager : MonoBehaviour
 
         if (inspectButton != null) inspectButton.onClick.AddListener(OnInspectClicked);
         if (useItemButton != null) useItemButton.onClick.AddListener(OnUseItemClicked);
+        if (closeButton != null) closeButton.onClick.AddListener(HideContextMenu);
+    }
+
+    private void Update()
+    {
+        // If context menu is visible and anchored, update its screen position to follow the interactable
+        if (contextMenu != null && contextMenu.activeSelf && anchorToObject && currentInteractable != null && IsAlive(currentInteractable))
+        {
+            Vector3 screenPos;
+            var col = currentInteractable.GetComponent<Collider2D>();
+            if (col != null && Camera.main != null)
+            {
+                var b = col.bounds;
+                screenPos = Camera.main.WorldToScreenPoint(new Vector3(b.max.x, b.max.y, b.center.z));
+            }
+            else
+            {
+                screenPos = Mouse.current != null ? (Vector3)Mouse.current.position.ReadValue() : new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, 0f);
+            }
+            screenPos += new Vector3(anchorOffset.x, anchorOffset.y, 0f);
+            contextMenu.transform.position = screenPos;
+        }
     }
     
     private void OnInteractPerformed(InputAction.CallbackContext context)
@@ -172,6 +200,9 @@ public class InteractionManager : MonoBehaviour
             UIInputBlocker.Block("ContextMenu");
         }
 
+        // Record anchor transform for Update() to follow
+        currentAnchorTransform = interactable != null ? interactable.transform : null;
+
         // Traz o menu para frente na hierarquia (caso esteja dentro de um Canvas)
         var rect = contextMenu != null ? contextMenu.GetComponent<RectTransform>() : null;
         if (rect != null && rect.parent != null)
@@ -251,6 +282,7 @@ public class InteractionManager : MonoBehaviour
             EventSystem.current.SetSelectedGameObject(null);
         }
         UIInputBlocker.Unblock("ContextMenu");
+        currentInteractable = null;
     }
 
     public void HideDialogueBox()
