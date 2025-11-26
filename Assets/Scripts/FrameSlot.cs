@@ -20,6 +20,13 @@ public class FrameSlot : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
     private int slotIndex;
     private Vector3 originalScale;
     private Coroutine scaleCoroutine;
+    [Header("Selection Colors")]
+    [Tooltip("Se true, aplica cores de frame/numero quando selecionado.")]
+    public bool useSelectedColors = true;
+    public Color selectedFrameColor = Color.white;
+    public Color normalFrameColor = Color.white;
+    public Color selectedNumberColor = Color.white;
+    public Color normalNumberColor = Color.white;
     [Header("Interaction")]
     [Tooltip("When false, this slot ignores pointer events.")]
     public bool interactable = true;
@@ -38,42 +45,66 @@ public class FrameSlot : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
     private void Awake()
     {
         originalScale = transform.localScale;
+        // cache current colors as defaults if available
+        if (frameImage != null)
+        {
+            normalFrameColor = frameImage.color;
+        }
+        if (numberLabel != null)
+        {
+            normalNumberColor = numberLabel.color;
+        }
     }
 
-    public void Setup(int index, int number, Sprite sprite)
+    public void Setup(int index, int number, Sprite sprite, string displayText = null)
     {
         slotIndex = index;
         currentNumber = number;
         if (numberLabel != null)
         {
             numberLabel.gameObject.SetActive(true);
-            numberLabel.text = number.ToString();
+            numberLabel.text = !string.IsNullOrEmpty(displayText) ? displayText : number.ToString();
+            if (useSelectedColors) numberLabel.color = normalNumberColor;
         }
         if (frameImage != null && sprite != null)
         {
             frameImage.sprite = sprite;
             frameImage.gameObject.SetActive(true);
+            if (useSelectedColors) frameImage.color = normalFrameColor;
         }
         SetSelected(false);
     }
 
-    public void UpdateContent(int number, Sprite sprite)
+    public void UpdateContent(int number, Sprite sprite, string displayText = null)
     {
         currentNumber = number;
         if (numberLabel != null)
         {
-            numberLabel.text = number.ToString();
+            numberLabel.text = !string.IsNullOrEmpty(displayText) ? displayText : number.ToString();
+            if (useSelectedColors) numberLabel.color = normalNumberColor;
         }
         if (frameImage != null && sprite != null)
         {
             frameImage.sprite = sprite;
             frameImage.gameObject.SetActive(true);
+            if (useSelectedColors) frameImage.color = normalFrameColor;
         }
     }
 
     public void SetSelected(bool isSelected)
     {
         if (selectionHighlight != null) selectionHighlight.SetActive(isSelected);
+        if (useSelectedColors)
+        {
+            if (frameImage != null)
+            {
+                frameImage.color = isSelected ? selectedFrameColor : normalFrameColor;
+            }
+            if (numberLabel != null)
+            {
+                numberLabel.color = isSelected ? selectedNumberColor : normalNumberColor;
+            }
+        }
     }
 
     public void OnPointerClick(PointerEventData eventData)

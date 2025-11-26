@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f8abaad337c630044887c98e68fc5b12, type: 3}
-  m_Name: Boneca
+  m_Name: ChaveBrinquedo
   m_EditorClassIdentifier: 
-  itemName: Boneca Quebrada
-  description: "Uma boneca velha com um bra\xE7o arrancado."
-  icon: {fileID: 21300000, guid: 022ddaa98715e9a4fa992142cb4693af, type: 3}
+  itemName: Chave de Brinquedo
+  description: "Uma chave simples de pl\xE1stico, mas resistente."
+  icon: {fileID: 21300000, guid: 81208ed0a1474424fb3a95445c49486e, type: 3}

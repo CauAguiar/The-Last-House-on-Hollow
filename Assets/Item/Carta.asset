@@ -13,6 +13,5 @@ MonoBehaviour:
   m_Name: Carta
   m_EditorClassIdentifier: 
   itemName: Carta de Amor
-  description: "Para a minha amada Sara. \nCuja voz resplandece ao meu redor.\nB4,
-    D#4, G4, A#4, B2"
+  description: "Para a minha amada Sara. \nB4, D#4, G4, A#4, B2"
   icon: {fileID: 21300000, guid: eb3c7a673a168f44cafef0ea9878fee6, type: 3}

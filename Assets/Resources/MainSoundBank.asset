@@ -149,3 +149,11 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 829d73ec6dedaf2449815a888f642c67, type: 3}
   - soundName: Chave
     clip: {fileID: 8300000, guid: 00641c16a671b2640bd53aa236853707, type: 3}
+  - soundName: Sara
+    clip: {fileID: 8300000, guid: d320e382a58f6b04db1932738736f38c, type: 3}
+  - soundName: Bunny
+    clip: {fileID: 8300000, guid: 8da87e96c348e7c42b46d838ab1515cb, type: 3}
+  - soundName: Lamp
+    clip: {fileID: 8300000, guid: 599057628843af142ad54fbfadfbeeb3, type: 3}
+  - soundName: Dora
+    clip: {fileID: 8300000, guid: 5acdf1edadb6f1048953a9f0f3b91a93, type: 3}

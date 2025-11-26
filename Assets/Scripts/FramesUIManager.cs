@@ -26,6 +26,9 @@ public class FramesUIManager : MonoBehaviour
     [Header("Reveal (dica)")]
     [Tooltip("Image dentro do painel que será ativada ao resolver")] 
     [SerializeField] private Image revealImage;
+    [Header("Label Words")]
+    [Tooltip("Textos mostrados em vez dos números. Index corresponde ao número 1..N.")]
+    [SerializeField] private string[] labelWords = new string[] { "OVOS", "LAGARTA", "PULPA", "MARIPOSA", "MORTE" };
     [Header("Reveal Effect")]
     [Tooltip("Ativa efeito macabro de revelação (wipe + flicker)")]
     [SerializeField] private bool useMacabreReveal = true;
@@ -91,7 +94,7 @@ public class FramesUIManager : MonoBehaviour
         {
             int num = (controllerInitialNumbers != null && i < controllerInitialNumbers.Length) ? controllerInitialNumbers[i] : 0;
             Sprite sprite = slots[i].frameImage != null ? slots[i].frameImage.sprite : null;
-            slots[i].Setup(i, num, sprite);
+            slots[i].Setup(i, num, sprite, GetLabelForNumber(num));
         }
 
         // If already solved, show reveal immediately
@@ -139,13 +142,24 @@ public class FramesUIManager : MonoBehaviour
         int b = slots[index].currentNumber;
         Sprite spriteA = slots[selectedSlot].frameImage != null ? slots[selectedSlot].frameImage.sprite : null;
         Sprite spriteB = slots[index].frameImage != null ? slots[index].frameImage.sprite : null;
-        slots[selectedSlot].UpdateContent(b, spriteB);
-        slots[index].UpdateContent(a, spriteA);
+        slots[selectedSlot].UpdateContent(b, spriteB, GetLabelForNumber(b));
+        slots[index].UpdateContent(a, spriteA, GetLabelForNumber(a));
 
         slots[selectedSlot].SetSelected(false);
         selectedSlot = -1;
 
         CheckSolution();
+    }
+
+    private string GetLabelForNumber(int number)
+    {
+        if (labelWords != null && labelWords.Length > 0)
+        {
+            if (number >= 1 && number <= labelWords.Length)
+                return labelWords[number - 1];
+        }
+        // fallback to numeric string
+        return number.ToString();
     }
 
     private void CheckSolution()
