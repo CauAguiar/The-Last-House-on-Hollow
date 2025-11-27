@@ -33,6 +33,7 @@ public class Inspectable : InteractableBase
     private bool hasBeenInspected = false;
     private bool loopStarted = false;
     private AudioSource loopSource;
+    private bool loopRegisteredWithAudioManager = false;
 
     // Override Interact to either open the context menu (base) or inspect directly
     public override void Interact()
@@ -54,30 +55,70 @@ public class Inspectable : InteractableBase
         // Mark as inspected before playing to avoid reentrancy
         if (inspectOnce) hasBeenInspected = true;
 
-        // Play optional SFX
-        if (!string.IsNullOrEmpty(inspectSfx) && AudioManager.Instance != null)
+        // Play optional SFX (local to this GameObject / scene)
+        if (!string.IsNullOrEmpty(inspectSfx))
         {
-            if (startLoopOnInspect)
+            // Prepare or reuse an AudioSource on this object
+            if (loopSource == null)
             {
-                // Ensure there is an AudioSource to host the loop
                 loopSource = GetComponent<AudioSource>();
                 if (loopSource == null)
                 {
                     loopSource = gameObject.AddComponent<AudioSource>();
                     loopSource.playOnAwake = false;
-                    loopSource.loop = true;
-                    loopSource.spatialBlend = 0f; // 2D by default for ambient loops
                 }
+            }
 
-                if (!loopStarted)
+            if (startLoopOnInspect)
+            {
+                // Loop via AudioManager registration when available (still plays on local AudioSource),
+                // otherwise use the AudioClip directly on the local AudioSource.
+                loopSource.loop = true;
+                loopSource.spatialBlend = 0f; // keep 2D by default; set in inspector if you want 3D
+
+                if (AudioManager.Instance != null && AudioManager.Instance.soundBank != null)
                 {
+                    // Try to use AudioManager to register loop so category volumes apply
                     AudioManager.Instance.PlayLoopOnSource(loopSource, inspectSfx, sfxCategory, Mathf.Clamp01(inspectSfxVolume));
+                    loopRegisteredWithAudioManager = true;
                     loopStarted = true;
+                }
+                else
+                {
+                    // Fallback: try to get clip from sound bank if present, else do nothing
+                    AudioClip clip = AudioManager.Instance?.soundBank?.GetClip(inspectSfx);
+                    if (clip != null)
+                    {
+                        loopSource.clip = clip;
+                        loopSource.volume = Mathf.Clamp01(inspectSfxVolume);
+                        if (!loopSource.isPlaying)
+                        {
+                            loopSource.Play();
+                            loopStarted = true;
+                        }
+                    }
+                    else
+                    {
+                        // No clip available; nothing to play locally
+                    }
                 }
             }
             else
             {
-                AudioManager.Instance.PlaySFX(inspectSfx, sfxCategory, inspectSfxVolume);
+                // One-shot: try to fetch clip from soundBank and play on this object's AudioSource
+                AudioClip clip = AudioManager.Instance?.soundBank?.GetClip(inspectSfx);
+                if (clip != null)
+                {
+                    loopSource.loop = false;
+                    loopSource.spatialBlend = 0f;
+                    loopSource.PlayOneShot(clip, Mathf.Clamp01(inspectSfxVolume));
+                }
+                else
+                {
+                    // If we cannot find the clip, avoid calling global AudioManager.PlaySFX to keep sound local-only
+                    // Log a debug message so author can set up the sound bank properly
+                    Debug.LogWarning($"Inspectable: sound '{inspectSfx}' not found in SoundBank; no local playback performed.", this);
+                }
             }
         }
 
@@ -87,19 +128,35 @@ public class Inspectable : InteractableBase
 
     private void OnDisable()
     {
-        if (loopStarted && loopSource != null && AudioManager.Instance != null)
+        if (loopStarted && loopSource != null)
         {
-            AudioManager.Instance.StopLoopOnSource(loopSource);
+            if (loopRegisteredWithAudioManager && AudioManager.Instance != null)
+            {
+                AudioManager.Instance.StopLoopOnSource(loopSource);
+            }
+            else
+            {
+                loopSource.Stop();
+            }
             loopStarted = false;
+            loopRegisteredWithAudioManager = false;
         }
     }
 
     private void OnDestroy()
     {
-        if (loopStarted && loopSource != null && AudioManager.Instance != null)
+        if (loopStarted && loopSource != null)
         {
-            AudioManager.Instance.StopLoopOnSource(loopSource);
+            if (loopRegisteredWithAudioManager && AudioManager.Instance != null)
+            {
+                AudioManager.Instance.StopLoopOnSource(loopSource);
+            }
+            else
+            {
+                loopSource.Stop();
+            }
             loopStarted = false;
+            loopRegisteredWithAudioManager = false;
         }
     }
 }

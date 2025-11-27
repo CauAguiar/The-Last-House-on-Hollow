@@ -42,7 +42,7 @@ MonoBehaviour:
   - soundName: Vaso
     clip: {fileID: 8300000, guid: 15cc6b7b27029e04d8808a8a88f9c167, type: 3}
   - soundName: Radio
-    clip: {fileID: 8300000, guid: 653b2093136129941a382da30509198c, type: 3}
+    clip: {fileID: 8300000, guid: 3081ef54b716bc44ba9ecb3e94217d62, type: 3}
   - soundName: type_key
     clip: {fileID: 8300000, guid: 85289842a442da74fa3c74da257a71a1, type: 3}
   - soundName: typing_loop
@@ -157,3 +157,5 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 599057628843af142ad54fbfadfbeeb3, type: 3}
   - soundName: Dora
     clip: {fileID: 8300000, guid: 5acdf1edadb6f1048953a9f0f3b91a93, type: 3}
+  - soundName: SafeButton
+    clip: {fileID: 8300000, guid: 5fc1b90165b033d45b777c0548078261, type: 3}

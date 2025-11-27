@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.InputSystem;
 
 /// <summary>
 /// Conecta botões rápidos (Inventory, Journal, Tome) às respectivas UIs
@@ -32,7 +33,7 @@ public class QuickAccessButtons : MonoBehaviour
     [Header("Referências de UI")]
     public InventoryUIController inventoryUI;
     public JournalUIManager journalUI;
-    // public TomeUIManager tomoUI; // deixe espaço para depois
+    public TomeUIManager tomoUI; // manager do Tomo
 
     private void Start()
     {
@@ -57,6 +58,23 @@ public class QuickAccessButtons : MonoBehaviour
         {
             InventoryManager.Instance.OnItemAdded += HandleItemAdded;
             InventoryManager.Instance.OnInventoryChanged += HandleInventoryChanged;
+        }
+    }
+
+    private void Update()
+    {
+        // Toggle Tome UI with B if Tome is available
+        if (tomoButton != null && tomoButton.interactable)
+        {
+            var kb = Keyboard.current;
+            if (kb != null && kb.bKey.wasPressedThisFrame)
+            {
+                // If tomoUI is assigned, toggle it; otherwise call the placeholder
+                if (tomoUI != null)
+                    tomoUI.Toggle();
+                else
+                    OnTomeButtonClicked();
+            }
         }
     }
 
@@ -240,7 +258,27 @@ public class QuickAccessButtons : MonoBehaviour
 
     private void OnTomeButtonClicked()
     {
-        // Espaço reservado: abra o UI do tomo quando for implementado.
-        // Tome button pressed: Tome UI not implemented yet. (log removed)
+        if (tomoUI != null)
+        {
+            tomoUI.Toggle();
+        }
+        else
+        {
+            // no-op fallback
+        }
+    }
+
+    /// <summary>
+    /// Called externally when the player acquires the Tome item. Enables the Tome quick button.
+    /// </summary>
+    public void SetTomeAvailable(bool available)
+    {
+        UpdateTomeButtonState(available);
+        if (available && tomoButton != null)
+        {
+            // optional: pulse to draw attention
+            StopCoroutine("PulseCoroutine");
+            StartCoroutine(PulseCoroutine(1.15f, 0.5f));
+        }
     }
 }
