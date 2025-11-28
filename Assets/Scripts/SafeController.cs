@@ -1,4 +1,10 @@
 using UnityEngine;
+using System.Collections;
+#if UNITY_2020_2_OR_NEWER
+using UnityEngine.Rendering.Universal;
+#else
+using UnityEngine.Rendering.Universal;
+#endif
 
 /// <summary>
 /// Interactable que representa o cofre. Ao inspecionar, abre o `SafeUIManager`.
@@ -88,8 +94,34 @@ public class SafeController : InteractableBase
             QuickAccessButtons.Instance?.SetTomeAvailable(true);
         }
 
+        // Trigger lights off in other scenes after a short delay (10s).
+        // Use reflection to avoid a hard compile-time dependency on LightManager.
+        bool invoked = false;
+        // FindObjectsOfType with includeInactive is obsolete on some Unity versions; use Resources.FindObjectsOfTypeAll which returns inactive objects too.
+        var monos = Resources.FindObjectsOfTypeAll<MonoBehaviour>();
+        foreach (var mb in monos)
+        {
+            if (mb == null) continue;
+            var t = mb.GetType();
+            if (t.Name == "LightManager")
+            {
+                var method = t.GetMethod("DisableTrackedLightsAfter", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                if (method != null)
+                {
+                    // Chamada imediata (sem atraso)
+                    method.Invoke(mb, new object[] { 0f, true, 1.5f });
+                    invoked = true;
+                }
+                break;
+            }
+        }
+        if (!invoked)
+        {
+            Debug.Log("LightManager instance not found; skipping global light disable.");
+        }
+
         // Provide brief dialogue feedback
-        InteractionManager.Instance.ShowDialogue("Você ouviu um clique metálico e algo caiu — uma chave e uma página do diário apareceram.");
+        InteractionManager.Instance.ShowDialogue("QUE MERDA TA  ACONTECENDO AQUI?");
     }
 
     [ContextMenu("Generate Unique ID")]
@@ -97,4 +129,6 @@ public class SafeController : InteractableBase
     {
         uniqueId = System.Guid.NewGuid().ToString();
     }
+
+    
 }

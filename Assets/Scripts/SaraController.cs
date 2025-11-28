@@ -309,7 +309,6 @@ public class SaraController : InteractableBase
         tmp.maxVisibleCharacters = 0;
         int total = full.Length;
         int flickersDone = 0;
-        float elapsed = 0f;
         int visible = 0;
 
         while (visible < total)

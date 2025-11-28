@@ -159,3 +159,11 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 5acdf1edadb6f1048953a9f0f3b91a93, type: 3}
   - soundName: SafeButton
     clip: {fileID: 8300000, guid: 5fc1b90165b033d45b777c0548078261, type: 3}
+  - soundName: Vento2
+    clip: {fileID: 8300000, guid: fd34ed97d49340b4d95d13a00a245d98, type: 3}
+  - soundName: Crypta
+    clip: {fileID: 8300000, guid: d59d0ac3fcbf8d14e8e71e42eaee8dce, type: 3}
+  - soundName: Fear
+    clip: {fileID: 8300000, guid: 096b8ced1fb897947bf0d38e7e58fa00, type: 3}
+  - soundName: Hiding
+    clip: {fileID: 8300000, guid: 53f7dec6a3d299c4882a0a25a3f9841b, type: 3}

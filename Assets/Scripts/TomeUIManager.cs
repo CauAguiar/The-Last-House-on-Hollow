@@ -31,9 +31,15 @@ public class TomeUIManager : MonoBehaviour
         if (tomoPanel != null) tomoPanel.SetActive(false);
     }
 
+    private void OnEnable()
+    {
+        Debug.Log($"TomeUIManager: OnEnable() tomoPanelAssigned={(tomoPanel!=null)} contentImageAssigned={(contentImage!=null)}");
+    }
+
     public void Show()
     {
         if (tomoPanel == null) return;
+        Debug.Log("TomeUIManager: Show() called");
         tomoPanel.SetActive(true);
         UIInputBlocker.Block("TomeUI");
         if (lockPlayerWhileOpen && PlayerMovement.Instance != null)
@@ -45,6 +51,7 @@ public class TomeUIManager : MonoBehaviour
     public void Hide()
     {
         if (tomoPanel == null) return;
+        Debug.Log("TomeUIManager: Hide() called");
         tomoPanel.SetActive(false);
         UIInputBlocker.Unblock("TomeUI");
         if (lockPlayerWhileOpen && PlayerMovement.Instance != null)
@@ -56,6 +63,7 @@ public class TomeUIManager : MonoBehaviour
     public void Toggle()
     {
         if (tomoPanel == null) return;
+        Debug.Log($"TomeUIManager: Toggle() called; currentlyActive={tomoPanel.activeSelf}");
         if (tomoPanel.activeSelf) Hide();
         else Show();
     }

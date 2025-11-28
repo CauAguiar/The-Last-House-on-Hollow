@@ -59,6 +59,8 @@ public class QuickAccessButtons : MonoBehaviour
             InventoryManager.Instance.OnItemAdded += HandleItemAdded;
             InventoryManager.Instance.OnInventoryChanged += HandleInventoryChanged;
         }
+
+        Debug.Log($"QuickAccessButtons: Start() tomoButton={(tomoButton!=null)} tomoUI={(tomoUI!=null)}");
     }
 
     private void Update()
@@ -69,11 +71,18 @@ public class QuickAccessButtons : MonoBehaviour
             var kb = Keyboard.current;
             if (kb != null && kb.bKey.wasPressedThisFrame)
             {
+                Debug.Log("QuickAccessButtons: B pressed (detected via Keyboard.current)");
                 // If tomoUI is assigned, toggle it; otherwise call the placeholder
                 if (tomoUI != null)
+                {
+                    Debug.Log("QuickAccessButtons: calling tomoUI.Toggle()");
                     tomoUI.Toggle();
+                }
                 else
+                {
+                    Debug.LogWarning("QuickAccessButtons: tomoUI is null in Update(); falling back to OnTomeButtonClicked()");
                     OnTomeButtonClicked();
+                }
             }
         }
     }
@@ -258,13 +267,15 @@ public class QuickAccessButtons : MonoBehaviour
 
     private void OnTomeButtonClicked()
     {
+        Debug.Log("QuickAccessButtons: OnTomeButtonClicked called");
         if (tomoUI != null)
         {
+            Debug.Log("QuickAccessButtons: OnTomeButtonClicked -> tomoUI.Toggle()");
             tomoUI.Toggle();
         }
         else
         {
-            // no-op fallback
+            Debug.LogWarning("QuickAccessButtons: OnTomeButtonClicked but tomoUI is null");
         }
     }
 
@@ -273,6 +284,7 @@ public class QuickAccessButtons : MonoBehaviour
     /// </summary>
     public void SetTomeAvailable(bool available)
     {
+        Debug.Log($"QuickAccessButtons: SetTomeAvailable({available}) called");
         UpdateTomeButtonState(available);
         if (available && tomoButton != null)
         {
