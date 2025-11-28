@@ -12,7 +12,7 @@ public abstract class InteractableBase : MonoBehaviour, IInteractable
     public string inspectionText;
 
     [Header("Feedback Visual")]
-    [SerializeField] private Color proximityHighlightColor = new Color(1f, 1f, 1f, 0.75f); // Um branco semi-transparente
+    [SerializeField] private Color proximityHighlightColor = new Color(0.7019608f, 0f, 0.1490196f, 1f); // #B30026, opaco
     [SerializeField] private float hoverScaleFactor = 1.1f;
     [Header("Cursor")]
     [Tooltip("Cursor a ser exibido quando o mouse estiver sobre o objeto e o jogador estiver próximo. Use uma textura pequena (ex: 32x32) com transparência.")]

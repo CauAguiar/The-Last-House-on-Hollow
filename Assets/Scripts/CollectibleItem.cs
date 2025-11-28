@@ -13,7 +13,7 @@ public class CollectibleItem : MonoBehaviour, IInteractable
     [SerializeField] private string uniqueId;
 
     [Header("Configurações de Feedback Visual")]
-    [SerializeField] private Color proximityHighlightColor = new Color(0.8f, 0.8f, 0.8f, 1f);
+    [SerializeField] private Color proximityHighlightColor = new Color(0.7019608f, 0f, 0.1490196f, 1f);
     [SerializeField] private float hoverScaleFactor = 1.1f;
 
     private SpriteRenderer spriteRenderer;
