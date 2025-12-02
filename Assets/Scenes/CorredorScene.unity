@@ -5499,6 +5499,11 @@ MonoBehaviour:
   inspectionText: Trancadinha da silva.
   proximityHighlightColor: {r: 0.5137255, g: 0.3137255, b: 0.7254902, a: 1}
   hoverScaleFactor: 1.1
+  useHighlightOverlay: 1
+  highlightColor: {r: 1, g: 1, b: 1, a: 1}
+  highlightScale: 1.08
+  highlightSortingOrderOffset: -1
+  highlightMaterial: {fileID: 0}
   cursorHand: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   wrongItemResponses:
@@ -5584,6 +5589,11 @@ MonoBehaviour:
   inspectionText: "Est\xE1 trancada. "
   proximityHighlightColor: {r: 0.5137255, g: 0.3137255, b: 0.7254902, a: 1}
   hoverScaleFactor: 1.1
+  useHighlightOverlay: 1
+  highlightColor: {r: 1, g: 1, b: 1, a: 1}
+  highlightScale: 1.08
+  highlightSortingOrderOffset: -1
+  highlightMaterial: {fileID: 0}
   cursorHand: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   wrongItemResponses:
@@ -5796,9 +5806,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd5d3496a7807714ebc63a6c61f6f88b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inspectionText: 
+  inspectionText: "Por que algu\xE9m teria quadros assim em casa?"
   proximityHighlightColor: {r: 0.31764707, g: 0.2509804, b: 0.80784315, a: 1}
   hoverScaleFactor: 1.1
+  useHighlightOverlay: 1
+  highlightColor: {r: 1, g: 1, b: 1, a: 1}
+  highlightScale: 1.08
+  highlightSortingOrderOffset: -1
+  highlightMaterial: {fileID: 0}
   cursorHand: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   wrongItemResponses:
@@ -6081,6 +6096,11 @@ MonoBehaviour:
   inspectionText: 
   proximityHighlightColor: {r: 1, g: 1, b: 1, a: 0.75}
   hoverScaleFactor: 1.1
+  useHighlightOverlay: 1
+  highlightColor: {r: 1, g: 1, b: 1, a: 1}
+  highlightScale: 1.08
+  highlightSortingOrderOffset: -1
+  highlightMaterial: {fileID: 0}
   cursorHand: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   wrongItemResponses:

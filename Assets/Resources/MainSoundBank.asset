@@ -167,3 +167,11 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 096b8ced1fb897947bf0d38e7e58fa00, type: 3}
   - soundName: Hiding
     clip: {fileID: 8300000, guid: 53f7dec6a3d299c4882a0a25a3f9841b, type: 3}
+  - soundName: Heart
+    clip: {fileID: 8300000, guid: d6acfc227331aaa49ab6307601415633, type: 3}
+  - soundName: OpenCabinet
+    clip: {fileID: 8300000, guid: 3ccd1bdae0e18b84e82727ed9d5c59a5, type: 3}
+  - soundName: Ghost
+    clip: {fileID: 8300000, guid: 5ad359925056ab04c81337b3badcf159, type: 3}
+  - soundName: TheEnd
+    clip: {fileID: 8300000, guid: 8bf0720bd741f4846b83666775918aca, type: 3}

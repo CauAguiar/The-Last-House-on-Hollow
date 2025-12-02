@@ -13,9 +13,8 @@ public class FramesController : InteractableBase
     [Tooltip("Ordem correta de números para resolver o puzzle.")]
     public int[] correctOrderNumbers;
 
-    [Header("Recompensa / Dica")] 
-    [Tooltip("ID de página do diário a desbloquear (opcional)")]
-    public int diaryPageId = 0;
+    [Header("Dica")] 
+    // Removed diary page reward field: Frames only shows hint UI, no automatic journal reward.
 
     [Header("Estado")]
     [SerializeField] private string uniqueId;
@@ -38,6 +37,17 @@ public class FramesController : InteractableBase
         FramesUIManager.Instance?.OpenPuzzle(this);
     }
 
+    // Bypass context menu: open directly on interaction
+    public override void Interact()
+    {
+        OnInspect();
+    }
+
+    public override bool CanShowContextMenu()
+    {
+        return false;
+    }
+
     /// <summary>
     /// Called by the FramesUIManager when the puzzle is solved.
     /// Marks state and optionally grants journal page.
@@ -47,11 +57,6 @@ public class FramesController : InteractableBase
         if (isSolved) return;
         isSolved = true;
         GameStateManager.Instance.MarkAsCollected(uniqueId);
-
-        if (diaryPageId > 0 && JournalManager.Instance != null)
-        {
-            JournalManager.Instance.CollectPage(diaryPageId);
-        }
     }
 
     // Public getters used by the UI manager

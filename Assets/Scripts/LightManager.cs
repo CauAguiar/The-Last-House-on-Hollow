@@ -71,6 +71,9 @@ public class LightManager : MonoBehaviour
 
     // Estado pendente para aplicar ações quando a cena alvo for carregada
     private bool pendingSceneActions = false;
+    // Marca que as ações para a cena alvo já foram disparadas (por exemplo, após o cofre)
+    // Quando true, ApplySceneActionsToScene será executado sempre que a cena alvo for carregada.
+    private bool sceneActionsCompleted = false;
 
     private void Awake()
     {
@@ -104,7 +107,7 @@ public class LightManager : MonoBehaviour
     {
         DiscoverLightsInScene(scene);
         // Caso haja ações pendentes para aplicar em cenas (ex: SalaoPrincipal), aplique quando a cena carregar
-        if (pendingSceneActions && !string.IsNullOrEmpty(targetSceneName) && string.Equals(scene.name, targetSceneName, System.StringComparison.OrdinalIgnoreCase))
+        if ((pendingSceneActions || sceneActionsCompleted) && !string.IsNullOrEmpty(targetSceneName) && string.Equals(scene.name, targetSceneName, System.StringComparison.OrdinalIgnoreCase))
         {
             ApplySceneActionsToScene(scene);
         }
@@ -290,6 +293,10 @@ public class LightManager : MonoBehaviour
     private void TryApplyOrScheduleSceneActions()
     {
         if (string.IsNullOrEmpty(targetSceneName)) return;
+
+        // Marca que as ações foram solicitadas/aplicadas globalmente — garante que
+        // elas sejam re-aplicadas em futuros carregamentos da cena alvo.
+        sceneActionsCompleted = true;
 
         // Procura cena já carregada com o nome alvo
         for (int i = 0; i < SceneManager.sceneCount; i++)

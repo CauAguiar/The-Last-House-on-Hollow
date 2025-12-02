@@ -76,6 +76,17 @@ public class MirrorController : InteractableBase
         }
     }
 
+    // Bypass context menu: interacting should inspect/open directly
+    public override void Interact()
+    {
+        OnInspect();
+    }
+
+    public override bool CanShowContextMenu()
+    {
+        return false;
+    }
+
     private void PrepareRevealVisuals()
     {
         if (clueTextObject == null) return;

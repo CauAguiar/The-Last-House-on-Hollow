@@ -51,6 +51,17 @@ public class ClosetController : InteractableBase
         }
     }
 
+    // Closet is inspect-only; don't show context menu, just inspect directly on interaction
+    public override void Interact()
+    {
+        OnInspect();
+    }
+
+    public override bool CanShowContextMenu()
+    {
+        return false;
+    }
+
     public override void OnUseItem(InventoryItem item)
     {
         base.OnUseItem(item);

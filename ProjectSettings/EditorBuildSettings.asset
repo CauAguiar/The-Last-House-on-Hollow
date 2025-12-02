@@ -35,6 +35,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/PoraoScene.unity
     guid: ac7c340ce036dc34db3e90963823b66c
+  - enabled: 1
+    path: Assets/Scenes/Creditos.unity
+    guid: f69eb5023dcdbd04db95d189cab1c8ee
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

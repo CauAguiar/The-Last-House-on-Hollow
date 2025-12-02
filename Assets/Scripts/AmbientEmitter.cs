@@ -83,6 +83,7 @@ public class AmbientEmitter : MonoBehaviour
             }
         }
 
+        Debug.Log($"AmbientEmitter: RegisterWithAudioManager('{gameObject.name}') - soundName='{soundName}', useSoundBankClip={useSoundBankClip}, source.clip={(source.clip!=null?source.clip.name:"(none)")}");
         AudioManager.Instance.PlayLoopOnSource(source, soundName, category, Mathf.Clamp01(localVolumeScale));
         isRegistered = true;
     }

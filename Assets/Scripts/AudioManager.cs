@@ -106,18 +106,48 @@ public class AudioManager : MonoBehaviour
         public string soundName;
     }
     private readonly System.Collections.Generic.List<LoopSourceInfo> loopSources = new System.Collections.Generic.List<LoopSourceInfo>();
+    // An optional global AudioSource used to play cross-scene ambience immediately when needed
+    private AudioSource globalLoopSource;
+    private Coroutine globalFadeRoutine = null;
 
     /// <summary>
     /// Registra e inicia um loop contínuo (ex: fluxo de água da pia) com aplicação automática de volumes.
     /// </summary>
     public void PlayLoopOnSource(AudioSource targetSource, string soundName, Category category, float localScale = 1f, bool restartIfSame = false)
     {
-        if (targetSource == null || soundBank == null) return;
-        var clip = soundBank.GetClip(soundName);
+        if (targetSource == null)
+        {
+            Debug.LogWarning("AudioManager.PlayLoopOnSource called with null targetSource");
+            return;
+        }
+
+        AudioClip clip = null;
+        if (soundBank == null)
+        {
+            Debug.LogWarning($"AudioManager: soundBank is null — cannot look up '{soundName}'. Falling back to targetSource.clip if available.");
+        }
+        else
+        {
+            clip = soundBank.GetClip(soundName);
+            if (clip == null)
+            {
+                Debug.LogWarning($"AudioManager: sound '{soundName}' not found in SoundBank. Falling back to targetSource.clip if available.");
+            }
+        }
+
+        // If we couldn't get a clip from the soundbank, try to use the AudioSource.clip as fallback
         if (clip == null)
         {
-            // sound not found in soundbank
-            return;
+            if (targetSource.clip != null)
+            {
+                clip = targetSource.clip; // use existing clip
+            }
+            else
+            {
+                // Nothing to play
+                Debug.LogWarning($"AudioManager: no clip available to play for '{soundName}' on target source.");
+                return;
+            }
         }
         if (!restartIfSame && targetSource.isPlaying && targetSource.clip == clip)
         {
@@ -165,6 +195,78 @@ public class AudioManager : MonoBehaviour
         loopSources.RemoveAll(ls => ls.source == targetSource);
         if (targetSource != null && targetSource.isPlaying)
             targetSource.Stop();
+    }
+
+    /// <summary>
+    /// Stop all registered loop sources that are playing the specified sound name.
+    /// </summary>
+    public void StopLoopsByName(string soundName)
+    {
+        if (string.IsNullOrEmpty(soundName)) return;
+        var toStop = loopSources.FindAll(ls => ls.soundName == soundName);
+        foreach (var info in toStop)
+        {
+            if (info.source != null && info.source.isPlaying)
+                info.source.Stop();
+        }
+        loopSources.RemoveAll(ls => ls.soundName == soundName);
+    }
+
+    /// <summary>
+    /// Play a loop for the given sound name using a global AudioSource owned by the AudioManager.
+    /// Useful to start ambient sounds immediately even if the emitter GameObject is not available yet.
+    /// </summary>
+    public void PlayLoopGlobal(string soundName, Category category, float localScale = 1f, float fadeDuration = 0.5f, float finalVolume = -1f)
+    {
+        if (string.IsNullOrEmpty(soundName) || soundBank == null) return;
+        var clip = soundBank.GetClip(soundName);
+        if (clip == null) return;
+
+        if (globalLoopSource == null)
+        {
+            var go = new GameObject("GlobalLoopSource");
+            go.transform.SetParent(this.transform);
+            globalLoopSource = go.AddComponent<AudioSource>();
+            globalLoopSource.loop = true;
+            globalLoopSource.spatialBlend = 0f;
+            DontDestroyOnLoad(go);
+        }
+
+        // prepare and play with initial volume 0, then fade to target
+        float computedTarget = masterVolume * sfxVolume * GetCategoryVolume(category) * Mathf.Clamp01(localScale);
+        float targetVol = finalVolume >= 0f ? Mathf.Clamp01(finalVolume) : computedTarget;
+        globalLoopSource.clip = clip;
+        globalLoopSource.loop = true;
+        globalLoopSource.spatialBlend = 0f;
+        globalLoopSource.volume = 0f;
+        globalLoopSource.Play();
+
+        // register in loopSources
+        loopSources.RemoveAll(ls => ls.source == globalLoopSource);
+        loopSources.Add(new LoopSourceInfo{ source = globalLoopSource, category = category, localScale = Mathf.Clamp01(localScale), soundName = soundName });
+
+        // start fade coroutine
+        if (globalFadeRoutine != null) StopCoroutine(globalFadeRoutine);
+        if (fadeDuration > 0f)
+            globalFadeRoutine = StartCoroutine(FadeVolumeCoroutine(globalLoopSource, targetVol, fadeDuration));
+        else
+            globalLoopSource.volume = targetVol;
+    }
+
+    private System.Collections.IEnumerator FadeVolumeCoroutine(AudioSource src, float target, float duration)
+    {
+        if (src == null) yield break;
+        float start = src.volume;
+        float t = 0f;
+        while (t < duration)
+        {
+            t += Time.unscaledDeltaTime;
+            float f = Mathf.Clamp01(t / duration);
+            src.volume = Mathf.Lerp(start, target, f);
+            yield return null;
+        }
+        src.volume = target;
+        globalFadeRoutine = null;
     }
 
     // Reproduz uma musica de fundo

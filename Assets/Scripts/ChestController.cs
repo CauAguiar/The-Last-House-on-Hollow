@@ -63,6 +63,17 @@ public class ChestController : InteractableBase
         }
     }
 
+    // Bypass the global context menu: this chest should open its UI directly on click
+    public override void Interact()
+    {
+        OnInspect();
+    }
+
+    public override bool CanShowContextMenu()
+    {
+        return false;
+    }
+
     /// <summary>
     /// Chamado pelo ChestUIManager quando a senha correta é inserida.
     /// </summary>

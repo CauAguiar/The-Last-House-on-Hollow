@@ -56,6 +56,17 @@ public class DiaryPage : InteractableBase
         Destroy(gameObject);
     }
 
+    // Diary pages are collect-only: clicking should collect and show inspection text, no context menu
+    public override void Interact()
+    {
+        OnInspect();
+    }
+
+    public override bool CanShowContextMenu()
+    {
+        return false;
+    }
+
     public override void OnUseItem(InventoryItem item)
     {
         base.OnUseItem(item);

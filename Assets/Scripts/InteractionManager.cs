@@ -81,6 +81,17 @@ public class InteractionManager : MonoBehaviour
         if (closeButton != null) closeButton.onClick.AddListener(HideContextMenu);
     }
 
+    // Public helpers for other scripts to query dialogue state
+    public bool IsDialogueOpen()
+    {
+        return dialogueBox != null && dialogueBox.activeSelf;
+    }
+
+    public bool IsDialogueTyping()
+    {
+        return isTyping;
+    }
+
     private void Update()
     {
         // If context menu is visible and anchored, update its screen position to follow the interactable

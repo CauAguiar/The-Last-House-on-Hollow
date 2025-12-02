@@ -36,10 +36,34 @@ public class ChandelierController : InteractableBase
 
     public override void OnInspect()
     {
+        if (isSolved)
+        {
+            if (!string.IsNullOrEmpty(inspectionText))
+            {
+                InteractionManager.Instance.ShowDialogue(inspectionText);
+            }
+            else
+            {
+                InteractionManager.Instance.ShowDialogue("O candelabro já está aceso.");
+            }
+            return;
+        }
+
         if (ChandelierUIManager.Instance != null)
         {
             ChandelierUIManager.Instance.OpenPuzzle(this);
         }
+    }
+
+    // Bypass context menu; interact should directly open the puzzle UI
+    public override void Interact()
+    {
+        OnInspect();
+    }
+
+    public override bool CanShowContextMenu()
+    {
+        return false;
     }
 
     public void OnPuzzleSolved()

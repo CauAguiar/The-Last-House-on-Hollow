@@ -23,9 +23,9 @@ public class ToyChestController : InteractableBase
     [Tooltip("Image full-screen que será usada no jumpscare (previamente desativada)")]
     [SerializeField] private Image jumpScareImage;
     [Tooltip("Duração total do jumpscare em segundos")]
-    [SerializeField] private float jumpScareDuration = 3.0f;
+    [SerializeField] [Range(0.1f, 30f)] private float jumpScareDuration = 3.0f;
     [Tooltip("Intervalo de piscar (s)")]
-    [SerializeField] private float jumpScareFlashInterval = 0.12f;
+    [SerializeField] [Range(0.02f, 2f)] private float jumpScareFlashInterval = 0.12f;
     [Tooltip("Habilita sacudir a câmera durante o jumpscare")]
     [SerializeField] private bool enableCameraShake = true;
     [Tooltip("Intensidade do shake da câmera em unidades de posição (ex: 0.2)")]
@@ -60,6 +60,13 @@ public class ToyChestController : InteractableBase
         }
         // ensure jumpscare image is off
         if (jumpScareImage != null) jumpScareImage.gameObject.SetActive(false);
+    }
+
+    private void OnValidate()
+    {
+        if (jumpScareDuration < 0f) jumpScareDuration = 0f;
+        if (jumpScareFlashInterval < 0.01f) jumpScareFlashInterval = 0.01f;
+        if (cameraShakeIntensity < 0f) cameraShakeIntensity = 0f;
     }
 
     [ContextMenu("Generate Unique ID")]
@@ -160,8 +167,6 @@ public class ToyChestController : InteractableBase
 
             while (elapsed < jumpScareDuration)
             {
-                elapsed += Time.unscaledDeltaTime;
-
                 // toggle visibility on each interval
                 visible = !visible;
                 float alpha = visible ? 1f : 0f;
@@ -169,9 +174,11 @@ public class ToyChestController : InteractableBase
 
                 // perform camera shake for the duration of the interval
                 float t = 0f;
-                while (t < jumpScareFlashInterval)
+                while (t < jumpScareFlashInterval && elapsed < jumpScareDuration)
                 {
-                    t += Time.unscaledDeltaTime;
+                    float dt = Time.unscaledDeltaTime;
+                    t += dt;
+                    elapsed += dt;
 
                     if (enableCameraShake && mainCam != null)
                     {

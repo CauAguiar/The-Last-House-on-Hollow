@@ -16,6 +16,8 @@ public class PlayerInteractionController : MonoBehaviour
     public LayerMask interactableLayerMask;
     [Tooltip("Margem adicional (em unidades de mundo) para procurar colliders além do 'interactionRadius'.")]
     public float proximityExtraMargin = 0.5f;
+    [Tooltip("Multiplicador aplicado ao raio de busca para garantir que interactables com HoverScaleFactor maior sejam incluídos na consulta inicial.")]
+    public float hoverSearchMultiplier = 2f;
 
     private PlayerControls playerControls;
     private List<IInteractable> nearbyInteractables = new List<IInteractable>();
@@ -61,7 +63,10 @@ public class PlayerInteractionController : MonoBehaviour
         // filter colliders based on per-interactable hoverScale so visuals that are slightly
         // larger become interactable from a bit farther away.
         Collider2D[] colliders;
-        float queryRadius = interactionRadius + proximityExtraMargin;
+        // Use a slightly larger query radius to include interactables whose per-object
+        // hover multiplier (HoverScaleFactor) increases their effective proximity.
+        // The query radius should be at least interactionRadius * hoverSearchMultiplier.
+        float queryRadius = Mathf.Max(interactionRadius * hoverSearchMultiplier, interactionRadius) + proximityExtraMargin;
         // If the layer mask is empty (value == 0) treat it as all layers to avoid accidental misconfiguration
         if (interactableLayerMask == 0)
         {
