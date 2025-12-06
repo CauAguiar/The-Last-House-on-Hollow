@@ -29,6 +29,10 @@ public class TypewriterUIManager : MonoBehaviour
     [SerializeField] private string typingLoopSfxName = "typing_loop";
     [Tooltip("Duração em segundos para tocar um slice do SFX de tecla. 0 = toca o clip inteiro.")]
     [SerializeField] private float keySfxDuration = 0f;
+    [Tooltip("Início em segundos da fatia do SFX de tecla. Usado junto com Key SFX End quando configurado.")]
+    [SerializeField] private float keySfxStart = 0f;
+    [Tooltip("Fim em segundos da fatia do SFX de tecla. Se maior que Key SFX Start, a fatia [start,end] será usada.")]
+    [SerializeField] private float keySfxEnd = 0f;
 
     private AudioSource loopSource;
     private AudioSource keySource;
@@ -158,6 +162,9 @@ public class TypewriterUIManager : MonoBehaviour
 
         typewriterPanel.SetActive(true);
         PlayerMovement.Instance.LockMovement();
+        // Block global UI input so quick shortcuts won't open other panels while typing
+        UIInputBlocker.Block("Typewriter");
+        GamePauseManager.Pause("Typewriter");
         // Focus first close/escape button for keyboard/controller
         if (UnityEngine.EventSystems.EventSystem.current != null && closeButton != null)
         {
@@ -179,6 +186,8 @@ public class TypewriterUIManager : MonoBehaviour
         typewriterPanel.SetActive(false);
         currentController = null;
         PlayerMovement.Instance.UnlockMovement();
+        UIInputBlocker.Unblock("Typewriter");
+        GamePauseManager.Unpause("Typewriter");
         if (UnityEngine.EventSystems.EventSystem.current != null)
             UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
     }
@@ -334,14 +343,26 @@ public class TypewriterUIManager : MonoBehaviour
         if (keySource == null)
         {
             // fallback para o AudioManager global
+            // Prefer explicit start/end slice if configured, otherwise fall back to keySfxDuration
+            if (keySfxEnd > keySfxStart && keySfxEnd > 0f)
+            {
+                float dur = Mathf.Max(0f, keySfxEnd - keySfxStart);
+                if (dur > 0f)
+                {
+                    AudioManager.Instance.PlaySFXSlice(keySfxName, keySfxStart, dur, 1f, AudioManager.Category.UI);
+                    return;
+                }
+            }
             if (keySfxDuration > 0f)
+            {
                 AudioManager.Instance.PlaySFXSlice(keySfxName, 0f, keySfxDuration, 1f, AudioManager.Category.UI);
-            else
-                AudioManager.Instance.PlaySFX(keySfxName, AudioManager.Category.UI);
+                return;
+            }
+            AudioManager.Instance.PlaySFX(keySfxName, AudioManager.Category.UI);
             return;
         }
 
-        // Play the full clip on the local keySource and stop it after keySfxDuration seconds
+        // Play a slice (or full clip) on the local keySource and stop it after the requested duration
         var full = AudioManager.Instance.soundBank?.GetClip(keySfxName);
         if (full == null)
         {
@@ -349,18 +370,45 @@ public class TypewriterUIManager : MonoBehaviour
             AudioManager.Instance.PlaySFX(keySfxName, AudioManager.Category.UI);
             return;
         }
-
         float scaleFull = AudioManager.Instance.masterVolume * AudioManager.Instance.sfxVolume * AudioManager.Instance.GetCategoryVolume(AudioManager.Category.UI);
         keySource.clip = full;
         keySource.loop = false;
         keySource.volume = scaleFull;
+
+        // Determine slice to play: prefer explicit start/end if valid, otherwise use keySfxDuration as a duration from 0
+        float playStart = 0f;
+        float playDuration = 0f;
+        if (keySfxEnd > keySfxStart && keySfxEnd > 0f)
+        {
+            playStart = Mathf.Clamp(keySfxStart, 0f, full.length);
+            float endClamp = Mathf.Clamp(keySfxEnd, 0f, full.length);
+            playDuration = Mathf.Max(0f, endClamp - playStart);
+        }
+        else if (keySfxDuration > 0f)
+        {
+            playStart = 0f;
+            playDuration = Mathf.Min(keySfxDuration, Mathf.Max(0f, full.length - playStart));
+        }
+
+        // Start playback seeking to playStart (if applicable)
+        if (playStart > 0f && playStart < full.length)
+        {
+            try
+            {
+                keySource.time = playStart;
+            }
+            catch (Exception)
+            {
+                // Some platforms may not allow setting time before Play; ignore and rely on Stop coroutine
+            }
+        }
         keySource.Play();
 
         // If a specific short duration is requested, stop the local source after that duration
-        if (keySfxDuration > 0f)
+        if (playDuration > 0f)
         {
             if (stopKeyCoroutine != null) StopCoroutine(stopKeyCoroutine);
-            stopKeyCoroutine = StartCoroutine(StopKeyAfter(keySfxDuration));
+            stopKeyCoroutine = StartCoroutine(StopKeyAfter(playDuration));
         }
     }
 

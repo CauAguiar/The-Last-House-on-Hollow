@@ -145,6 +145,12 @@ public class InventoryUIController : MonoBehaviour
 
     private void ToggleInventory(InputAction.CallbackContext context)
     {
+        // If another UI has blocked input, do not open the inventory via shortcut.
+        if (!isInventoryOpen && UIInputBlocker.IsBlocked)
+        {
+            return;
+        }
+
         isInventoryOpen = !isInventoryOpen;
         if (inventoryPanel != null)
         {

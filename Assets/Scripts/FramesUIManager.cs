@@ -50,6 +50,7 @@ public class FramesUIManager : MonoBehaviour
     private System.Collections.IEnumerator revealCoroutine;
 
     private List<FrameSlot> slots = new List<FrameSlot>();
+    private Sprite[] initialSprites;
     private int selectedSlot = -1;
     private FramesController currentController;
     private int[] controllerInitialNumbers = null;
@@ -73,6 +74,13 @@ public class FramesUIManager : MonoBehaviour
             if (s != null) slots.Add(s);
         }
 
+        // cache initial sprites for each slot so we can reset image order reliably
+        initialSprites = new Sprite[slots.Count];
+        for (int i = 0; i < slots.Count; i++)
+        {
+            initialSprites[i] = (slots[i].frameImage != null) ? slots[i].frameImage.sprite : null;
+        }
+
         if (revealImage != null) revealImage.gameObject.SetActive(false);
     }
 
@@ -90,11 +98,38 @@ public class FramesUIManager : MonoBehaviour
         controllerInitialNumbers = controller != null ? controller.GetInitialSlotNumbers() : null;
         controllerCorrectNumbers = controller != null ? controller.GetCorrectOrderNumbers() : null;
 
-        for (int i = 0; i < slots.Count; i++)
+        // If the puzzle is already solved, show the correct order (numbers + corresponding images)
+        if (controller != null && controller.IsSolved())
         {
-            int num = (controllerInitialNumbers != null && i < controllerInitialNumbers.Length) ? controllerInitialNumbers[i] : 0;
-            Sprite sprite = slots[i].frameImage != null ? slots[i].frameImage.sprite : null;
-            slots[i].Setup(i, num, sprite, GetLabelForNumber(num));
+            // Build a mapping from number -> original sprite based on the controller's initial numbers
+            var numberToSprite = new System.Collections.Generic.Dictionary<int, Sprite>();
+            if (controllerInitialNumbers != null)
+            {
+                for (int j = 0; j < controllerInitialNumbers.Length && j < initialSprites.Length; j++)
+                {
+                    int num = controllerInitialNumbers[j];
+                    if (!numberToSprite.ContainsKey(num))
+                        numberToSprite[num] = initialSprites[j];
+                }
+            }
+
+            for (int i = 0; i < slots.Count; i++)
+            {
+                int num = (controllerCorrectNumbers != null && i < controllerCorrectNumbers.Length) ? controllerCorrectNumbers[i] : 0;
+                Sprite sprite = null;
+                if (numberToSprite.TryGetValue(num, out var sp)) sprite = sp;
+                slots[i].Setup(i, num, sprite, GetLabelForNumber(num));
+                slots[i].SetInteractable(false);
+            }
+        }
+        else
+        {
+            for (int i = 0; i < slots.Count; i++)
+            {
+                int num = (controllerInitialNumbers != null && i < controllerInitialNumbers.Length) ? controllerInitialNumbers[i] : 0;
+                Sprite sprite = (initialSprites != null && i < initialSprites.Length) ? initialSprites[i] : (slots[i].frameImage != null ? slots[i].frameImage.sprite : null);
+                slots[i].Setup(i, num, sprite, GetLabelForNumber(num));
+            }
         }
 
         // If already solved, show reveal immediately

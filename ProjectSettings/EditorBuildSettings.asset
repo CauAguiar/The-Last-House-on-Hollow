@@ -9,11 +9,8 @@ EditorBuildSettings:
     path: Assets/Scenes/MainMenuScene.unity
     guid: 327505b7d64cf7e40ba3c2450e4687da
   - enabled: 1
-    path: Assets/Scenes/StreetScene.unity
-    guid: 9376e0a214ce0c1429156ac8e6c401d7
-  - enabled: 1
     path: Assets/Scenes/SalaoPrincipalScene.unity
-    guid: 7e85e3068ad99a64d8b40e4883f343fe
+    guid: e6639e4b519871343a8c360e607c9a9a
   - enabled: 1
     path: Assets/Scenes/BanheiroScene.unity
     guid: 7c58ccd4cadace745bb9aec73fb3d237

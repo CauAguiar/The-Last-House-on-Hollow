@@ -45,6 +45,17 @@ public class TypewriterController : InteractableBase
         TypewriterUIManager.Instance.OpenPuzzle(this, poemReward);
     }
 
+    // Interact should open the UI directly (bypass context menu) and allow access even after solved
+    public override void Interact()
+    {
+        TypewriterUIManager.Instance.OpenPuzzle(this, poemReward);
+    }
+
+    public override bool CanShowContextMenu()
+    {
+        return false;
+    }
+
     /// <summary>
     /// Chamado pelo TypewriterUIManager quando o jogador digita a senha correta.
     /// </summary>

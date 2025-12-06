@@ -114,12 +114,12 @@ public class ChestController : InteractableBase
         string itemsText = "";
         if (rewardItems != null && rewardItems.Length > 0)
         {
-            itemsText += "Encontrei: ";
+            itemsText += "encontrei uma ";
             for (int i = 0; i < rewardItems.Length; i++)
             {
                 if (rewardItems[i] != null)
                 {
-                    itemsText += $"<color=#fef08a>{rewardItems[i].itemName}</color>";
+                    itemsText += $"<color=#5140ce>{rewardItems[i].itemName}</color>";
                     if (i < rewardItems.Length - 1)
                     {
                         itemsText += ", ";
@@ -136,25 +136,25 @@ public class ChestController : InteractableBase
             }
             else
             {
-                itemsText += "Encontrei: ";
+                itemsText += "encontrei: ";
             }
             if (diaryPageIds.Length == 1)
             {
-                itemsText += $"<color=#fef08a>Página {diaryPageIds[0]} do Diário</color>";
+                itemsText += $"<color=#5140ce>Página {diaryPageIds[0]} do Diário</color>";
             }
             else
             {
-                itemsText += $"<color=#fef08a>{diaryPageIds.Length} Páginas do Diário</color>";
+                itemsText += $"<color=#5140ce>{diaryPageIds.Length} Páginas do Diário</color>";
             }
         }
 
         if (!string.IsNullOrEmpty(itemsText))
         {
-            InteractionManager.Instance.ShowDialogue($"O baú se abre com um clique satisfatório! {itemsText}.");
+            InteractionManager.Instance.ShowDialogue($"Ta só o pó, mas  {itemsText}.");
         }
         else
         {
-            InteractionManager.Instance.ShowDialogue("O baú se abre com um clique satisfatório!");
+            InteractionManager.Instance.ShowDialogue("Ta só o pó, mas ");
         }
     }
 }

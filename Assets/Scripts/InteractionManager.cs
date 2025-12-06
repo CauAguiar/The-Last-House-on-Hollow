@@ -27,6 +27,8 @@ public class InteractionManager : MonoBehaviour
     [SerializeField] private GameObject dialogueBox;
     [SerializeField] private TextMeshProUGUI dialogueText;
     [SerializeField] private float typingSpeed = 0.04f;
+    [Tooltip("Image de fundo semi-transparente atrás do texto do diálogo (opcional). Se não informado, será criado em tempo de execução.)")]
+    [SerializeField] private Image dialogueBackground;
 
     private InteractableBase currentInteractable;
     private Coroutine typingCoroutine;
@@ -79,6 +81,23 @@ public class InteractionManager : MonoBehaviour
         if (inspectButton != null) inspectButton.onClick.AddListener(OnInspectClicked);
         if (useItemButton != null) useItemButton.onClick.AddListener(OnUseItemClicked);
         if (closeButton != null) closeButton.onClick.AddListener(HideContextMenu);
+
+        // Cria um fundo semitransparente atrás do diálogo se não houver nenhum atribuído
+        if (dialogueBox != null && dialogueBackground == null)
+        {
+            var go = new GameObject("DialogueBackground", typeof(RectTransform), typeof(Image));
+            go.transform.SetParent(dialogueBox.transform, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0f, 0f);
+            rt.anchorMax = new Vector2(1f, 1f);
+            rt.offsetMin = Vector2.zero;
+            rt.offsetMax = Vector2.zero;
+            var img = go.GetComponent<Image>();
+            img.color = new Color(0f, 0f, 0f, 0.7f);
+            go.transform.SetAsFirstSibling();
+            dialogueBackground = img;
+            dialogueBackground.gameObject.SetActive(false);
+        }
     }
 
     // Public helpers for other scripts to query dialogue state
@@ -233,11 +252,27 @@ public class InteractionManager : MonoBehaviour
 
     public void ShowDialogue(string text)
     {
-        if(dialogueBox.activeSelf) return;
+        // Protege contra referências nulas (por exemplo quando UI de cena foi removida)
+        if (dialogueBox == null || dialogueText == null)
+        {
+            TryFindDialogueUIInScene();
+        }
 
-    HideContextMenu();
+        if (dialogueBox != null && dialogueBox.activeSelf) return;
+
+        if (dialogueBox == null || dialogueText == null)
+        {
+            Debug.LogWarning("InteractionManager: ShowDialogue chamado, mas a UI de diálogo não está atribuída nem foi encontrada na cena.");
+            return;
+        }
+
+        HideContextMenu();
         fullDialogueText = text;
-    if (dialogueBox != null) { dialogueBox.SetActive(true); UIInputBlocker.Block("Dialogue"); }
+        dialogueBox.SetActive(true);
+        UIInputBlocker.Block("Dialogue");
+
+        if (dialogueBackground != null)
+            dialogueBackground.gameObject.SetActive(true);
 
         if (typingCoroutine != null) StopCoroutine(typingCoroutine);
         typingCoroutine = StartCoroutine(TypeText(text));
@@ -302,6 +337,16 @@ public class InteractionManager : MonoBehaviour
         {
             dialogueBox.SetActive(false);
         }
+        if (dialogueBackground != null)
+        {
+            dialogueBackground.gameObject.SetActive(false);
+        }
+        if (typingCoroutine != null)
+        {
+            StopCoroutine(typingCoroutine);
+            typingCoroutine = null;
+            isTyping = false;
+        }
         UIInputBlocker.Unblock("Dialogue");
     }
 
@@ -323,6 +368,59 @@ public class InteractionManager : MonoBehaviour
 
         // Se houver múltiplos EventSystems (por exemplo, um persistente + um na cena), normalizamos para apenas um.
         NormalizeEventSystems(scene);
+        // Tenta reestabelecer referências de UI de diálogo após troca de cena
+        TryFindDialogueUIInScene();
+    }
+
+    // Tenta localizar objetos de UI de diálogo na cena atual quando as referências foram perdidas
+    private void TryFindDialogueUIInScene()
+    {
+        if (dialogueBox != null && dialogueText != null) return;
+
+        // Tenta encontrar por nome comum
+        var named = GameObject.Find("DialogueBox");
+        if (named != null)
+        {
+            dialogueBox = named;
+            dialogueText = dialogueBox.GetComponentInChildren<TextMeshProUGUI>();
+        }
+
+        if (dialogueBox == null || dialogueText == null)
+        {
+            // Procura por qualquer TextMeshProUGUI que pareça diálogo
+            TextMeshProUGUI[] allTmp;
+#if UNITY_2023_1_OR_NEWER
+            allTmp = UnityEngine.Object.FindObjectsByType<TextMeshProUGUI>(FindObjectsSortMode.None);
+#else
+            allTmp = GameObject.FindObjectsOfType<TextMeshProUGUI>(true);
+#endif
+            foreach (var t in allTmp)
+            {
+                var nameLower = t.gameObject.name.ToLower();
+                if (nameLower.Contains("dialog") || nameLower.Contains("subtitle") || nameLower.Contains("speech") || nameLower.Contains("textbox"))
+                {
+                    dialogueText = t;
+                    dialogueBox = t.transform.root.gameObject;
+                    break;
+                }
+            }
+            if (dialogueBox == null && allTmp.Length > 0)
+            {
+                dialogueText = allTmp[0];
+                dialogueBox = allTmp[0].transform.root.gameObject;
+            }
+        }
+
+        // Se achar a caixa de diálogo, tenta encontrar um Image para usar como background
+        if (dialogueBox != null && dialogueBackground == null)
+        {
+            var img = dialogueBox.GetComponentInChildren<Image>();
+            if (img != null)
+            {
+                dialogueBackground = img;
+                dialogueBackground.gameObject.SetActive(false);
+            }
+        }
     }
 
     private void EnsureEventSystemExists()

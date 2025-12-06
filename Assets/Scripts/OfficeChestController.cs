@@ -42,6 +42,18 @@ public class OfficeChestController : InteractableBase
         }
     }
 
+    // Open UI directly when interacting, and do not allow opening after it was opened
+    public override void Interact()
+    {
+        if (isOpened) return;
+        OnInspect();
+    }
+
+    public override bool CanShowContextMenu()
+    {
+        return false;
+    }
+
     public void OnPuzzleSolved()
     {
         isOpened = true;

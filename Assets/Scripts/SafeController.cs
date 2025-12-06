@@ -65,6 +65,18 @@ public class SafeController : InteractableBase
         }
     }
 
+    // Open UI directly when interacting; do not allow context menu and prevent re-open after solved
+    public override void Interact()
+    {
+        if (isOpened) return;
+        OnInspect();
+    }
+
+    public override bool CanShowContextMenu()
+    {
+        return false;
+    }
+
     public void OnPuzzleSolved()
     {
         // Called by UI manager when password is correct. Grant rewards and persist.

@@ -15,6 +15,7 @@ public class TomeUIManager : MonoBehaviour
     [Header("Referências da UI")]
     [SerializeField] private GameObject tomoPanel;
     [SerializeField] private Image contentImage; // imagem que mostra as orientações
+    [SerializeField] private Button closeButton;
 
     [Header("Configuração")]
     [Tooltip("Se verdadeiro, bloqueia movimento do jogador enquanto o Tomo estiver aberto")]
@@ -24,6 +25,11 @@ public class TomeUIManager : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         else if (Instance != this) Destroy(gameObject);
+        // registra listener do botão fechar (se presente)
+        if (closeButton != null)
+        {
+            closeButton.onClick.AddListener(Hide);
+        }
     }
 
     private void Start()
@@ -45,7 +51,13 @@ public class TomeUIManager : MonoBehaviour
         if (lockPlayerWhileOpen && PlayerMovement.Instance != null)
             PlayerMovement.Instance.LockMovement();
         if (EventSystem.current != null)
-            EventSystem.current.SetSelectedGameObject(null);
+        {
+            // seleciona o botão fechar para que controles de teclado/controle possam fechá-lo facilmente
+            if (closeButton != null && closeButton.gameObject != null)
+                EventSystem.current.SetSelectedGameObject(closeButton.gameObject);
+            else
+                EventSystem.current.SetSelectedGameObject(null);
+        }
     }
 
     public void Hide()
@@ -60,12 +72,28 @@ public class TomeUIManager : MonoBehaviour
             EventSystem.current.SetSelectedGameObject(null);
     }
 
+    private void OnDestroy()
+    {
+        if (closeButton != null)
+        {
+            closeButton.onClick.RemoveListener(Hide);
+        }
+    }
+
     public void Toggle()
     {
         if (tomoPanel == null) return;
         Debug.Log($"TomeUIManager: Toggle() called; currentlyActive={tomoPanel.activeSelf}");
         if (tomoPanel.activeSelf) Hide();
         else Show();
+    }
+
+    /// <summary>
+    /// Retorna se o Tomo está atualmente visível.
+    /// </summary>
+    public bool IsTomeOpen()
+    {
+        return tomoPanel != null && tomoPanel.activeSelf;
     }
 
     /// <summary>

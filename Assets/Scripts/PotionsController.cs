@@ -37,6 +37,18 @@ public class PotionsController : InteractableBase
         }
     }
 
+    // Bypass context menu: interact opens UI directly; do not allow context menu
+    public override void Interact()
+    {
+        if (isSolved) return; // do nothing if already solved
+        OnInspect();
+    }
+
+    public override bool CanShowContextMenu()
+    {
+        return false;
+    }
+
     public void OnPuzzleSolved()
     {
         isSolved = true;

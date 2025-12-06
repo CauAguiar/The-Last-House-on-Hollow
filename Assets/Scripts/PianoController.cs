@@ -149,7 +149,7 @@ public class PianoController : InteractableBase
             // Se já resolvido, mostra uma mensagem
             if (InteractionManager.Instance != null)
             {
-                InteractionManager.Instance.ShowDialogue("O piano já está fechado. As recompensas foram reveladas.");
+                InteractionManager.Instance.ShowDialogue("Já coletei tudo que tinha aqui");
             }
             return;
         }

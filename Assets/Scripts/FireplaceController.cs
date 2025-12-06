@@ -1,4 +1,3 @@
-using UnityEditor.EditorTools;
 using UnityEngine;
 
 
@@ -16,6 +15,7 @@ public class FireplaceController : InteractableBase {
         if (item == unlitCandle)
         {
             InventoryManager.Instance.RemoveItem(unlitCandle);
+            InteractionManager.Instance.ShowDialogue("Consegui acender a vela");
             InventoryManager.Instance.AddItem(litCandle);
 
         } else

@@ -12,19 +12,8 @@ public abstract class InteractableBase : MonoBehaviour, IInteractable
     public string inspectionText;
 
     [Header("Feedback Visual")]
-    [SerializeField] private Color proximityHighlightColor = new Color(0.7019608f, 0f, 0.1490196f, 1f); // #B30026, opaco
+    [SerializeField] private Color proximityHighlightColor = new Color(0.3176471f, 0.2509804f, 0.8078431f, 1f); // #5140CE
     [SerializeField] private float hoverScaleFactor = 1.5f;
-    [Header("Highlight Overlay")]
-    [Tooltip("Se verdadeiro, usa um SpriteRenderer filho para desenhar um destaque/contorno ao invés de alterar a cor principal.")]
-    [SerializeField] private bool useHighlightOverlay = true;
-    [Tooltip("Cor do destaque (usada no SpriteRenderer filho)")]
-    [SerializeField] private Color highlightColor = new Color(1f, 1f, 1f, 1f);
-    [Tooltip("Escala local do SpriteRenderer de destaque (multiplicador sobre a escala do objeto)")]
-    [SerializeField] [Range(1.01f, 1.5f)] private float highlightScale = 1.08f;
-    [Tooltip("Offset de sortingOrder aplicado ao highlight (negativo -> atrás, positivo -> na frente)")]
-    [SerializeField] private int highlightSortingOrderOffset = -1;
-    [Tooltip("Material usado para o highlight. Deve utilizar a máscara alpha do sprite para desenhar uma cor sólida (opcional). Se vazio, tentaremos usar o shader 'Custom/SpriteAlphaColor' se presente.")]
-    [SerializeField] private Material highlightMaterial = null;
     [Header("Cursor")]
     [Tooltip("Cursor a ser exibido quando o mouse estiver sobre o objeto e o jogador estiver próximo. Use uma textura pequena (ex: 32x32) com transparência.")]
     [SerializeField] private Texture2D cursorHand = null;
@@ -49,10 +38,7 @@ public abstract class InteractableBase : MonoBehaviour, IInteractable
     private Color originalColor;
     private Vector3 originalScale;
     private bool isPlayerNearby = false;
-    // SpriteRenderer usado para o destaque/contorno; criado em Awake quando useHighlightOverlay == true
-    private SpriteRenderer highlightRenderer;
-    // Guarda o último sprite sincronizado para evitar atualizações desnecessárias
-    private Sprite lastSyncedSprite;
+    // (no overlay) keep visuals simple by tinting the main SpriteRenderer
 
     protected virtual void Awake()
     {
@@ -61,45 +47,7 @@ public abstract class InteractableBase : MonoBehaviour, IInteractable
         {
             originalColor = spriteRenderer.color;
         }
-        // Cria SpriteRenderer filho para destaque/contorno se solicitado
-        if (useHighlightOverlay && spriteRenderer != null)
-        {
-            var go = new GameObject(gameObject.name + "_Highlight");
-            go.transform.SetParent(transform, false);
-            go.transform.localPosition = Vector3.zero;
-            go.transform.localRotation = Quaternion.identity;
-            go.transform.localScale = Vector3.one * highlightScale;
-            highlightRenderer = go.AddComponent<SpriteRenderer>();
-            highlightRenderer.sprite = spriteRenderer.sprite;
-            // Assign material: use explicit material if provided, otherwise try to create one from shader
-            if (highlightMaterial != null)
-            {
-                var mat = new Material(highlightMaterial);
-                // Start hidden (alpha 0) and store visible color in highlightColor
-                mat.SetColor("_Color", new Color(highlightColor.r, highlightColor.g, highlightColor.b, 0f));
-                highlightRenderer.material = mat;
-            }
-            else
-            {
-                var sh = Shader.Find("Custom/SpriteAlphaColor");
-                if (sh != null)
-                {
-                    var mat = new Material(sh);
-                    mat.SetColor("_Color", new Color(highlightColor.r, highlightColor.g, highlightColor.b, 0f));
-                    highlightRenderer.material = mat;
-                }
-                else
-                {
-                    // Fallback: just tint the sprite (won't produce a pure-color silhouette)
-                    highlightRenderer.color = new Color(highlightColor.r, highlightColor.g, highlightColor.b, 0f);
-                }
-            }
-            highlightRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
-            highlightRenderer.sortingOrder = spriteRenderer.sortingOrder + highlightSortingOrderOffset;
-            highlightRenderer.maskInteraction = SpriteMaskInteraction.None;
-            highlightRenderer.gameObject.SetActive(true);
-            lastSyncedSprite = spriteRenderer.sprite;
-        }
+        // No overlay creation: visual feedback is applied by tinting the main SpriteRenderer.
         originalScale = transform.localScale;
         // Ensure a Collider2D exists - some objects may have lost it and Unity will warn about RequiredComponent
         var col = GetComponent<Collider2D>();
@@ -179,51 +127,18 @@ public abstract class InteractableBase : MonoBehaviour, IInteractable
     public void OnProximityEnter()
     {
         isPlayerNearby = true;
-        if (useHighlightOverlay && highlightRenderer != null)
+        if (spriteRenderer != null)
         {
-            // torna o overlay visível com a cor configurada
-            if (highlightRenderer.material != null && highlightRenderer.material.HasProperty("_Color"))
-            {
-                var c = new Color(highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a);
-                highlightRenderer.material.SetColor("_Color", c);
-            }
-            else
-            {
-                highlightRenderer.color = highlightColor;
-            }
-            highlightRenderer.transform.localScale = Vector3.one * highlightScale;
-        }
-        else
-        {
-            if (spriteRenderer != null)
-            {
-                spriteRenderer.color = proximityHighlightColor;
-            }
+            spriteRenderer.color = proximityHighlightColor;
         }
     }
 
     public void OnProximityExit()
     {
         isPlayerNearby = false;
-        if (useHighlightOverlay && highlightRenderer != null)
+        if (spriteRenderer != null)
         {
-            // Esconde o overlay (faz transparente)
-            if (highlightRenderer.material != null && highlightRenderer.material.HasProperty("_Color"))
-            {
-                var c = new Color(highlightColor.r, highlightColor.g, highlightColor.b, 0f);
-                highlightRenderer.material.SetColor("_Color", c);
-            }
-            else
-            {
-                highlightRenderer.color = new Color(highlightColor.r, highlightColor.g, highlightColor.b, 0f);
-            }
-        }
-        else
-        {
-            if (spriteRenderer != null)
-            {
-                spriteRenderer.color = originalColor;
-            }
+            spriteRenderer.color = originalColor;
         }
         // Garante que a escala volte ao normal se o jogador se afastar enquanto o mouse está sobre o objeto
         transform.localScale = originalScale;
@@ -267,16 +182,7 @@ public abstract class InteractableBase : MonoBehaviour, IInteractable
 
     private void Update()
     {
-        // Sincroniza sprite do highlight se o sprite principal mudar em runtime
-        if (useHighlightOverlay && highlightRenderer != null && spriteRenderer != null)
-        {
-            var s = spriteRenderer.sprite;
-            if (s != lastSyncedSprite)
-            {
-                highlightRenderer.sprite = s;
-                lastSyncedSprite = s;
-            }
-        }
+        // No runtime sync required for overlay-less tint approach
     }
 }
 

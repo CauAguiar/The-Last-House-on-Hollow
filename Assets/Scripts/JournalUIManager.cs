@@ -98,7 +98,17 @@ public class JournalUIManager : MonoBehaviour
 #endif
 
         if (openPressed)
-            ToggleJournal();
+        {
+            // If any UI has blocked input, don't open the journal from shortcut
+            if (!journalPanel.activeSelf && UIInputBlocker.IsBlocked)
+            {
+                // Ignora atalho enquanto outra UI modal está aberta
+            }
+            else
+            {
+                ToggleJournal();
+            }
+        }
 
         // Diagnostic: when left mouse clicked, log which UI element is under pointer
 #if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER

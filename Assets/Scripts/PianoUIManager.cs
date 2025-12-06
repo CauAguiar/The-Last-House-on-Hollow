@@ -21,14 +21,8 @@ public class PianoUIManager : MonoBehaviour
     [Header("Referências da UI")]
     [SerializeField] private GameObject pianoPanel;
     [SerializeField] private Button closeButton;
-    [SerializeField] private Button resetButton;
-    [SerializeField] private TextMeshProUGUI feedbackText;
-    [SerializeField] private TextMeshProUGUI sequenceDisplayText; // Mostra a sequência atual
+    // UI fields removed: resetButton, feedbackText, sequenceDisplayText
     
-    [Header("Feedback Visual")]
-    [SerializeField] private Color correctColor = Color.green;
-    [SerializeField] private Color incorrectColor = Color.red;
-    [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private float feedbackDuration = 2f;
     [Header("Áudio")]
     [SerializeField] private string successSfxName = ""; // SFX tocado ao completar a sequência
@@ -87,10 +81,7 @@ public class PianoUIManager : MonoBehaviour
             closeButton.onClick.AddListener(ClosePuzzle);
         }
         
-        if (resetButton != null)
-        {
-            resetButton.onClick.AddListener(ResetSequence);
-        }
+        // resetButton removed: no listener to register
     }
     
     private void Start()
@@ -116,7 +107,6 @@ public class PianoUIManager : MonoBehaviour
     {
         if (isSolved)
         {
-            ShowFeedback("O piano já foi resolvido!", normalColor, 2f);
             return;
         }
         
@@ -154,8 +144,6 @@ public class PianoUIManager : MonoBehaviour
         GamePauseManager.Pause("PianoPuzzle");
         
         UpdateSequenceDisplay();
-        ShowFeedback("Toque a sequência correta de notas.", normalColor, 3f);
-        // Debug: log key order by position so we can verify mapping
         LogPianoKeyOrder();
         RemapKeysIfInverted();
         // Ensure close button is enabled unless we are processing (blocking)
@@ -295,8 +283,6 @@ public class PianoUIManager : MonoBehaviour
     {
         if (isProcessing && isSolved && !force)
         {
-            // While success processing is running, prevent the player from closing the puzzle
-            ShowFeedback("Aguarde...", normalColor, 1f);
             return;
         }
         if (pianoPanel != null)
@@ -341,11 +327,7 @@ public class PianoUIManager : MonoBehaviour
             if (key != null)
             {
                 // While processing (a reset is in progress), do not allow green feedback.
-                // Always flash incorrect so the player knows the sequence is locked
-                float flashDuration = feedbackDuration;
-                if (key.Type == PianoKey.KeyType.Black)
-                    flashDuration = key.PressedDuration;
-                key.FlashColor(incorrectColor, flashDuration);
+                // No visual feedback for errors while processing.
             }
 
             return;
@@ -380,33 +362,12 @@ public class PianoUIManager : MonoBehaviour
         if (!IsSequenceCorrectSoFar())
         {
             // Sequência incorreta
-            // Mostra feedback direto na tecla (vermelho)
-            if (key != null)
-            {
-                float flashDuration = feedbackDuration;
-                if (key.Type == PianoKey.KeyType.Black)
-                    flashDuration = key.PressedDuration;
-
-                // Reset sequence immediately so any subsequent click is treated as a fresh start.
-                ResetSequence();
-
-                // Still flash the wrong key for visual feedback (after reset)
-                key.FlashColor(incorrectColor, flashDuration);
-            }
-            // Show UI feedback but do not delay reset (we already cleared the sequence)
-            if (allowResetOnError)
-            {
-                ShowFeedback("Sequência incorreta! Resetando...", incorrectColor, feedbackDuration);
-            }
+            // Sequência incorreta: apenas reseta a sequência sem feedback visual.
+            ResetSequence();
         }
         else if (currentSequence.Count == correctSequence.Count)
         {
-            // Sequência completa e correta!
-            // Mostra feedback direto na tecla (verde) e mantém a cor até reset
-            if (key != null)
-            {
-                key.SetPersistentColor(correctColor);
-            }
+            // Sequência completa e correta! (feedback textual apenas)
             // Toca som de sucesso, se configurado
             if (!string.IsNullOrEmpty(successSfxName) && AudioManager.Instance != null)
             {
@@ -418,11 +379,7 @@ public class PianoUIManager : MonoBehaviour
         }
         else
         {
-            // Correto até aqui — pinta a tecla de verde e mantém a cor
-            if (key != null)
-            {
-                key.SetPersistentColor(correctColor);
-            }
+            // Correto até aqui — feedback textual apenas; não alteramos a cor da tecla
         }
     }
     
@@ -478,18 +435,9 @@ public class PianoUIManager : MonoBehaviour
     private IEnumerator HandleIncorrectSequence()
     {
         isProcessing = true;
-        
-        
-        // Mostra feedback
-        ShowFeedback("Sequência incorreta! Resetando...", incorrectColor, feedbackDuration);
-
-        // Aguarda o tempo de feedback para que a cor vermelha seja exibida
-        // Adiciona um pequeno intervalo extra para garantir que o flash tenha terminado
-        yield return new WaitForSecondsRealtime(feedbackDuration + 0.05f);
-
-        // Depois que o feedback foi exibido, reseta a sequência
+        // Apenas espera um pequeno intervalo para manter consistência com processamento
+        yield return null;
         ResetSequence();
-        
         isProcessing = false;
     }
     
@@ -502,8 +450,8 @@ public class PianoUIManager : MonoBehaviour
         isSolved = true;
         
         
-        // Mostra feedback
-        ShowFeedback("Sequência correta! O piano se abre...", correctColor, feedbackDuration);
+        // Mostra feedback (sucesso)
+        ShowFeedback("Sequência correta! O piano se abre...", Color.white, feedbackDuration);
         
         yield return new WaitForSecondsRealtime(feedbackDuration);
         
@@ -575,21 +523,7 @@ public class PianoUIManager : MonoBehaviour
     /// </summary>
     private void UpdateSequenceDisplay()
     {
-        if (sequenceDisplayText != null)
-        {
-            string display = "Sequência: ";
-            if (currentSequence.Count == 0)
-            {
-                display += "-";
-            }
-            else
-            {
-                display += string.Join(", ", currentSequence);
-            }
-            
-            display += $" ({currentSequence.Count}/{correctSequence.Count})";
-            sequenceDisplayText.text = display;
-        }
+        // sequenceDisplayText removed: no UI sequence display to update
     }
     
     /// <summary>
@@ -597,19 +531,8 @@ public class PianoUIManager : MonoBehaviour
     /// </summary>
     private void ShowFeedback(string message, Color color, float duration)
     {
-        if (feedbackText != null)
-        {
-            feedbackText.text = message;
-            feedbackText.color = color;
-            
-            // Cancela corrotina anterior se existir
-            if (feedbackCoroutine != null)
-            {
-                StopCoroutine(feedbackCoroutine);
-            }
-            
-            feedbackCoroutine = StartCoroutine(ClearFeedbackAfterDelay(duration));
-        }
+        // feedbackText removed: no onscreen textual feedback in this manager anymore.
+        // Kept method as a no-op to avoid changing many call sites.
     }
     
     /// <summary>
@@ -618,11 +541,7 @@ public class PianoUIManager : MonoBehaviour
     private IEnumerator ClearFeedbackAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-        
-        if (feedbackText != null)
-        {
-            feedbackText.text = "";
-        }
+        // no-op: feedbackText removed
     }
     
     /// <summary>

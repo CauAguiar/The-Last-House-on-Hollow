@@ -243,6 +243,11 @@ public class QuickAccessButtons : MonoBehaviour
 
         if (inventoryUI != null)
         {
+            // Do not open inventory if another UI has blocked input
+            if (!inventoryUI.IsInventoryOpen() && UIInputBlocker.IsBlocked)
+            {
+                return;
+            }
             if (inventoryUI.IsInventoryOpen())
                 inventoryUI.CloseInventory();
             else
@@ -261,6 +266,11 @@ public class QuickAccessButtons : MonoBehaviour
 
         if (journalUI != null)
         {
+            // Prevent opening via quick button when another modal UI is blocking input
+            if (!journalUI.journalPanel.activeSelf && UIInputBlocker.IsBlocked)
+            {
+                return;
+            }
             journalUI.ToggleJournal();
         }
     }
@@ -270,6 +280,11 @@ public class QuickAccessButtons : MonoBehaviour
         Debug.Log("QuickAccessButtons: OnTomeButtonClicked called");
         if (tomoUI != null)
         {
+            // Prevent opening the Tome when another UI is blocking input
+            if (!tomoUI.IsTomeOpen() && UIInputBlocker.IsBlocked)
+            {
+                return;
+            }
             Debug.Log("QuickAccessButtons: OnTomeButtonClicked -> tomoUI.Toggle()");
             tomoUI.Toggle();
         }
