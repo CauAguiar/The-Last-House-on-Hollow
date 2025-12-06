@@ -29,10 +29,9 @@ Para escapar, o jogador deve investigar os cômodos da mansão, reunir as págin
 
 * **WASD / Setas:** Movimentação do personagem.
 * **Shift:** Correr.
-* **E / Botão Esquerdo do Mouse:** Interagir com objetos e avançar diálogos.
+* **Botão Esquerdo do Mouse:** Interagir com objetos e avançar diálogos.
 * **I:** Abrir/Fechar Inventário.
 * **J:** Abrir/Fechar Diário (Leitura de documentos).
-* **ESC:** Pausar o jogo.
 
 ## Instalação e Desenvolvimento
 
@@ -47,11 +46,6 @@ Este projeto foi desenvolvido utilizando a Unity Engine. Para executar o código
 ## Créditos e Equipe
 
 Este jogo foi desenvolvido como parte de um projeto acadêmico.
-
-* **Game Design & Programação:** Guilherme Dias Sousa
-* **Arte & Animação:** [Nome dos Integrantes]
-* **Roteiro & Narrativa:** [Nome dos Integrantes]
-* **Sonoplastia:** [Nome dos Integrantes]
 
 Equipe Completa: Cauê Rodrigues de Aguiar, Lívia Evily de Araújo Rocha, Guilherme Dias Sousa, Gustavo Públio Magalhães.
 
